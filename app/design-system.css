@@ -1,0 +1,885 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   DCW DESIGN SYSTEM — single source of truth
+
+   globals.css grew as nine appended correction passes. The measured result:
+   four :root blocks (two redefining the same names to different values),
+   three competing type scales, 113 hex literals against 12 tokens, 38 font
+   sizes, 26 radii and 32 one-off shadows. Nothing below is new decoration —
+   it is the one authoritative layer those passes were each approximating.
+
+   Loaded after globals.css, so equal-specificity rules here win. Selectors
+   are scoped to .app to keep the console (app/admin) out of scope.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Lato carries the headings and Open Sans the running text — the pairing the
+   Allen coaching material uses: humanist, high x-height, authoritative at
+   weight without turning literary. Devanagari is loaded for the Hindi strings
+   in the ticker and job copy, which were falling back to a system face. */
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Open+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
+
+:root{
+  /* ── TYPE ────────────────────────────────────────────────────────────────
+     One scale, ratio ~1.2 off a 16px base. 12px is the floor: the audit found
+     live text at 7px (mobile nav), 10.5px and 11.5px, none of it legible on a
+     phone held at arm's length. */
+  --font-display:Lato,'Segoe UI',system-ui,sans-serif;
+  --font-body:'Open Sans','Noto Sans Devanagari',system-ui,sans-serif;
+  --font-num:'Open Sans',ui-monospace,system-ui,sans-serif;
+
+  --fs-100:12px;    /* legal, timestamps, table meta — hard floor */
+  --fs-200:13px;    /* dense UI: chips, tags, captions */
+  --fs-300:14px;    /* controls, nav, buttons */
+  --fs-400:16px;    /* body */
+  --fs-500:18px;    /* lead paragraph */
+  --fs-600:21px;    /* h4 / card title */
+  --fs-700:26px;    /* h3 */
+  --fs-800:32px;    /* h2 */
+  --fs-900:40px;    /* h1 on interior pages */
+  --fs-display:clamp(38px,4.4vw,60px);
+
+  --lh-tight:1.12;  /* display */
+  --lh-snug:1.28;   /* headings */
+  --lh-body:1.6;    /* running text */
+  --lh-ui:1.35;
+
+  --tr-display:-.022em;  /* Lato needs a little negative tracking at size */
+  --tr-body:0;
+  --tr-caps:.07em;       /* eyebrows/kickers only */
+
+  /* ── SPACE ───────────────────────────────────────────────────────────────
+     4px base. The audit found 69 distinct padding values and 30 gap values;
+     that arbitrariness is what reads as "spacing is too much" — it is not
+     uniformly large, it is unrhythmic. */
+  --s-1:4px;  --s-2:8px;  --s-3:12px; --s-4:16px; --s-5:24px;
+  --s-6:32px; --s-7:48px; --s-8:64px; --s-9:96px;
+
+  /* Section rhythm: two beats, not one. Every band being --s-9 is what makes
+     a long page feel padded out rather than composed. */
+  --band:clamp(48px,6vw,80px);
+  --band-tight:clamp(32px,4vw,52px);
+
+  /* ── RADIUS ──────────────────────────────────────────────────────────────
+     A hierarchy, so nesting reads as nesting. Replaces 26 ad-hoc values. */
+  --r-1:6px;    /* chips, tags, swatches */
+  --r-2:10px;   /* controls: inputs, buttons */
+  --r-3:14px;   /* cards */
+  --r-4:20px;   /* panels, drawers */
+  --r-5:28px;   /* hero surfaces */
+  --r-pill:999px;
+
+  /* ── ELEVATION ───────────────────────────────────────────────────────────
+     Two shadows per step, always: a tight contact shadow that anchors the
+     object to the surface, and a wide ambient one that gives it mass. The
+     old sheet used single 100px blurs, which read as fog rather than height. */
+  --e-0:none;
+  --e-1:0 1px 2px rgb(11 21 38/.06), 0 1px 1px rgb(11 21 38/.04);
+  --e-2:0 2px 4px rgb(11 21 38/.06), 0 4px 10px rgb(11 21 38/.06);
+  --e-3:0 4px 8px rgb(11 21 38/.07), 0 10px 24px rgb(11 21 38/.08);
+  --e-4:0 8px 16px rgb(11 21 38/.08), 0 20px 44px rgb(11 21 38/.10);
+  --e-5:0 14px 28px rgb(11 21 38/.10), 0 34px 76px rgb(11 21 38/.14);
+
+  /* Light comes from above, so a raised surface catches it on its top edge.
+     This one line does more for perceived depth than any blur radius. */
+  --edge-top:inset 0 1px 0 rgb(255 255 255/.62);
+  --edge-top-dark:inset 0 1px 0 rgb(255 255 255/.10);
+
+  /* ── MOTION ──────────────────────────────────────────────────────────────
+     Bands from HUMAN-OS §14, distance-weighted. */
+  --t-instant:90ms;
+  --t-micro:150ms;
+  --t-comp:230ms;
+  --t-spatial:380ms;
+  --ease-out:cubic-bezier(.22,1,.36,1);
+  --ease-std:cubic-bezier(.4,0,.2,1);
+  --ease-spring:cubic-bezier(.34,1.42,.44,1);
+
+  /* ── NEUTRALS ────────────────────────────────────────────────────────────
+     A single ramp. --ink-1 through --ink-4 are text; --n-* are surfaces. */
+  --ink-1:#0B1526;  /* headings */
+  --ink-2:#243449;  /* body */
+  --ink-3:#4E6076;  /* secondary — 7.0:1 on white */
+  --ink-4:#627084;  /* metadata — measured 5.04:1 on white, 4.53:1 on --n-2;
+                       the lightest text the system allows anywhere */
+  --n-0:#FFFFFF;
+  --n-1:#F8F9FB;    /* page canvas */
+  --n-2:#F1F3F7;    /* recessed wells */
+  --n-3:#E4E8EF;    /* hairlines on tinted ground */
+  --line:#DDE3EC;
+
+  /* ── SEMANTIC ────────────────────────────────────────────────────────────
+     Each pairs an AA-safe ink with a wash, and every use carries an icon or
+     a word as well — colour never states anything on its own. */
+  --ok:#0F6B52;      --ok-wash:#E4F4EE;
+  --warn:#8A5300;    --warn-wash:#FDF3E2;
+  --danger:#A0201A;  --danger-wash:#FCEBEA;
+  --info:#1B4B8F;    --info-wash:#EAF1FB;
+}
+
+/* ── DEPTH: glass has to earn it ─────────────────────────────────────────────
+   Translucency is for surfaces that float over content and need to show what
+   they are covering: the masthead, the search overlay, the hero panels. It is
+   not applied to cards, tables or forms, where it only costs legibility and
+   compositing cost. */
+.app .glass{
+  background:color-mix(in srgb,var(--n-0) 74%,transparent);
+  backdrop-filter:blur(20px) saturate(150%);
+  -webkit-backdrop-filter:blur(20px) saturate(150%);
+  border:1px solid rgb(255 255 255/.55);
+  box-shadow:var(--e-3),var(--edge-top);
+}
+.app .glass-dark{
+  background:color-mix(in srgb,var(--ink-1) 46%,transparent);
+  backdrop-filter:blur(22px) saturate(140%);
+  -webkit-backdrop-filter:blur(22px) saturate(140%);
+  border:1px solid rgb(255 255 255/.14);
+  box-shadow:var(--e-4),var(--edge-top-dark);
+}
+/* No backdrop-filter (Firefox default, older Safari): fall back to an opaque
+   surface rather than an unreadable transparent one. */
+@supports not (backdrop-filter:blur(1px)){
+  .app .glass{background:color-mix(in srgb,var(--n-0) 96%,transparent)}
+  .app .glass-dark{background:color-mix(in srgb,var(--ink-1) 88%,transparent)}
+}
+
+/* ═══ TYPOGRAPHY ══════════════════════════════════════════════════════════ */
+
+.app{font-family:var(--font-body);font-size:var(--fs-400);line-height:var(--lh-body);color:var(--ink-2);
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+
+.app h1,.app h2,.app h3,.app h4,.app .display{
+  font-family:var(--font-display);font-weight:900;color:var(--ink-1);
+  line-height:var(--lh-snug);letter-spacing:var(--tr-display);margin:0 0 var(--s-3)}
+.app h1{font-size:var(--fs-900)}
+.app h2{font-size:var(--fs-800)}
+.app h3{font-size:var(--fs-700)}
+.app h4{font-size:var(--fs-600);font-weight:700}
+.app p{margin:0 0 var(--s-4);max-width:68ch}   /* measure, not full-bleed prose */
+.app .lead{font-size:var(--fs-500);color:var(--ink-2);line-height:1.52}
+
+/* The hero display line. The old sheet set 1.03 leading, which collided the
+   two lines' ascenders and descenders at every viewport above 1200px. */
+.app .hero-copy h1{
+  font-family:var(--font-display);font-size:var(--fs-display);font-weight:900;
+  line-height:1.06;letter-spacing:-.028em;margin-bottom:var(--s-4)}
+
+/* The second line was Source Serif 4 italic — a literary voice that belongs to
+   neither the Allen direction nor the three verticals it renders across. The
+   contrast now comes from weight and the vertical's own spark colour, which
+   holds up on the photographic hero where a thin serif was disappearing. */
+.app .hero-copy h1 em{
+  font-family:var(--font-display);font-style:normal;font-weight:400;
+  color:var(--spark-lift,#F7D98C);letter-spacing:-.02em}
+
+/* Eyebrows/kickers: caps need tracking and a floor, and they were sitting at
+   10.5–11.5px across the site. */
+.app .kicker,.app .eyebrow,.app .adm-nav-label{
+  font-family:var(--font-body);font-size:var(--fs-100)!important;font-weight:700;
+  letter-spacing:var(--tr-caps);text-transform:uppercase;line-height:var(--lh-ui)}
+
+/* Aligned digits wherever numbers are read down a column or compared. */
+.app .proof b,.app .stat-n,.app .fee-table span,.app .fact-grid b,
+.app .entity-stats b,.app table td,.app .metric{
+  font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+/* Metadata floor. Nothing in the interface goes below 12px — the mobile tab
+   bar was at 7px, which is smaller than the legal print on a train ticket. */
+.app small,.app .meta,.app figcaption{font-size:var(--fs-100);line-height:var(--lh-ui)}
+.app .mobile-nav button{font-size:var(--fs-100)!important;gap:var(--s-1)}
+.app .mobile-nav button svg{width:21px;height:21px}
+.app .verticals button small{font-size:var(--fs-100)!important;opacity:.78}
+.app .ticker span{font-size:var(--fs-100);letter-spacing:.04em}
+.app .ticker,.app .ticker small{font-size:var(--fs-200)}
+.app .intent-chips span,.app .intent-chips button,.app .footer button,
+.app .tags span,.app .entity-card small{font-size:var(--fs-200)}
+
+/* 16px on fields — anything smaller makes iOS Safari zoom the page on focus. */
+.app input,.app select,.app textarea{font-size:16px;font-family:var(--font-body)}
+
+/* ═══ BUTTONS ═════════════════════════════════════════════════════════════
+   The old system had five loosely-related variants at 11px/weight-800 with a
+   decorative sheen sweep that later passes had already switched off in half
+   the contexts. This is a variant × size matrix with every state defined.   */
+
+.app .btn{
+  font-family:var(--font-body);font-size:var(--fs-300);font-weight:700;letter-spacing:0;
+  min-height:44px;                       /* WCAG 2.5.8 target size */
+  padding-inline:var(--s-5);
+  border-radius:var(--r-2);border:1px solid transparent;
+  display:inline-flex;align-items:center;justify-content:center;gap:var(--s-2);
+  position:relative;isolation:isolate;white-space:nowrap;
+  transition:transform var(--t-micro) var(--ease-out),
+             box-shadow var(--t-comp) var(--ease-out),
+             background-color var(--t-micro) var(--ease-std),
+             border-color var(--t-micro) var(--ease-std);
+}
+.app .btn svg{width:17px;height:17px;flex:none}
+
+/* Tactile primary: a solid face over a darker bottom edge, so the control has
+   a side you can see. Pressing collapses the edge and drops the face by the
+   same distance — the button travels rather than just changing colour. */
+.app .btn.primary{
+  background:var(--accent-ink,var(--accent,#0B4DA8));color:#fff;
+  box-shadow:
+    0 3px 0 color-mix(in srgb,var(--accent-deep,#07356F) 90%,#000),
+    var(--e-3),
+    var(--edge-top-dark);
+}
+.app .btn.primary:hover:not(:disabled){
+  transform:translateY(-1px);
+  box-shadow:0 4px 0 color-mix(in srgb,var(--accent-deep,#07356F) 90%,#000),var(--e-4),var(--edge-top-dark)}
+.app .btn.primary:active:not(:disabled){
+  transform:translateY(3px);
+  box-shadow:0 0 0 color-mix(in srgb,var(--accent-deep,#07356F) 90%,#000),var(--e-1),var(--edge-top-dark);
+  transition-duration:var(--t-instant)}
+
+.app .btn.outline{
+  background:var(--n-0);color:var(--ink-1);border-color:var(--line);box-shadow:var(--e-1)}
+.app .btn.outline:hover:not(:disabled){
+  border-color:var(--accent-ink,var(--accent));background:var(--wash,var(--n-1));
+  transform:translateY(-1px);box-shadow:var(--e-2)}
+.app .btn.outline:active:not(:disabled){transform:translateY(1px);box-shadow:none}
+
+.app .btn.light{background:var(--n-0);color:var(--ink-1);box-shadow:var(--e-2),var(--edge-top)}
+.app .btn.light:hover:not(:disabled){transform:translateY(-1px);box-shadow:var(--e-3),var(--edge-top)}
+
+/* Ghost sits on photography, so it needs its own contrast floor rather than
+   relying on whatever is behind it. The audit measured the hero's secondary
+   button at 1:1 against its backdrop. */
+.app .btn.ghost{
+  background:rgb(11 21 38/.42);color:#fff;border-color:rgb(255 255 255/.42);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  box-shadow:var(--e-2),var(--edge-top-dark)}
+.app .btn.ghost:hover:not(:disabled){
+  background:rgb(11 21 38/.58);border-color:rgb(255 255 255/.72);transform:translateY(-1px)}
+.app .btn.ghost:active:not(:disabled){transform:translateY(1px)}
+
+.app .btn.danger{background:var(--danger);color:#fff;
+  box-shadow:0 3px 0 #6E1512,var(--e-3),var(--edge-top-dark)}
+.app .btn.danger:active:not(:disabled){transform:translateY(3px);box-shadow:0 0 0 #6E1512,var(--e-1)}
+
+.app .btn.quiet{background:transparent;color:var(--accent-ink,var(--accent));border-color:transparent}
+.app .btn.quiet:hover:not(:disabled){background:var(--wash,var(--n-2))}
+
+/* Sizes */
+.app .btn.small{min-height:36px;padding-inline:var(--s-4);font-size:var(--fs-200)}
+.app .btn.large{min-height:52px;padding-inline:var(--s-6);font-size:var(--fs-400)}
+.app .btn.full{width:100%}
+.app .btn.icon{padding-inline:0;width:44px;min-height:44px}
+
+/* States */
+.app .btn:disabled{opacity:.45;cursor:not-allowed;
+  transform:none!important;box-shadow:var(--e-0)!important;filter:none!important}
+.app .btn[aria-busy="true"]{cursor:progress;pointer-events:none}
+.app .btn[aria-busy="true"]:after{
+  content:"";width:15px;height:15px;border-radius:50%;flex:none;
+  border:2px solid currentColor;border-top-color:transparent;opacity:.85;
+  animation:dcw-spin 620ms linear infinite}
+
+/* The decorative sheen sweep the old sheet ran across every button on hover
+   answered none of the questions motion exists to answer. Retired. */
+.app .btn:before,.app .talk:before,.app .entity-foot button:before{display:none!important}
+
+/* Focus: one ring, drawn outside the control, visible on light and dark. */
+.app :focus-visible{
+  outline:3px solid var(--accent-ink,var(--accent,#0B4DA8));
+  outline-offset:2px;border-radius:inherit}
+.app .hero :focus-visible,.app .glass-dark :focus-visible,.app .footer :focus-visible{
+  outline-color:#fff}
+
+/* ═══ SURFACES & DEPTH ════════════════════════════════════════════════════ */
+
+.app .entity-card,.app .cat-card,.app .side-card,.app .section-plate,
+.app .proof-cards button,.app .question button{
+  background:var(--n-0);border:1px solid var(--line);border-radius:var(--r-3);
+  box-shadow:var(--e-1);
+  transition:transform var(--t-comp) var(--ease-out),
+             box-shadow var(--t-comp) var(--ease-out),
+             border-color var(--t-micro) var(--ease-std)}
+
+/* Hover lifts the card and tips its far edge a degree away from the viewer.
+   The rotation is small enough to read as the object catching light rather
+   than as an effect, and the raised shadow does the rest of the work. */
+.app .card-3d,.app .entity-card,.app .cat-card{transform-style:preserve-3d}
+.app .entity-card:hover,.app .cat-card:hover,.app .proof-cards button:hover,
+.app .question button:hover{
+  transform:translateY(-4px) perspective(900px) rotateX(1.2deg);
+  box-shadow:var(--e-4);
+  border-color:color-mix(in srgb,var(--accent) 32%,var(--line))}
+
+/* Cards in a row must line up across the row. The audit found the institution
+   grid breaking alignment whenever a name wrapped to two lines: every stat row
+   and footer below it shifted down independently of its neighbours. */
+.app .entity-card{display:flex;flex-direction:column}
+.app .entity-card .entity-top{min-height:72px}
+.app .entity-foot{margin-top:auto}
+
+/* ═══ SPACING RHYTHM ══════════════════════════════════════════════════════
+   The complaint was "spacing is too much". Measured, the problem is that it is
+   unrhythmic — 69 padding values, bands all the same height — so the eye reads
+   drift rather than structure. Two alternating beats fix it. */
+/* ── SECTION RHYTHM ───────────────────────────────────────────────────────
+   The old rule keyed the band off adjacency: first section wide, every
+   following one tight. Adjacency is a proxy for nothing, and the page it
+   produced was one wide beat followed by three identical tight ones — an
+   exception, then monotony.
+
+   Key it off what actually separates two sections instead. A tonal band
+   (.wash, .ink) carries its own edges, so the colour change does the dividing
+   and the padding can be tight. Two white sections in a row have nothing but
+   their padding between them, so that padding has to do the whole job.
+
+   Read down the home page it now goes wide · tight · tight · wide, which is a
+   rhythm, and it takes air out of exactly the bands the "spacing is too much"
+   note was pointing at rather than flattening everything. */
+.app section.section,.app .detail-section{padding-block:var(--band)}
+.app section.section.wash,.app section.section.ink{padding-block:var(--band-tight)}
+.app .section-title{margin-bottom:var(--s-5)}
+.app .section-title h2{margin-bottom:var(--s-1)}
+.app .hero-copy>*+*{margin-top:var(--s-4)}
+.app .hero-ctas{gap:var(--s-3)}
+.app .container>.page-head{padding-block:var(--band-tight)}
+
+/* ═══ INFOGRAPHIC — hero stat strip ═══════════════════════════════════════
+   Three numbers with hairline dividers is a caption, not an infographic. Each
+   figure now carries an icon for what it counts, a magnitude bar that encodes
+   the value against its own ceiling, and a short note giving the number a
+   reference point. The bar is the only new ink; it is what makes the three
+   comparable at a glance instead of read one at a time. */
+.app .proof{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;
+  border-radius:var(--r-4);padding:var(--s-2);overflow:hidden}
+.app .proof button{
+  display:grid;grid-template-areas:"icon num" "icon label" "bar bar" "note note";
+  grid-template-columns:auto 1fr;
+  align-items:center;gap:2px var(--s-3);
+  padding:var(--s-4) var(--s-4);text-align:left;min-width:0;
+  background:none;border:0;border-right:1px solid rgb(255 255 255/.14);
+  border-radius:var(--r-3);color:#fff;
+  transition:background var(--t-micro) var(--ease-std)}
+.app .proof button:last-child{border-right:0}
+.app .proof button:hover{background:rgb(255 255 255/.09)}
+
+.app .proof .stat-i{
+  grid-area:icon;width:38px;height:38px;border-radius:var(--r-2);display:grid;place-items:center;
+  background:rgb(255 255 255/.13);box-shadow:var(--edge-top-dark);flex:none}
+.app .proof .stat-i svg{width:19px;height:19px;color:var(--spark-lift,#F7D98C)}
+
+.app .proof b{grid-area:num;font-family:var(--font-display);font-weight:900;
+  font-size:var(--fs-700);line-height:1.05;letter-spacing:-.02em;color:#fff}
+.app .proof small{grid-area:label;font-size:var(--fs-200);color:rgb(255 255 255/.78);
+  font-weight:600;line-height:1.2}
+
+/* Magnitude. --fill is set per stat in the markup; the track is always full
+   width so the three bars share one baseline and one ceiling. */
+.app .proof .stat-bar{
+  grid-area:bar;margin-top:var(--s-3);height:5px;border-radius:var(--r-pill);
+  background:rgb(255 255 255/.16);overflow:hidden;position:relative}
+.app .proof .stat-bar:after{
+  content:"";position:absolute;inset:0 auto 0 0;width:var(--fill,60%);
+  border-radius:var(--r-pill);
+  /* The old fill faded to near-white at its right end, which made a bar at
+     100% read as roughly half full. Hold the value colour across the whole
+     fill and let the highlight sit at the leading edge only. */
+  background:linear-gradient(90deg,color-mix(in srgb,var(--spark,#F5C93B) 88%,#fff),var(--spark,#F5C93B));
+  box-shadow:0 0 12px color-mix(in srgb,var(--spark,#F5C93B) 55%,transparent);
+  transform-origin:left;animation:dcw-fill var(--t-spatial) var(--ease-out) both}
+.app .proof .stat-note{
+  grid-area:note;margin-top:var(--s-2);font-size:var(--fs-100);font-weight:600;
+  color:rgb(255 255 255/.66);display:flex;align-items:center;gap:5px}
+.app .proof .stat-note svg{width:13px;height:13px;flex:none}
+
+@keyframes dcw-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes dcw-spin{to{transform:rotate(360deg)}}
+
+@media(max-width:900px){
+  .app .proof{grid-template-columns:minmax(0,1fr)}
+  .app .proof button{border-right:0;border-bottom:1px solid rgb(255 255 255/.14)}
+  .app .proof button:last-child{border-bottom:0}
+}
+
+/* ═══ CONTRAST CORRECTIONS ════════════════════════════════════════════════
+   Measured on the live page against their real backgrounds: the jobs accent
+   #E2760F is 2.82:1 on white and 3.07:1 carrying white text — both below AA
+   for the sizes they were used at. --accent stays the brand colour for fills
+   and rules; --accent-ink is the darkened variant used wherever it is text. */
+.app .kicker,.app .eyebrow,.app .text-btn,.app .section-title>button,
+.app .filter-title button,.app .stepper button.active,.app .mobile-nav button.active,
+.app .verified,.app a{color:var(--accent-ink,var(--accent))}
+
+/* On the photographic hero the eyebrow was accent-on-dark-photo. Lift it to
+   the vertical's spark, which is chosen to sit on the dark plate. */
+.app .hero .eyebrow{color:var(--spark-lift,#F7D98C)}
+
+/* Search submit inside the hero: white on raw accent measured 3.07:1. */
+.app .hero-search b{background:var(--accent-ink,var(--accent));color:#fff;
+  border-radius:var(--r-2);box-shadow:var(--e-2),var(--edge-top-dark)}
+
+.app .entity-mark{background:var(--wash);color:var(--accent-ink,var(--accent));
+  font-weight:700;font-family:var(--font-display)}
+
+@media(prefers-reduced-motion:reduce){
+  .app *,.app *:before,.app *:after{
+    animation-duration:1ms!important;animation-iteration-count:1!important;
+    transition-duration:1ms!important;scroll-behavior:auto!important}
+  .app .entity-card:hover,.app .cat-card:hover{transform:none}
+}
+
+/* ═══ INHERITANCE CORRECTIONS ═════════════════════════════════════════════
+   Setting a colour on .app h1 overrides the colour these blocks inherit from
+   their dark parent. Restate it where the surface is dark. */
+.app .hero-copy h1,.app .hero-copy h2,.app .hero-copy p,
+.app .glass-dark h1,.app .glass-dark h2,.app .glass-dark h3,
+.app .footer h1,.app .footer h2,.app .footer h3,.app .footer h4,
+.app .decision h2,.app .decision h3,.app .band-dark h2,.app .band-dark h3{color:#fff}
+.app .hero-copy>p{color:rgb(255 255 255/.82);font-size:var(--fs-500)}
+
+/* The display face is wider than the one it replaced, so the two-line hero
+   headline needs its ceiling lowered to keep both lines on the plate. */
+.app .hero h1{font-size:clamp(34px,3.9vw,54px);line-height:1.08;letter-spacing:-.028em;margin:0 0 var(--s-4)}
+
+/* Masthead wordmark: Lato sets wider than Manrope and the brand name was
+   breaking to three lines under 900px. */
+.app .brand b{font-family:var(--font-display);font-size:var(--fs-500);font-weight:900;
+  letter-spacing:-.02em;white-space:nowrap;line-height:1.15}
+.app .brand small{font-size:var(--fs-100);letter-spacing:.09em;color:var(--ink-4)}
+.app .verticals button span{font-family:var(--font-display);font-size:var(--fs-300);font-weight:700}
+
+/* ── NARROW-VIEWPORT MASTHEAD ─────────────────────────────────────────────
+   Below 1120px globals.css collapses the header to `auto 1fr auto`. An auto
+   track shrinks below max-content when the row runs short, so the brand box
+   measured 115px against a 180px nowrap wordmark and the overflow ran under
+   the vertical switcher. Measured intrinsic need for one row is 855px
+   (184 brand + 329 switcher + 252 actions + gaps + gutters), so hold the
+   single row until 900px and recompose below it — the wordmark keeps the
+   first row, the switcher gets its own scrollable row beneath. */
+@media(max-width:1120px){
+  .app .brand b{font-size:var(--fs-400);max-width:none;white-space:nowrap}
+}
+@media(max-width:900px){
+  .app>header{
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-areas:"brand actions" "verts verts";
+    /* two rows on a sticky bar costs vertical real estate on exactly the
+       devices with least of it — buy it back from the gaps, not the targets. */
+    height:auto;row-gap:var(--s-1);padding-block:var(--s-2);
+    column-gap:var(--s-3);align-items:center}
+  .app>header>.brand{grid-area:brand;min-width:0}
+  .app>header>.header-actions{grid-area:actions}
+  .app>header>.header-search{grid-area:search;display:none}
+  .app>header>.verticals{
+    grid-area:verts;justify-content:flex-start;
+    overflow-x:auto;overscroll-behavior-x:contain;
+    scrollbar-width:none;-ms-overflow-style:none;
+    /* the row is scrollable, so let it bleed to the viewport edges and pad
+       back in — a tab clipped mid-glyph reads as broken, a tab clipped at the
+       gutter reads as "there is more this way". */
+    margin-inline:calc(var(--s-4)*-1);padding-inline:var(--s-4)}
+  .app>header>.verticals::-webkit-scrollbar{display:none}
+  .app>header>.verticals button{flex:0 0 auto}
+}
+@media(max-width:480px){
+  .app .brand b{font-size:var(--fs-300);max-width:none;white-space:nowrap}
+  .app>header>.verticals{margin-inline:calc(var(--s-3)*-1);padding-inline:var(--s-3)}
+}
+
+/* ── CONTRAST CORRECTIONS (measured, not guessed) ─────────────────────────
+   A live sweep of every rendered text node against its composited background
+   found these below WCAG AA. Each fix names what it measured. */
+
+/* 1. Dark path cards rendered their own heading in --ink-1 — 1.15:1, which is
+      an invisible heading, not a low-contrast one. The card already declares
+      the right colour for its surface, so let the heading take it. */
+.app .path-card h1,.app .path-card h2,.app .path-card h3,.app .path-card h4{color:inherit}
+.app .path-card.p1 p,.app .path-card.p3 p{color:rgb(255 255 255/.86)}
+.app .path-card.p1>small,.app .path-card.p3>small{color:var(--spark-lift,#F7D98C)}
+
+/* 2. The hero search sits on 72%-white glass over the dark hero, so its label
+      composites onto ~#BABEC3 rather than white: --ink-3 measured 2.9:1. */
+.app .hero-search{color:var(--ink-2)}
+.app .hero-search span{color:var(--ink-2)}
+
+/* 3. Masthead sub-label: five sedimented passes left it at 9.5px→11px with
+      opacity .66, i.e. 11px at 4.26:1. Opacity is not a colour decision. */
+.app .vertical-brand small{
+  font-size:var(--fs-100)!important;opacity:1;color:var(--ink-3);
+  letter-spacing:.09em;font-weight:700}
+
+/* 4. Struck-through list price was rendering at 8.8px — below the 12px floor
+      the rest of the metadata holds to. */
+.app .mrp{font-size:var(--fs-100);color:var(--ink-4)}
+
+/* 5. Accent-as-text. Measured against white: distance 7.95:1, colleges 5.84:1,
+      jobs 3.07:1 — the orange alone fails. Rather than flatten all three to
+      their deep shade and lose two perfectly good brand voices, give the
+      system a text-safe accent and let jobs be the one that steps down. */
+.app{--accent-text:var(--accent)}
+.app-jobs{--accent-text:var(--accent-deep)}  /* 5.51:1 white, 4.99:1 on --wash */
+.app .kicker,
+.app .path-card>small,
+.app .header-actions .avatar,
+.app .section-title>button,
+.app .text-btn,
+.app .entity-mark,
+.app .stepper .active,
+.app .mobile-nav button.active{color:var(--accent-text)}
+.app .path-card.p1>small,.app .path-card.p3>small{color:var(--spark-lift,#F7D98C)}
+.app .path-card.p1 p,.app .path-card.p3 p{color:rgb(255 255 255/.94)}
+
+/* 6. The footer is a dark band, but `.brand small` was written for the light
+      masthead — the same rule put --ink-4 grey on near-black at 3.66:1. */
+.app .brand.inverse small{color:rgb(255 255 255/.74)}
+.app .footer-bottom,.app .footer-bottom span{color:rgb(255 255 255/.70)}
+
+/* ── MASTHEAD LOCKUP ──────────────────────────────────────────────────────
+   The footer carried the real client logo — the shield with the name set
+   inside it — while the header showed only the cropped graduate figure, so
+   the brand the client actually owns never appeared above the fold. The
+   header now carries the same asset.
+
+   The lockup is portrait (478×640 distance, 538×640 colleges, 620×640 jobs)
+   and already supplies its own white ground and outline, so it gets no tile:
+   a rounded white chip behind a rounded white badge just reads as a mistake.
+   Height is fixed and width follows the artwork, which keeps all three
+   verticals optically the same size without squashing any of them.
+   globals.css sets --logo-size with !important in six places; matching that
+   is the only way to reach it from here. */
+.app .vertical-logo.is-lockup{
+  --logo-size:54px!important;
+  width:auto;height:var(--logo-size);padding:0;
+  background:none;border:0;box-shadow:none;border-radius:0}
+/* A percentage height does not resolve against this grid item, so the box
+   height goes on the image itself. */
+.app .vertical-logo.is-lockup img{height:var(--logo-size);width:auto;max-width:none;object-fit:contain}
+.app .vertical-brand{gap:var(--s-3)}
+/* On the dark hero variant the badge's white ground would cut a hard hole in
+   the band, so give it back a soft edge rather than a chip. */
+.app .brand.inverse .vertical-logo.is-lockup img{
+  filter:drop-shadow(0 2px 6px rgb(0 0 0/.35))}
+@media(max-width:1120px){.app .vertical-logo.is-lockup{--logo-size:46px!important}}
+@media(max-width:480px){.app .vertical-logo.is-lockup{--logo-size:40px!important}}
+
+/* 7. Jobs p3 is an accent-coloured card, not a dark one: --on-accent orange
+      clears AA for pure white (4.9:1) but not for tinted or faded white —
+      pale green measured 3.78:1 and 94% white 4.44:1. Carry the hierarchy on
+      that surface with weight and size, not with opacity. */
+.app .path-card.p3>small,.app .path-card.p3 p{color:#fff}
+
+/* ── TOUCH TARGETS ────────────────────────────────────────────────────────
+   A sweep of every interactive element found two below the floor: the
+   scroll-to-top button at 43×43 (one pixel short of the 44px the rest of the
+   system holds) and raw checkboxes at 13×13, which miss even the 24×24 that
+   WCAG 2.5.8 asks for at AA. `.btn.small` at 36px and the inline text links
+   at 34px clear AA and are left as designed. */
+.app .scroll-top{width:44px;height:44px}
+.app input[type=checkbox],.app input[type=radio]{
+  width:20px;height:20px;flex:none;accent-color:var(--accent);cursor:pointer}
+/* The label is the real target — give it the full 44px row so a thumb landing
+   anywhere on the line still toggles. */
+.app .check-list label,.app .filters label:has(input[type=checkbox]){
+  min-height:44px;display:flex;align-items:center;gap:var(--s-3);cursor:pointer}
+/* The compare toggle sits inline in a card footer, where a 44px row would
+   distort the card. 32px still clears the 24px AA floor with room to spare. */
+.app label:has(>input[type=checkbox]){
+  min-height:32px;display:inline-flex;align-items:center;gap:var(--s-2);cursor:pointer}
+
+/* ── HERO IMAGE DELIVERY ───────────────────────────────────────────────────
+   The three hero plates shipped as PNGs totalling 5.7MB, served through a
+   plain <img> with no width negotiation — 2.25MB of blocking LCP on a phone
+   over Bihar mobile data. They are now WebP at two widths (full + 900px),
+   picked by <picture>, with the PNG left as the fallback source for the
+   handful of engines that still cannot decode WebP:
+
+     campus-editorial   2.25MB → 120KB desktop / 53KB phone
+     career-editorial   1.80MB →  59KB desktop / 29KB phone
+     dcw-journey-hero   1.97MB →  98KB desktop / 35KB phone
+
+   Wrapping the img in <picture> means the old `.hero>img` rules in
+   globals.css no longer match — the picture element is now the direct child,
+   so it takes over the positioning and the drift. */
+.app .hero>picture{
+  position:absolute;inset:0;display:block;
+  animation:hero-drift 8s ease-in-out infinite alternate;will-change:transform}
+.app .hero:hover>picture{animation-play-state:paused}
+.app .hero>picture>img{
+  width:100%;height:100%;object-fit:cover;
+  /* the focal point the art was cropped for — off-centre so the subject sits
+     clear of the copy column rather than behind it */
+  object-position:61.8% 38.2%;display:block}
+
+/* ── DOUBLE NAV: UTILITY BAR ───────────────────────────────────────────────
+   The site had one nav row and a single hardcoded avatar, so an employer and
+   an operator had no visible way in at all — the console was reachable only by
+   typing /login. The top strip is now a real second nav: the live line keeps
+   the left, and the three front doors take the right. Two rows, two jobs —
+   the upper one is about *who you are*, the lower one about *what you are
+   looking at*.
+
+   It is a dark band, so every colour here is measured against --ink (#0b1720),
+   not against the page. */
+.app .ticker.utility{
+  height:auto;min-height:40px;display:block;padding:0;
+  background:var(--ink);position:relative;z-index:41}
+.app .ticker.utility .util-row{
+  width:min(1240px,calc(100% - 48px));margin:auto;min-height:40px;
+  display:flex;align-items:center;justify-content:space-between;gap:var(--s-4)}
+
+.app .util-live{display:flex;align-items:center;gap:var(--s-3);margin:0;min-width:0}
+.app .util-live b{
+  font-size:var(--fs-200);font-weight:600;color:rgb(255 255 255/.92);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app .util-live small{
+  font-size:var(--fs-100);color:rgb(255 255 255/.62);white-space:nowrap}
+/* The LIVE pill is the one high-attention mark allowed on this bar; the
+   pulse is the only thing here that moves, which is what makes it read as
+   live rather than as decoration. */
+.app .util-live>span{
+  flex:none;background:var(--spark,#F5C93B);color:var(--spark-ink,#241a00);
+  border-radius:99px;padding:3px 9px;font-size:var(--fs-100);
+  font-weight:800;letter-spacing:.08em;position:relative}
+.app .util-live>span:after{
+  content:"";position:absolute;inset:0;border-radius:inherit;
+  box-shadow:0 0 0 0 var(--spark,#F5C93B);animation:util-pulse 2.6s ease-out infinite}
+@keyframes util-pulse{
+  0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--spark,#F5C93B) 55%,transparent)}
+  70%,100%{box-shadow:0 0 0 7px color-mix(in srgb,var(--spark,#F5C93B) 0%,transparent)}}
+
+.app .util-auth{display:flex;align-items:center;gap:var(--s-1);flex:none}
+/* globals.css styles every `span` inside .ticker as the LIVE pill, so this
+   label arrived wearing a yellow chip. It is a label, not a badge — strip the
+   chip back off rather than renaming the element and leaving the trap set for
+   the next thing that lands in here. */
+.app .ticker span.util-label{
+  font-size:var(--fs-100);color:rgb(255 255 255/.62);
+  letter-spacing:.07em;text-transform:uppercase;font-weight:700;
+  margin-right:var(--s-2);
+  background:none;padding:0;border-radius:0}
+/* 40px tall targets inside a 40px bar: the whole strip is the hit area, which
+   is the only way to reach the AA target floor without growing the band. */
+.app .util-link{
+  display:inline-flex;align-items:center;min-height:40px;padding:0 var(--s-3);
+  font-size:var(--fs-200);font-weight:650;color:rgb(255 255 255/.86);
+  background:none;border:0;text-decoration:none;border-radius:var(--r-1);
+  position:relative;transition:color var(--t-micro) var(--ease-out),background var(--t-micro) var(--ease-out)}
+.app .util-link:hover{color:#fff;background:rgb(255 255 255/.08)}
+.app .util-link:focus-visible{
+  outline:2px solid #fff;outline-offset:-3px;border-radius:var(--r-1)}
+/* Hairline between the doors — the three are peers, and a separator says that
+   more quietly than three buttons would. */
+.app .util-role+.util-role:before{
+  content:"";position:absolute;left:0;top:50%;translate:0 -50%;
+  width:1px;height:13px;background:rgb(255 255 255/.20)}
+.app .util-link.strong{color:var(--spark-lift,#F7D98C);font-weight:750}
+.app .util-compact{display:none}
+
+.app .util-auth.signed-in{gap:var(--s-2)}
+.app .ticker span.util-who{display:flex;flex-direction:column;line-height:1.15;margin-right:var(--s-2);text-align:right;background:none;padding:0;border-radius:0}
+.app .util-who b{font-size:var(--fs-200);color:#fff;font-weight:700}
+.app .util-who small{
+  font-size:var(--fs-100);color:rgb(255 255 255/.64);
+  text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+/* Reserve the cluster's space while the session resolves, so the bar does not
+   snap sideways the moment the fetch lands. */
+.app .ticker span.util-skel{
+  width:210px;height:14px;border-radius:99px;background:rgb(255 255 255/.10);padding:0}
+
+@media(max-width:1120px){
+  .app .util-live small{display:none}
+  .app .ticker span.util-label{display:none}
+}
+@media(max-width:860px){
+  /* Below this the headline and three doors start fighting. The doors win —
+     a live line is nice to have, a way in is not. */
+  .app .util-live b{display:none}
+  .app .ticker.utility .util-row{width:calc(100% - 32px)}
+}
+@media(max-width:620px){
+  .app .util-role{display:none}
+  .app .util-compact{display:inline-flex}
+  .app .util-who{display:none}
+}
+
+/* ══ INFOGRAPHIC: MAKE IT MOVE, AND MAKE IT TRUE ═══════════════════════════
+   Two problems were tangled together in the hero strip. It was static, and it
+   was lying: every tile carried an authored fill percentage, so "12,000+
+   students" rendered a bar at 78% of nothing in particular.
+
+   Both are fixed by separating the two things a horizontal line can mean:
+
+     .stat-bar   a METER. Recessed track + filled portion. Says "this much of
+                 that much", so it only appears where a real share exists
+                 (100% verified). Carries its own aria-label.
+     .stat-rule  a RULE. No track, no remainder, nothing to read a quantity
+                 from. Pure rhythm and reveal motion, used for counts.
+
+   Both draw in from the left on entry, so the strip reads as being assembled
+   rather than pasted, and the tiles stagger off --i so the eye is walked
+   left to right instead of hit with three at once. */
+
+.app .proof button{
+  /* --i is set per tile in the markup; every timed thing below reads it, so
+     the whole stagger is one number per tile rather than three. */
+  animation:stat-in var(--t-spatial) var(--ease-out) both;
+  animation-delay:calc(90ms + var(--i,0)*110ms)}
+@keyframes stat-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* The meter: track stays visible, fill grows to the real share. */
+.app .proof .stat-bar:after{
+  animation:meter-fill 900ms var(--ease-out) both;
+  animation-delay:calc(320ms + var(--i,0)*110ms)}
+@keyframes meter-fill{from{width:0}to{width:var(--fill,60%)}}
+
+/* The rule: same footprint and colour as a full meter, but no track behind it,
+   so there is no remainder to misread. */
+.app .proof .stat-rule{
+  grid-area:bar;margin-top:var(--s-3);height:5px;border-radius:var(--r-pill);
+  background:linear-gradient(90deg,
+    color-mix(in srgb,var(--spark,#F5C93B) 88%,#fff),
+    var(--spark,#F5C93B) 62%,
+    color-mix(in srgb,var(--spark,#F5C93B) 30%,transparent));
+  transform-origin:left center;
+  animation:stat-rule-draw 760ms var(--ease-out) both;
+  animation-delay:calc(320ms + var(--i,0)*110ms)}
+/* Named apart from globals.css's own `rule-draw`, which the scroll-driven
+   section-title underline uses — same word, different animation. Two sheets
+   sharing a keyframe name is a silent override, not an error. */
+@keyframes stat-rule-draw{from{transform:scaleX(0);opacity:0}to{transform:scaleX(1);opacity:1}}
+
+/* Numerals count up, so they must not reflow while they do it. */
+.app .proof b{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+/* Hover lifts the icon chip, not the tile — the tile is a link target, the
+   chip is the object. Moving the smaller thing reads as responsive; moving
+   the whole strip reads as unstable. */
+.app .proof .stat-i{transition:transform var(--t-comp) var(--ease-out),background var(--t-micro) var(--ease-out)}
+.app .proof button:hover .stat-i{transform:translateY(-2px) scale(1.04);background:rgb(255 255 255/.19)}
+
+@media(prefers-reduced-motion:reduce){
+  /* Reduced motion means no journey, not no information: everything lands in
+     its final state, including the meter at its true width. */
+  .app .proof button,.app .proof .stat-rule,.app .proof .stat-bar:after{
+    animation:none!important;opacity:1!important;transform:none!important}
+  .app .proof .stat-bar:after{width:var(--fill,60%)}
+}
+
+/* ══ GLASS: FEWER PLACES, MORE CONVINCINGLY ════════════════════════════════
+   Glass earns its cost when a surface is genuinely floating over content that
+   keeps moving underneath — nav, overlays, transient panels. It costs a real
+   compositor layer, so it is spent only there.
+
+   What makes glass read as glass is not the blur. It is the three things a
+   real pane does: refract what is behind it (blur + saturate), catch light on
+   its top edge (a bright inset hairline), and cast a shadow onto what it
+   covers. All three, or it just looks like a translucent rectangle. */
+
+.app .ticker.utility,
+.app>header{backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%)}
+.app>header{
+  background:color-mix(in srgb,var(--n-0) 82%,transparent);
+  box-shadow:0 1px 0 var(--line),0 10px 30px rgb(11 21 38/.05),var(--edge-top)}
+
+/* Floating chrome — these sit above scrolling content and are the correct
+   home for glass. */
+.app .compare-tray,.app .mobile-nav,.app .scroll-top,.app .bot-panel,.app .command{
+  backdrop-filter:blur(22px) saturate(155%);-webkit-backdrop-filter:blur(22px) saturate(155%)}
+.app .compare-tray,.app .command{
+  background:color-mix(in srgb,var(--n-0) 86%,transparent);
+  border:1px solid rgb(255 255 255/.6);
+  box-shadow:var(--e-5),var(--edge-top)}
+.app .mobile-nav{
+  background:color-mix(in srgb,var(--n-0) 88%,transparent);
+  box-shadow:0 -1px 0 var(--line),0 -8px 28px rgb(11 21 38/.08),var(--edge-top)}
+
+/* The hero search is glass over a photograph — the one place the refraction is
+   actually visible, so it gets the strongest treatment and a lit rim. */
+.app .hero-search{
+  background:color-mix(in srgb,var(--n-0) 76%,transparent)!important;
+  backdrop-filter:blur(24px) saturate(170%);-webkit-backdrop-filter:blur(24px) saturate(170%);
+  border:1px solid rgb(255 255 255/.62)!important;
+  box-shadow:var(--e-4),inset 0 1px 0 rgb(255 255 255/.85)}
+
+/* And the places glass must NOT go. Content surfaces are read, not looked
+   through; blurring the page behind a table only makes the table harder to
+   read and costs a layer to do it. */
+.app .entity-card,.app .card,.app main section > .panel,
+.app .fee-table,.app .accordion,.app .fact-grid{
+  backdrop-filter:none;-webkit-backdrop-filter:none}
+
+/* ══ TACTILITY: PHYSICAL WHERE PRESSING MATTERS ════════════════════════════
+   Skeuomorphism is not a texture, it is a promise about what happens when you
+   push. It is spent on the controls where a press is the point, and withheld
+   everywhere else so it keeps meaning something.
+
+   The primary button is a key on a keyboard: it has a lit top edge, a body,
+   and a plinth underneath it. Pressing it travels the full height of the
+   plinth, so the travel distance and the shadow are the same number. */
+.app .btn.primary.tactile,.app .talk{
+  --plinth:6px;
+  border-radius:var(--r-2);
+  box-shadow:
+    0 var(--plinth) 0 color-mix(in srgb,var(--accent) 62%,var(--ink-1)),
+    0 calc(var(--plinth) + 10px) 22px color-mix(in srgb,var(--accent) 26%,transparent),
+    var(--edge-top-dark),
+    inset 0 1px 0 rgb(255 255 255/.28)!important;
+  transition:transform var(--t-instant) var(--ease-std),box-shadow var(--t-instant) var(--ease-std)}
+.app .btn.primary.tactile:hover,.app .talk:hover{
+  transform:translateY(-1px);
+  box-shadow:
+    0 calc(var(--plinth) + 1px) 0 color-mix(in srgb,var(--accent) 62%,var(--ink-1)),
+    0 calc(var(--plinth) + 14px) 26px color-mix(in srgb,var(--accent) 32%,transparent),
+    inset 0 1px 0 rgb(255 255 255/.34)!important}
+.app .btn.primary.tactile:active,.app .talk:active{
+  /* travels exactly the plinth height and lands flat — the key bottoms out */
+  transform:translateY(var(--plinth));
+  box-shadow:0 0 0 color-mix(in srgb,var(--accent) 62%,var(--ink-1)),
+             inset 0 2px 4px rgb(0 0 0/.22)!important}
+
+/* Secondary controls get the same physics one octave quieter: a 2px plinth,
+   so they feel pressable without competing with the primary. */
+.app .btn.ghost,.app .btn.secondary,.app .btn.outline{
+  box-shadow:0 2px 0 var(--line),var(--e-1),var(--edge-top);
+  transition:transform var(--t-instant) var(--ease-std),box-shadow var(--t-instant) var(--ease-std),
+             border-color var(--t-micro) var(--ease-out)}
+.app .btn.ghost:active,.app .btn.secondary:active,.app .btn.outline:active{
+  transform:translateY(2px);box-shadow:inset 0 2px 3px rgb(11 21 38/.12)}
+
+/* Wells: inputs and tracks are cut *into* the surface, so their light comes
+   from the opposite direction to a raised control. Getting this inversion
+   right is most of what makes a form feel physical. */
+.app input[type=text],.app input[type=search],.app input[type=email],
+.app input[type=tel],.app input[type=number],.app input[type=date],
+.app select,.app textarea,.app .proof .stat-bar{
+  box-shadow:inset 0 2px 4px rgb(11 21 38/.06),inset 0 1px 0 rgb(11 21 38/.05)}
+.app .proof .stat-bar{box-shadow:inset 0 1px 2px rgb(0 0 0/.35)}
+
+@media(prefers-reduced-motion:reduce){
+  .app .btn.primary.tactile,.app .talk,.app .btn.ghost{transition:none}
+}
+
+/* ---------------------------------------------------------------------------
+   TYPE FLOOR — THE LAST TWO HOLES
+   --fs-100 is documented above as a hard floor, but three selectors in
+   globals.css out-specify the `.app small` rule that enforces it and were
+   still painting below it: an 8px application reference, an 11px filter
+   read-out, and an 11px vertical label that only appears under 430px. A floor
+   with holes in it is not a floor, so these are pinned rather than left for
+   the next audit to rediscover.
+--------------------------------------------------------------------------- */
+.app .app-timeline article>div>small{font-size:var(--fs-100)}
+.app .filters label>span{font-size:var(--fs-100)}
+@media(max-width:430px){
+  .app .verticals span{font-size:var(--fs-100)}
+}
+
+/* ---------------------------------------------------------------------------
+   POINTER TARGETS
+   WCAG 2.2 AA (2.5.8) asks for 24x24 CSS px. Three controls sat under it: the
+   compare/save checkboxes at 20px, the fee range slider whose 16px track is
+   the only thing you can grab, and a Reset that landed exactly on the line.
+   The slider gets its height from the thumb, so the track is padded rather
+   than thickened — the rail still reads as a hairline, the grab area does not.
+--------------------------------------------------------------------------- */
+.app .entity-foot input[type=checkbox],
+.app .check-list input[type=checkbox]{width:24px;height:24px;margin:0 var(--s-1) 0 0;flex:none}
+.app .entity-foot label,.app .check-list label{display:flex;align-items:center;gap:var(--s-1);min-height:24px}
+.app .filters input[type=range]{height:24px;padding-block:4px;box-sizing:content-box;background:none}
+.app .filter-title button{min-height:28px;padding-inline:var(--s-1)}

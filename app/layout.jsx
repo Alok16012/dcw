@@ -1,4 +1,5 @@
 import './globals.css';
+import './design-system.css';
 
 const site=process.env.NEXT_PUBLIC_SITE_URL||'http://localhost:3000';
 const title='DCW — Your next move, made visible';
