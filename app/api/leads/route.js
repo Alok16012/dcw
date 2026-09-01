@@ -1,7 +1,7 @@
 /** PRD §8.2 — the single reusable lead endpoint. Forwards to Sky-High. */
 import { upsertLead, listLeads } from '@/lib/integrations/crm.js';
 import { sendTemplate } from '@/lib/integrations/whatsapp.js';
-import { isValidPhone } from '@/lib/integrations/otp.js';
+import { isValidPhone, isPhoneVerified } from '@/lib/integrations/otp.js';
 import { ok, fail, readJson, VERTICAL_SET } from '@/lib/http.js';
 
 export async function POST(request) {
@@ -11,7 +11,9 @@ export async function POST(request) {
   if (!VERTICAL_SET.has(body.vertical)) return fail(422, 'INVALID_VERTICAL', 'vertical must be distance, colleges or jobs.');
   if (!body.name?.trim()) return fail(422, 'NAME_REQUIRED', 'Name is required.');
   if (!isValidPhone(body.phone)) return fail(422, 'INVALID_PHONE', 'Enter a valid 10-digit mobile number.');
-  if (!body.phoneVerified) return fail(422, 'OTP_REQUIRED', 'Verify the mobile number before submitting.');
+  // Checked against the OTP store, not against the flag in the request: a
+  // caller can set phoneVerified to anything it likes.
+  if (!isPhoneVerified(body.phone)) return fail(422, 'OTP_REQUIRED', 'Verify the mobile number before submitting.');
 
   const { lead, duplicate, assignedTo } = upsertLead({
     vertical: body.vertical, name: body.name.trim(), phone: body.phone,

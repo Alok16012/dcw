@@ -1,0 +1,249 @@
+/* ── DCW operations console ───────────────────────────────────────────────
+   A dense internal workspace, deliberately *not* the marketing aesthetic:
+   tables instead of cards, tight radii, tabular numerals, one accent colour
+   reserved for actions. Everything is scoped under `.adm` so none of it can
+   leak into the public `.app` surface (and vice versa).
+   Type family is inherited from body on purpose — when the site font changes,
+   the console follows without edits here. */
+.adm{
+  --a:#0B4DA8; --a-deep:#083A80; --a-wash:#EDF3FC; --a-line:#C6DAF5;
+  --bg:#F4F6F9; --panel:#fff; --rail:#0C1A2B; --rail-2:#16283D;
+  --ink:#101B28; --ink-2:#3D4F62; --ink-3:#6B7C8E;
+  --line:#DCE3EB; --line-2:#EDF1F5;
+  --ok:#0F6B52; --ok-w:#E2F5ED; --warn:#8A5300; --warn-w:#FDF3E2;
+  --bad:#A0201A; --bad-w:#FDEBEA; --cool:#2A4E8F; --cool-w:#E9EFFA;
+  --r-1:6px; --r-2:10px; --r-3:14px;
+  --sh:0 1px 2px #0c1a2b0f,0 4px 12px #0c1a2b0a;
+  --t:150ms cubic-bezier(.4,0,.2,1);
+  min-height:100vh;background:var(--bg);color:var(--ink);
+  font-size:14px;line-height:1.5;
+  font-variant-numeric:tabular-nums;
+  -webkit-font-smoothing:antialiased;
+}
+.adm *{box-sizing:border-box}
+.adm h1,.adm h2,.adm h3{margin:0;letter-spacing:-.018em;line-height:1.25}
+.adm h1{font-size:23px;font-weight:750}
+.adm h2{font-size:16px;font-weight:700}
+.adm h3{font-size:14px;font-weight:700}
+.adm p{margin:0}
+.adm a{color:var(--a);text-decoration:none}
+.adm a:hover{text-decoration:underline}
+.adm :focus-visible{outline:2px solid var(--a);outline-offset:2px;border-radius:3px}
+
+/* ── shell ── */
+.adm-shell{display:grid;grid-template-columns:236px minmax(0,1fr);min-height:100vh}
+.adm-rail{background:var(--rail);color:#fff;display:flex;flex-direction:column;position:sticky;top:0;height:100vh}
+.adm-rail-top{padding:18px 16px 14px;border-bottom:1px solid #ffffff14}
+.adm-logo{display:flex;align-items:center;gap:10px;color:#fff}
+.adm-logo:hover{text-decoration:none}
+.adm-logo img{height:42px;width:auto;flex:none;display:block;background:#fff;border-radius:7px;padding:3px;object-fit:contain}
+.adm-logo b{font-size:14px;font-weight:750;letter-spacing:-.01em;display:block}
+.adm-logo small{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#8FA6BF;font-weight:700}
+.adm-nav{padding:12px 10px;flex:1;overflow-y:auto}
+.adm-nav-label{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#6E8299;font-weight:750;padding:14px 8px 6px}
+.adm-nav a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r-2);color:#C3D2E2;font-size:13.5px;font-weight:600;transition:background var(--t),color var(--t)}
+.adm-nav a:hover{background:#ffffff0f;color:#fff;text-decoration:none}
+.adm-nav a[aria-current=page]{background:var(--a);color:#fff}
+.adm-nav a svg{width:17px;height:17px;flex:none}
+.adm-nav a .adm-count{margin-left:auto;font-size:11px;font-weight:700;background:#ffffff1f;padding:1px 7px;border-radius:99px}
+.adm-nav a[aria-current=page] .adm-count{background:#ffffff2e}
+.adm-rail-foot{padding:12px;border-top:1px solid #ffffff14;display:flex;align-items:center;gap:10px}
+.adm-who{min-width:0;flex:1}
+.adm-who b{display:block;font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.adm-who small{display:block;font-size:10px;color:#8FA6BF;text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.adm-avatar{width:32px;height:32px;flex:none;border-radius:9px;background:var(--a);display:grid;place-items:center;font-size:12px;font-weight:750}
+.adm-main{min-width:0;display:flex;flex-direction:column}
+/* height:auto — globals.css styles the public site's masthead with a bare
+   `header` selector carrying a fixed height at four breakpoints, and this is
+   a <header> too. Without this the console page title clips to 72px and the
+   subtitle spills out beneath the content. flex:none keeps it from being
+   shrunk by the min-height:100vh column it sits in. */
+.adm-top{height:auto;background:var(--panel);border-bottom:1px solid var(--line);padding:16px 26px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:20;flex:none}
+.adm-top-copy{flex:1;min-width:0}
+.adm-top p{color:var(--ink-3);font-size:12.5px;margin-top:2px}
+.adm-body{padding:22px 26px 60px;flex:1}
+
+/* ── buttons ── */
+.adm-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;padding:0 14px;border-radius:var(--r-2);border:1px solid var(--line);background:#fff;color:var(--ink);font-size:13px;font-weight:650;cursor:pointer;transition:var(--t);white-space:nowrap}
+.adm-btn svg{width:15px;height:15px;flex:none}
+.adm-btn:hover{background:var(--line-2);border-color:#C9D3DE}
+.adm-btn.pri{background:var(--a);border-color:var(--a);color:#fff}
+.adm-btn.pri:hover{background:var(--a-deep);border-color:var(--a-deep)}
+.adm-btn.danger{color:var(--bad);border-color:#EBC9C7}
+.adm-btn.danger:hover{background:var(--bad-w)}
+.adm-btn.sm{min-height:30px;padding:0 10px;font-size:12.5px;border-radius:var(--r-1)}
+.adm-btn:disabled{opacity:.5;cursor:not-allowed}
+.adm-btn.ghost{border-color:transparent;background:transparent}
+.adm-btn.ghost:hover{background:var(--line-2)}
+
+/* ── panels + tables ── */
+.adm-panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-3);box-shadow:var(--sh)}
+.adm-panel-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px}
+.adm-panel-head h2{flex:1;min-width:0}
+.adm-scroll{overflow-x:auto}
+.adm-table{width:100%;border-collapse:collapse;font-size:13px}
+.adm-table th{text-align:left;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:750;padding:10px 14px;background:#FAFBFD;border-bottom:1px solid var(--line);white-space:nowrap;position:sticky;top:0}
+.adm-table td{padding:12px 14px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+.adm-table tbody tr:last-child td{border-bottom:0}
+.adm-table tbody tr:hover{background:#FAFBFD}
+.adm-table td b{font-weight:680}
+.adm-sub{display:block;color:var(--ink-3);font-size:11.5px;margin-top:2px}
+.adm-num{text-align:right;font-variant-numeric:tabular-nums}
+.adm-actions{display:flex;gap:6px;justify-content:flex-end}
+
+/* ── stat tiles: a real infographic row, not four identical boxes ── */
+.adm-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:20px}
+.adm-stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-3);padding:15px 16px;box-shadow:var(--sh);position:relative;overflow:hidden}
+.adm-stat small{display:block;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:750}
+.adm-stat b{display:block;font-size:27px;font-weight:750;letter-spacing:-.03em;margin-top:7px;line-height:1}
+.adm-stat i{font-style:normal;font-size:11.5px;color:var(--ink-3);display:block;margin-top:5px}
+.adm-stat.lead{background:linear-gradient(150deg,var(--a),var(--a-deep));border-color:var(--a-deep);color:#fff}
+.adm-stat.lead small,.adm-stat.lead i{color:#C9DBF5}
+
+/* Two-up split that collapses before the columns get too narrow to read. */
+.adm-split{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:16px;align-items:start}
+@media(max-width:1100px){.adm-split{grid-template-columns:minmax(0,1fr)}}
+.adm-funnel-legend{padding:0 18px 16px;display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-3);font-weight:600}
+
+/* ── funnel ── */
+.adm-funnel{display:flex;gap:3px;align-items:flex-end;padding:18px}
+.adm-funnel>div{flex:1;text-align:center;min-width:0}
+.adm-funnel .bar{background:var(--a-wash);border:1px solid var(--a-line);border-bottom:0;border-radius:var(--r-1) var(--r-1) 0 0;display:flex;align-items:flex-end;justify-content:center;padding:6px 2px;font-weight:750;font-size:14px;color:var(--a-deep);transition:height var(--t)}
+.adm-funnel .bar.hot{background:var(--a);border-color:var(--a);color:#fff}
+.adm-funnel small{display:block;font-size:10.5px;color:var(--ink-3);font-weight:700;padding-top:7px;border-top:2px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── status pills: colour + text, never colour alone ── */
+.adm-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:99px;font-size:11.5px;font-weight:700;white-space:nowrap;border:1px solid transparent}
+.adm-pill:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.adm-pill.s-applied{background:var(--line-2);color:var(--ink-2);border-color:var(--line)}
+.adm-pill.s-shortlisted{background:var(--cool-w);color:var(--cool);border-color:#CBD9F2}
+.adm-pill.s-interview{background:var(--warn-w);color:var(--warn);border-color:#F0DCB8}
+.adm-pill.s-offered{background:var(--a-wash);color:var(--a-deep);border-color:var(--a-line)}
+.adm-pill.s-hired{background:var(--ok-w);color:var(--ok);border-color:#BFE5D6}
+.adm-pill.s-rejected,.adm-pill.s-withdrawn{background:var(--bad-w);color:var(--bad);border-color:#EBC9C7}
+.adm-pill.s-onhold{background:var(--warn-w);color:var(--warn);border-color:#F0DCB8}
+.adm-pill.s-active{background:var(--ok-w);color:var(--ok);border-color:#BFE5D6}
+.adm-pill.s-inactive{background:var(--line-2);color:var(--ink-3);border-color:var(--line)}
+/* CRM lead statuses */
+.adm-pill.s-new{background:var(--cool-w);color:var(--cool);border-color:#CBD9F2}
+.adm-pill.s-contacted,.adm-pill.s-following-up,.adm-pill.s-followingup{background:var(--warn-w);color:var(--warn);border-color:#F0DCB8}
+.adm-pill.s-converted,.adm-pill.s-admitted{background:var(--ok-w);color:var(--ok);border-color:#BFE5D6}
+.adm-pill.s-lost,.adm-pill.s-dropped{background:var(--bad-w);color:var(--bad);border-color:#EBC9C7}
+
+/* ── forms ── */
+.adm-field{display:block;margin-bottom:14px}
+.adm-field>span{display:block;font-size:12px;font-weight:700;margin-bottom:5px}
+.adm-field>span em{font-style:normal;color:var(--bad)}
+.adm-input,.adm-field select,.adm-field textarea,.adm-field input{width:100%;min-height:38px;border:1px solid var(--line);border-radius:var(--r-2);background:#fff;padding:8px 11px;font:inherit;font-size:13.5px;color:var(--ink);transition:var(--t)}
+.adm-field textarea{min-height:84px;resize:vertical;line-height:1.55}
+.adm-input:focus,.adm-field :focus{border-color:var(--a);outline:2px solid var(--a-wash);outline-offset:0}
+.adm-field .err{display:block;color:var(--bad);font-size:11.5px;font-weight:650;margin-top:5px}
+.adm-field.bad .adm-input,.adm-field.bad select,.adm-field.bad input,.adm-field.bad textarea{border-color:var(--bad);background:#FFFCFC}
+.adm-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.adm-check{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:650;margin-bottom:14px}
+.adm-check input{width:16px;height:16px;min-height:0;accent-color:var(--a);margin:0}
+
+/* ── filter bar ── */
+.adm-filters{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.adm-filters .adm-input{width:auto;min-width:210px;flex:1;max-width:340px}
+.adm-filters select{width:auto;min-width:130px;min-height:38px;border:1px solid var(--line);border-radius:var(--r-2);background:#fff;padding:0 10px;font:inherit;font-size:13px}
+
+/* Stage chips: filter control and funnel readout in one row. */
+.adm-chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.adm-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:650;color:var(--ink-2);cursor:pointer;transition:var(--t)}
+.adm-chip span{font-size:11.5px;font-weight:750;background:var(--line-2);color:var(--ink-3);border-radius:99px;padding:1px 7px}
+.adm-chip:hover{border-color:var(--a-line);background:var(--a-wash)}
+.adm-chip.on{background:var(--a);border-color:var(--a);color:#fff}
+.adm-chip.on span{background:#ffffff2e;color:#fff}
+
+/* ── drawer ── */
+.adm-scrim{position:fixed;inset:0;background:#0c1a2b7a;backdrop-filter:blur(3px);z-index:60;display:flex;justify-content:flex-end;animation:adm-fade var(--t)}
+@keyframes adm-fade{from{opacity:0}to{opacity:1}}
+@keyframes adm-slide{from{transform:translateX(22px);opacity:.4}to{transform:none;opacity:1}}
+.adm-drawer{width:min(560px,100%);background:var(--bg);height:100vh;overflow-y:auto;box-shadow:-8px 0 40px #0c1a2b2e;animation:adm-slide 220ms cubic-bezier(.22,1,.36,1)}
+.adm-drawer-head{position:sticky;top:0;background:var(--panel);border-bottom:1px solid var(--line);padding:15px 20px;display:flex;align-items:center;gap:12px;z-index:2}
+.adm-drawer-head h2{flex:1;min-width:0}
+.adm-drawer-body{padding:20px}
+.adm-drawer-foot{position:sticky;bottom:0;background:var(--panel);border-top:1px solid var(--line);padding:13px 20px;display:flex;gap:9px;justify-content:flex-end}
+
+/* Definition grid for record detail — label above value, two up. */
+.adm-dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px;margin:0}
+.adm-dl dt{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:750}
+.adm-dl dd{margin:3px 0 0;font-size:13.5px;font-weight:650;word-break:break-word}
+@media(max-width:520px){.adm-dl{grid-template-columns:minmax(0,1fr)}}
+
+/* ── activity trail ── */
+.adm-trail{list-style:none;margin:0;padding:0}
+.adm-trail li{position:relative;padding:0 0 16px 22px;border-left:2px solid var(--line);margin-left:5px}
+.adm-trail li:last-child{border-left-color:transparent;padding-bottom:0}
+.adm-trail li:before{content:"";position:absolute;left:-6px;top:4px;width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid var(--a)}
+.adm-trail b{display:block;font-size:13px;font-weight:680}
+.adm-trail small{display:block;color:var(--ink-3);font-size:11.5px;margin-top:2px}
+
+/* ── feedback states ── */
+.adm-empty{text-align:center;padding:56px 22px;color:var(--ink-3)}
+.adm-empty svg{width:34px;height:34px;color:#B4C0CD;margin-bottom:10px}
+.adm-empty h3{color:var(--ink);margin-bottom:5px}
+.adm-empty p{font-size:13px;max-width:38ch;margin:0 auto 16px}
+.adm-note{display:flex;gap:9px;align-items:flex-start;padding:11px 13px;border-radius:var(--r-2);font-size:12.5px;font-weight:600;line-height:1.5}
+.adm-note svg{width:16px;height:16px;flex:none;margin-top:1px}
+.adm-note.warn{background:var(--warn-w);color:var(--warn);border:1px solid #F0DCB8}
+.adm-note.bad{background:var(--bad-w);color:var(--bad);border:1px solid #EBC9C7}
+.adm-note.ok{background:var(--ok-w);color:var(--ok);border:1px solid #BFE5D6}
+.adm-skel{background:linear-gradient(90deg,var(--line-2) 25%,#E4EAF1 50%,var(--line-2) 75%);background-size:200% 100%;animation:adm-sh 1.3s linear infinite;border-radius:var(--r-1);height:13px}
+@keyframes adm-sh{to{background-position:-200% 0}}
+.adm-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:90;background:var(--rail);color:#fff;border-radius:var(--r-2);padding:11px 16px;font-size:13px;font-weight:650;box-shadow:0 12px 40px #0c1a2b47;display:flex;align-items:center;gap:9px}
+.adm-toast svg{width:16px;height:16px;color:#7FE3C0}
+.adm-toast.bad svg{color:#FF9E97}
+
+/* ── responsive: recompose, don't shrink ── */
+@media(max-width:1020px){
+  /* The rail becomes a two-row header: identity and account on top, the
+     section nav on its own full-width row underneath, so neither has to
+     compete for horizontal space or hide behind a scroll strip. */
+  /* minmax(0,1fr), not 1fr: an auto-minimum track grows to the rail's
+     min-content — the nav pills and the wordmark — and drags the whole
+     console wider than the phone it is being read on. */
+  .adm-shell{grid-template-columns:minmax(0,1fr)}
+  .adm-shell>*{min-width:0}
+  .adm-rail{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;
+    gap:10px;padding:0 16px 8px;overflow:visible;min-width:0}
+  .adm-rail-top{order:1;flex:1;min-width:0;border-bottom:0;padding:10px 0}
+  .adm-logo img{height:36px}
+  .adm-rail-foot{order:2;border-top:0;padding:0;flex:none}
+  .adm-who{display:none}
+  .adm-nav{order:3;flex-basis:100%;display:flex;gap:4px;padding:7px 0 0;
+    border-top:1px solid #ffffff14;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .adm-nav-label{display:none}
+  .adm-nav a{padding:8px 12px;white-space:nowrap;font-size:13px}
+  .adm-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .adm-top{padding:14px 18px;position:static}
+  .adm-body{padding:16px 18px 48px}
+  .adm-drawer{width:100%}
+  .adm-hide-sm{display:none}
+}
+@media(max-width:620px){
+  .adm-top{flex-wrap:wrap}
+  /* One tile per row below this: two columns of a 4-tile grid leaves each
+     label too narrow to read, and "Counselling leads" truncates to a stub. */
+  .adm-stats{grid-template-columns:minmax(0,1fr)}
+  .adm-row{grid-template-columns:minmax(0,1fr)}
+  .adm-stat b{font-size:23px}
+  .adm-filters .adm-input{max-width:none;min-width:0;width:100%}
+  .adm-funnel{padding:14px 10px;gap:2px}
+  .adm-funnel small{font-size:9.5px}
+}
+@media(max-width:400px){
+  /* Smallest supported width. The mark alone still identifies the console,
+     and dropping the wordmark keeps the account controls on the first row
+     rather than pushing sign-out off the screen. */
+  .adm-logo span{display:none}
+  .adm-rail{padding:0 12px 8px}
+  .adm-body{padding:14px 12px 44px}
+  .adm-top{padding:12px}
+  .adm-panel-head{flex-wrap:wrap;gap:8px}
+  .adm-funnel{padding:12px 6px}
+}
+@media(prefers-reduced-motion:reduce){
+  .adm *,.adm *::before{animation-duration:.001ms!important;transition-duration:.001ms!important}
+}

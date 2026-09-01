@@ -1,0 +1,51 @@
+/* Sign-in sits outside the console shell but shares its token vocabulary. */
+.lg{--a:#0B4DA8;--a-deep:#083A80;--a-wash:#EDF3FC;--ink:#101B28;--ink-3:#6B7C8E;
+  --line:#DCE3EB;--line-2:#EDF1F5;--bad:#A0201A;--bad-w:#FDEBEA;--warn:#8A5300;--warn-w:#FDF3E2;
+  min-height:100vh;display:grid;grid-template-columns:1.05fr .95fr;background:#fff;color:var(--ink)}
+.lg *{box-sizing:border-box}
+.lg-aside{background:linear-gradient(155deg,#0C1A2B,#0B4DA8 155%);color:#fff;padding:44px;display:flex;flex-direction:column;justify-content:space-between}
+.lg-aside img{height:86px;width:auto;align-self:flex-start;background:#fff;border-radius:11px;padding:6px;display:block;object-fit:contain}
+.lg-aside h2{font-size:31px;line-height:1.18;letter-spacing:-.03em;margin:0 0 14px;max-width:15ch;font-weight:750}
+.lg-aside p{color:#B7C9DE;line-height:1.65;max-width:42ch;margin:0;font-size:14.5px}
+.lg-roles{display:grid;gap:9px;margin-top:26px}
+.lg-roles div{display:flex;gap:11px;align-items:flex-start;background:#ffffff12;border:1px solid #ffffff1f;border-radius:12px;padding:12px 14px}
+.lg-roles b{display:block;font-size:13.5px}
+.lg-roles small{display:block;color:#B7C9DE;font-size:12px;margin-top:2px;line-height:1.5}
+.lg-roles span{width:26px;height:26px;flex:none;border-radius:7px;background:#ffffff1f;display:grid;place-items:center;font-size:11px;font-weight:750}
+.lg-legal{color:#8AA0B8;font-size:11.5px;margin:0}
+.lg-main{display:grid;place-items:center;padding:44px 28px}
+.lg-form{width:min(392px,100%)}
+.lg-form h1{font-size:27px;letter-spacing:-.025em;margin:0 0 6px;font-weight:750}
+.lg-form>p{color:var(--ink-3);margin:0 0 24px;font-size:14px}
+.lg-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;background:var(--line-2);border-radius:11px;padding:4px;margin-bottom:20px}
+.lg-tabs button{border:0;background:none;border-radius:8px;padding:9px 4px;font:inherit;font-size:12.5px;font-weight:700;color:var(--ink-3);cursor:pointer;transition:150ms}
+.lg-tabs button[aria-pressed=true]{background:#fff;color:var(--a);box-shadow:0 1px 3px #0c1a2b1f}
+.lg-field{display:block;margin-bottom:15px}
+.lg-field span{display:block;font-size:12.5px;font-weight:700;margin-bottom:6px}
+.lg-field input{width:100%;min-height:44px;border:1px solid var(--line);border-radius:11px;padding:0 13px;font:inherit;font-size:15px;transition:150ms}
+.lg-field input:focus{border-color:var(--a);outline:2px solid var(--a-wash);outline-offset:0}
+.lg-go{width:100%;min-height:46px;border:0;border-radius:11px;background:var(--a);color:#fff;font:inherit;font-size:14.5px;font-weight:700;cursor:pointer;transition:150ms;display:flex;align-items:center;justify-content:center;gap:9px}
+.lg-go:hover:not(:disabled){background:var(--a-deep)}
+.lg-go:disabled{opacity:.6;cursor:not-allowed}
+.lg-err{display:flex;gap:9px;align-items:flex-start;background:var(--bad-w);border:1px solid #EBC9C7;color:var(--bad);border-radius:10px;padding:11px 13px;font-size:13px;font-weight:650;margin-bottom:16px;line-height:1.5}
+.lg-err svg{width:16px;height:16px;flex:none;margin-top:1px}
+.lg-demo{margin-top:22px;border-top:1px solid var(--line);padding-top:18px}
+.lg-demo>b{display:block;font-size:11px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);margin-bottom:9px}
+.lg-demo button{width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;margin-bottom:7px;font:inherit;cursor:pointer;display:flex;align-items:center;gap:10px;transition:150ms}
+.lg-demo button:hover{border-color:var(--a);background:var(--a-wash)}
+.lg-demo button b{font-size:13px;font-weight:680}
+.lg-demo button small{display:block;color:var(--ink-3);font-size:11.5px;font-variant-numeric:tabular-nums}
+.lg-demo button span:last-child{margin-left:auto;font-size:11.5px;font-weight:700;color:var(--a)}
+.lg-warn{display:flex;gap:8px;align-items:flex-start;background:var(--warn-w);border:1px solid #F0DCB8;color:var(--warn);border-radius:10px;padding:10px 12px;font-size:11.5px;font-weight:650;line-height:1.5;margin-top:14px}
+.lg-warn svg{width:15px;height:15px;flex:none;margin-top:1px}
+.lg-back{display:inline-block;margin-top:20px;color:var(--ink-3);font-size:13px;text-decoration:none}
+.lg-back:hover{color:var(--a)}
+@media(max-width:900px){
+  .lg{grid-template-columns:1fr}
+  .lg-aside{padding:26px 22px;gap:20px}
+  .lg-aside h2{font-size:24px;margin-bottom:10px}
+  .lg-roles{display:none}
+  .lg-legal{display:none}
+  .lg-main{padding:28px 22px 48px}
+}
+@media(prefers-reduced-motion:reduce){.lg *{transition-duration:.001ms!important}}
