@@ -883,3 +883,32 @@
 .app .entity-foot label,.app .check-list label{display:flex;align-items:center;gap:var(--s-1);min-height:24px}
 .app .filters input[type=range]{height:24px;padding-block:4px;box-sizing:content-box;background:none}
 .app .filter-title button{min-height:28px;padding-inline:var(--s-1)}
+
+/* ---------------------------------------------------------------------------
+   "TALK TO US" — THE MASTHEAD'S ONE SOLID CTA
+   It sits in a row of outlined icon buttons, so it is the only filled thing up
+   there and carries the highest-intent action on the site. Two problems: it
+   inherited the icon buttons' hover, which tinted its face to --wash and left
+   a white label on near-white (1.14:1); and its own hover changed the shadow
+   but never the face, so the one control that most needs to feel live was the
+   one that barely reacted.
+
+   Hover DARKENS rather than brightens. The lift is already carried by the
+   plinth and the -1px travel, so the face is free to deepen — which reads as
+   the key being engaged and, unlike brightening, moves the white label away
+   from its background instead of toward it: 5.84:1 at rest to ~7:1 on hover,
+   in every one of the three verticals.
+--------------------------------------------------------------------------- */
+.app .talk{
+  display:inline-flex;align-items:center;gap:var(--s-2);
+  background:var(--accent-ink,var(--accent));
+  transition:transform var(--t-instant) var(--ease-std),
+             box-shadow var(--t-instant) var(--ease-std),
+             background var(--t-micro) var(--ease-out)}
+/* Optical size: the label is 13px and semibold, so a 16px glyph sits level
+   with the cap height rather than looming over it. */
+.app .talk svg{width:16px;height:16px;flex:none;opacity:.92}
+.app .header-actions button.talk:hover{
+  background:color-mix(in srgb,var(--accent-ink,var(--accent)) 88%,var(--ink-1))}
+.app .header-actions button.talk:active{
+  background:color-mix(in srgb,var(--accent-ink,var(--accent)) 80%,var(--ink-1))}
