@@ -232,3 +232,96 @@ header{height:88px;grid-template-columns:minmax(210px,auto) 1fr minmax(260px,340
 }
 /* struck-through list price, shown next to the payable fee (client fee-card pattern) */
 .app .mrp{font-size:.68em;font-weight:600;color:var(--muted);margin-left:7px;text-decoration-thickness:1px}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Below-the-fold depth: banded surfaces, brand motifs, scroll-driven motion
+   ──────────────────────────────────────────────────────────────────────────
+   The hero was carrying the whole page; everything under it read as one flat,
+   near-monochrome column. Every colour introduced here resolves from the
+   active vertical's own tokens, so all three brands stay themselves. Dark ink
+   stays on light tints and white text only ever sits on --on-accent, which is
+   the accent darkened far enough for AA (jobs orange alone is 2.6:1 on white).
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* 1 ─ Widen the palette the sections can draw from */
+.app{--band-b:color-mix(in srgb,var(--spark-lift) 34%,var(--canvas));--on-accent:color-mix(in srgb,var(--accent-deep) 84%,var(--accent));--hairline:color-mix(in srgb,var(--accent) 15%,var(--line));--motif-opacity:.07}
+
+/* 2 ─ Per-vertical motif, drawn as a mask so the artwork picks up the live
+       accent token instead of a colour baked into the file */
+.app-distance{--motif:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='150' height='150'%3E%3Cpath d='M-12 126 C28 126 30 66 75 66 S122 12 162 12' fill='none' stroke='%23000' stroke-width='2.5'/%3E%3Ccircle cx='75' cy='66' r='5' fill='%23000'/%3E%3C/svg%3E");--motif-size:150px 150px}
+.app-colleges{--motif:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cpath d='M64 16 L110 40 H18 Z' fill='%23000'/%3E%3Crect x='30' y='48' width='7' height='42' fill='%23000'/%3E%3Crect x='60' y='48' width='7' height='42' fill='%23000'/%3E%3Crect x='90' y='48' width='7' height='42' fill='%23000'/%3E%3Crect x='20' y='96' width='88' height='7' fill='%23000'/%3E%3C/svg%3E");--motif-size:128px 128px}
+.app-jobs{--motif:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='132' height='132'%3E%3Cpath d='M14 104 L48 78 L82 92 L120 34' fill='none' stroke='%23000' stroke-width='2.5'/%3E%3Ccircle cx='14' cy='104' r='5' fill='%23000'/%3E%3Ccircle cx='48' cy='78' r='5' fill='%23000'/%3E%3Ccircle cx='82' cy='92' r='5' fill='%23000'/%3E%3Ccircle cx='120' cy='34' r='5' fill='%23000'/%3E%3C/svg%3E");--motif-size:132px 132px}
+
+.app main>section.section{position:relative;isolation:isolate;overflow:hidden}
+.app main>section.section>*{position:relative;z-index:1}
+.app main>section.section:before{content:"";position:absolute;inset:-10% 0;z-index:0;pointer-events:none;background:var(--accent);opacity:var(--motif-opacity);-webkit-mask-image:var(--motif);mask-image:var(--motif);-webkit-mask-size:var(--motif-size);mask-size:var(--motif-size);-webkit-mask-repeat:repeat;mask-repeat:repeat}
+.app main>section.section.ink:before{background:var(--tint);opacity:.1}
+
+/* 3 ─ Section rhythm: a dark brand band, a tinted wash, a plate, a dark
+       decision block — instead of five identical white stripes */
+.app .trust-strip{background:var(--ink-deep);border-bottom:0}
+.app .trust-strip span{color:#eef3f9}
+.app .trust-strip svg{color:var(--tint)}
+.app .section.wash{background:linear-gradient(180deg,var(--wash),color-mix(in srgb,var(--wash) 26%,var(--canvas)));border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline)}
+.app .section-plate{background:linear-gradient(158deg,var(--band-b),color-mix(in srgb,var(--wash) 55%,#fff));border:1px solid var(--hairline);border-radius:34px;padding-inline:clamp(20px,3vw,48px)}
+
+/* 4 ─ Category cards carry colour now; p1 and p3 are the two dark beats.
+       p1's kicker and arrow were accent-on-near-black — a real contrast
+       failure — so they take --tint on the dark cards. */
+.app .path-card.p0{background:linear-gradient(158deg,#fff 42%,var(--wash))}
+.app .path-card.p2{background:linear-gradient(158deg,var(--band-b),#fff 76%)}
+.app .path-card.p4{background:#fff;border-color:color-mix(in srgb,var(--accent) 28%,var(--line))}
+.app .path-card.p5{background:linear-gradient(158deg,var(--wash),#fff 72%)}
+.app .path-card.p3{background:linear-gradient(150deg,var(--on-accent),color-mix(in srgb,var(--on-accent) 70%,var(--accent-deep)));color:#fff;border-color:transparent}
+.app .path-card.p3 p{color:#fffffff2}
+.app .path-card.p1>small,.app .path-card.p3>small,.app .path-card.p1>svg,.app .path-card.p3>svg{color:var(--tint)}
+.app .path-card.p3 .cat-icon{background:#ffffff1f;color:#fff;box-shadow:none}
+.app .cat-icon{background:linear-gradient(140deg,var(--wash),color-mix(in srgb,var(--accent) 20%,#fff));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 20%,transparent)}
+.app .p1 .cat-icon{background:#ffffff16;box-shadow:none}
+
+/* 5 ─ Result cards get a brand edge on hover and focus, not just a grey lift */
+.app .entity-card{position:relative}
+.app .entity-card:before{content:"";position:absolute;inset:0 0 auto;height:3px;border-radius:21px 21px 0 0;background:linear-gradient(90deg,var(--accent),var(--spark));opacity:0;transition:opacity 233ms;pointer-events:none}
+.app .entity-card:hover:before,.app .entity-card:focus-within:before{opacity:1}
+
+/* 6 ─ The counsellor block was hard-coded teal/cream from an older palette */
+.app .human-cta{position:relative;overflow:hidden;border:1px solid var(--hairline);background:linear-gradient(120deg,var(--wash),var(--band-b) 52%,color-mix(in srgb,var(--spark-lift) 55%,#fff));background-size:220% 220%;animation:cta-drift 21s ease-in-out infinite alternate}
+.app .human-cta .btn{background:var(--on-accent);color:#fff}
+@keyframes cta-drift{from{background-position:0% 50%}to{background-position:100% 50%}}
+
+/* 7 ─ Theme imagery: the vertical's own logo mark, used as a watermark */
+.app .human-cta:after,.app .section.ink .decision:after{content:"";position:absolute;pointer-events:none;background-image:var(--mark);background-size:contain;background-repeat:no-repeat}
+.app .human-cta:after{right:-64px;bottom:-72px;width:260px;height:260px;opacity:.085}
+.app .section.ink .decision{position:relative}
+.app .section.ink .decision:after{right:-34px;bottom:-64px;width:190px;height:190px;opacity:.12}
+
+/* 8 ─ Motion graphics: the route dots travel the path, the waypoints breathe */
+.app .route-visual path{animation:route-flow 7s linear infinite}
+.app .route-visual circle{animation:waypoint-pulse 3.4s ease-in-out infinite}
+.app .route-visual circle:nth-of-type(2){animation-delay:.6s}
+.app .route-visual circle:nth-of-type(3){animation-delay:1.2s}
+@keyframes route-flow{to{stroke-dashoffset:-150}}
+@keyframes waypoint-pulse{0%,100%{r:8}50%{r:10}}
+.app .scroll-progress i{background:linear-gradient(90deg,var(--accent),var(--spark),var(--accent-deep));box-shadow:0 0 12px var(--accent-glow)}
+
+/* 9 ─ Dynamic scroll: motif parallax, card entry and a section rule that all
+       track scroll position rather than firing once. Browsers without
+       scroll-driven animations keep the JS reveal and a static motif. */
+@supports (animation-timeline:view()){
+  .app main>section.section:before{animation:motif-parallax linear both;animation-timeline:view();animation-range:entry 0% exit 100%}
+  .app .path-grid>*,.app .card-grid>*,.app .bucket-grid>*{animation:card-rise linear both;animation-timeline:view();animation-range:entry 4% entry 68%}
+  .app .section-title>div:after{content:"";display:block;height:3px;width:78px;margin-top:15px;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--spark));transform-origin:left;animation:rule-draw linear both;animation-timeline:view();animation-range:entry 10% entry 60%}
+}
+@keyframes motif-parallax{from{transform:translate3d(0,-5%,0)}to{transform:translate3d(0,5%,0)}}
+@keyframes card-rise{from{opacity:0;transform:translate3d(0,44px,0) scale(.975)}to{opacity:1;transform:none}}
+@keyframes rule-draw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+
+@media(prefers-reduced-motion:reduce){
+  .app main>section.section:before,.app .human-cta,.app .route-visual path,.app .route-visual circle{animation:none!important}
+  .app .path-grid>*,.app .card-grid>*,.app .bucket-grid>*{animation:none!important;opacity:1!important;transform:none!important}
+  .app .section-title>div:after{animation:none!important;transform:none!important}
+}
+
+/* Kickers inside the dark decision band were accent-on-near-black (≈2.2:1);
+   on dark surfaces they take the light tint instead. */
+.app .section.ink .kicker{color:var(--tint)}
