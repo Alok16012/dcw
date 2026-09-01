@@ -600,6 +600,13 @@
   position:absolute;inset:0;display:block;
   animation:hero-drift 8s ease-in-out infinite alternate;will-change:transform}
 .app .hero:hover>picture{animation-play-state:paused}
+/* The drift is declared just above at `.app .hero>picture` (0,2,1), in a sheet
+   that loads after globals.css — so the coarse-pointer suppression over there
+   never won, and the hero kept drifting on every phone and tablet, where the
+   parallax buys nothing and costs battery. The suppression has to sit with the
+   declaration. (Its reduced-motion sibling in globals.css does still work: that
+   one carries !important, which outranks specificity.) */
+@media(pointer:coarse){.app .hero>picture{animation:none}}
 .app .hero>picture>img{
   width:100%;height:100%;object-fit:cover;
   /* the focal point the art was cropped for — off-centre so the subject sits
