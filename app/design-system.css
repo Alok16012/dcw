@@ -919,3 +919,956 @@
   background:color-mix(in srgb,var(--accent-ink,var(--accent)) 88%,var(--ink-1))}
 .app .header-actions button.talk:active{
   background:color-mix(in srgb,var(--accent-ink,var(--accent)) 80%,var(--ink-1))}
+
+/* ============================================================
+   HERO PROOF STRIP — stat medallions
+   The old .stat-i was a flat 13%-white square with a line icon dropped in
+   it: the same shape the rest of the page uses for decoration, so it read
+   as filler rather than as a credential. It is now a struck medallion —
+   ring, top light, seated shadow — which gives the figure something to sit
+   against and reads as minted rather than pasted.
+   ============================================================ */
+.app .proof .stat-i{
+  width:46px;height:46px;border-radius:14px;
+  position:relative;isolation:isolate;
+  /* Face is a cool, sunken well rather than a gold wash. The first pass
+     tinted the face with --spark and then put a --spark-lift glyph on it,
+     so symbol and background were the same hue and the icon muddied out.
+     The gold now belongs to the glyph and the bezel only. */
+  background:
+    linear-gradient(155deg,rgb(255 255 255/.17),rgb(255 255 255/.03) 58%),
+    rgb(6 14 28/.62);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255/.30),
+    inset 0 -1px 0 rgb(0 0 0/.30),
+    0 6px 16px rgb(0 0 0/.34)}
+
+/* Hairline ring, drawn as a masked border so it can carry a gradient the
+   way a real bezel catches light — brightest top-left, accent at the foot. */
+.app .proof .stat-i::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;
+  background:linear-gradient(160deg,
+    rgb(255 255 255/.52),
+    rgb(255 255 255/.06) 55%,
+    color-mix(in srgb,var(--spark,#F5C93B) 70%,transparent) 130%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask-composite:exclude;pointer-events:none}
+
+.app .proof .stat-i svg{
+  width:21px;height:21px;stroke-width:2;
+  color:var(--spark-lift,#F7D98C);
+  filter:drop-shadow(0 1px 2px rgb(0 0 0/.55))}
+
+.app .proof button:hover .stat-i{
+  transform:translateY(-2px) scale(1.03);
+  background:
+    linear-gradient(155deg,rgb(255 255 255/.24),rgb(255 255 255/.06) 58%),
+    color-mix(in srgb,var(--spark,#F5C93B) 12%,rgb(6 14 28/.62));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255/.42),
+    inset 0 -1px 0 rgb(0 0 0/.24),
+    0 10px 22px rgb(0 0 0/.34)}
+
+/* The strip goes single-column at 900px, where it was stacking three full
+   tiles at ~133px each and eating 401px — 43% of the hero. Same information,
+   laid out along the row instead of down it, costs about a third of that.
+   Breakpoint matches the single-column switch above deliberately. */
+@media(max-width:900px){
+  .app .proof button{
+    grid-template-areas:"icon num note" "icon label note";
+    grid-template-columns:auto minmax(0,1fr) auto;
+    align-items:center;gap:0 var(--s-3);
+    padding:var(--s-3)}
+  .app .proof .stat-i{width:40px;height:40px;border-radius:12px}
+  .app .proof .stat-i svg{width:19px;height:19px}
+  /* The figure already states the value; the meter is the first thing to go
+     when the row has to earn its height. */
+  .app .proof .stat-bar,.app .proof .stat-rule{display:none}
+  .app .proof .stat-note{
+    grid-area:note;margin-top:0;max-width:15ch;align-self:center;
+    justify-content:flex-end;text-align:right;line-height:1.28}
+}
+
+/* Below 430px the note cannot hold its line without wrapping to three rows,
+   which made the tiles different heights and cost more than the note is
+   worth. The figure and its label carry the point on their own here. */
+@media(max-width:430px){
+  .app .proof .stat-note{display:none}
+  .app .proof button{grid-template-areas:"icon num" "icon label";
+    grid-template-columns:auto minmax(0,1fr)}
+}
+
+/* ============================================================
+   CARD PLATES + PATH CARDS
+   The path cards were a flat panel with an icon chip, a kicker and a title —
+   six of them in a row, distinguishable only by a background tint. They now
+   carry a drawn header (see Plate in the page component), which gives the
+   grid a picture plane and lets the body do one job: name the thing and say
+   what it is. The p0..p5 background lottery is retired; variety now comes
+   from the plate, which is seeded per card and therefore stable.
+   ============================================================ */
+.app .plate{
+  position:relative;display:block;overflow:hidden;isolation:isolate;
+  aspect-ratio:16/10;border-radius:var(--r-3) var(--r-3) 0 0;
+  --plate-a:color-mix(in oklab,var(--accent) var(--plate-mix,72%),var(--ink-1));
+  --plate-b:color-mix(in oklab,var(--accent) 22%,var(--ink-1));
+  --plate-line:color-mix(in srgb,var(--spark,#F5C93B) 88%,#fff);
+  --plate-node:#fff;
+  background:var(--ink-1)}
+
+.app .plate-art,.app .plate-photo{position:absolute;inset:0;width:100%;height:100%;display:block}
+.app .plate-photo{object-fit:cover}
+
+/* Seats the artwork under the body: darker toward the bottom edge so the
+   card does not read as two unrelated halves stacked on each other. */
+.app .plate::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(130% 100% at 78% 6%,transparent 38%,rgb(6 14 28/.34)),
+    linear-gradient(to bottom,transparent 62%,rgb(6 14 28/.40));
+  box-shadow:inset 0 1px 0 rgb(255 255 255/.16)}
+
+.app .plate-chip{
+  position:absolute;left:var(--s-3);bottom:var(--s-3);z-index:2;
+  width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+  background:rgb(255 255 255/.15);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  box-shadow:inset 0 1px 0 rgb(255 255 255/.36),0 6px 15px rgb(0 0 0/.32)}
+.app .plate-chip svg{width:20px;height:20px;color:#fff;stroke-width:2}
+
+.app .plate-tag{
+  position:absolute;right:var(--s-3);top:var(--s-3);z-index:2;
+  font-size:11px;font-weight:800;letter-spacing:var(--tr-caps);
+  text-transform:uppercase;color:var(--ink-1);
+  background:color-mix(in srgb,var(--spark,#F5C93B) 92%,#fff);
+  padding:5px 9px;border-radius:var(--r-pill);
+  box-shadow:0 4px 12px rgb(0 0 0/.26),inset 0 1px 0 rgb(255 255 255/.5)}
+
+/* --- the card itself --- */
+.app .path-card{
+  position:relative;display:flex;flex-direction:column;text-align:left;
+  min-height:0;padding:0;overflow:hidden;
+  border:1px solid var(--line);border-radius:var(--r-4);
+  background:var(--n-0);box-shadow:var(--e-1);
+  transition:transform var(--t-comp) var(--ease-out),
+             box-shadow var(--t-comp) var(--ease-out),
+             border-color var(--t-micro) var(--ease-std)}
+.app .path-card:hover{
+  transform:translateY(-4px);box-shadow:var(--e-4);
+  border-color:color-mix(in srgb,var(--accent) 30%,var(--line))}
+/* Every tinted variant is now a plain surface; the plate carries the colour. */
+.app .path-card.p0,.app .path-card.p1,.app .path-card.p2,
+.app .path-card.p3,.app .path-card.p4,.app .path-card.p5{
+  background:var(--n-0);color:var(--ink-1);border-color:var(--line)}
+
+.app .pc-body{
+  display:flex;flex-direction:column;gap:var(--s-2);
+  padding:var(--s-4) var(--s-4) var(--s-5);flex:1}
+.app .path-card h3{
+  font-size:var(--fs-600);line-height:var(--lh-snug);letter-spacing:-.012em;
+  margin:0;color:var(--ink-1)}
+.app .path-card p{
+  margin:0;font-size:var(--fs-200);line-height:var(--lh-body);
+  color:var(--ink-3);max-width:38ch}
+
+/* Stretched link: the visible control is the title, the hit area is the card. */
+.app .pc-link{
+  background:none;border:0;padding:0;font:inherit;color:inherit;
+  text-align:left;cursor:pointer}
+.app .pc-link::after{content:"";position:absolute;inset:0;border-radius:inherit}
+.app .path-card:has(.pc-link:focus-visible){
+  outline:2px solid var(--accent);outline-offset:3px}
+.app .pc-link:focus-visible{outline:none}
+
+.app .pc-go{
+  margin-top:auto;padding-top:var(--s-3);
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:var(--fs-200);font-weight:700;color:var(--accent-text,var(--accent))}
+.app .pc-go svg{width:16px;height:16px;transition:transform var(--t-comp) var(--ease-out)}
+.app .path-card:hover .pc-go svg{transform:translateX(4px)}
+
+@media(prefers-reduced-motion:reduce){
+  .app .path-card,.app .pc-go svg{transition:none}
+  .app .path-card:hover{transform:none}
+  .app .path-card:hover .pc-go svg{transform:none}
+}
+
+/* ===========================================================================
+   ITEMS 3 (rest of the boxes), 5 (apply) and 6 (boards + universities)
+   ---------------------------------------------------------------------------
+   The entity card gets the same anatomy the path cards got: a plate on top,
+   a body, a footer. The monogram moves ONTO the plate as a glass tile — an
+   honest typographic mark, because DCW holds no licensed university logo and
+   drawing one would be a lie told in pixels. `item.image` swaps the drawn
+   plate for real photography with no other change.
+   =========================================================================== */
+
+.app .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* ---- monogram tile on the plate ---- */
+.app .plate-mark{position:absolute;left:var(--s-3);bottom:var(--s-3);z-index:2;
+  min-width:54px;height:44px;padding-inline:12px;border-radius:13px;
+  display:grid;place-items:center;
+  font-family:var(--font-display);font-weight:800;font-size:var(--fs-400);
+  line-height:1;letter-spacing:.01em;color:#fff;
+  background:rgb(255 255 255/.16);
+  -webkit-backdrop-filter:blur(12px) saturate(140%);backdrop-filter:blur(12px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255/.44),
+    inset 0 -1px 0 rgb(0 0 0/.26),
+    0 8px 18px rgb(0 0 0/.32)}
+/* a card carrying both keeps them from stacking on the same corner */
+.app .plate:has(.plate-mark) .plate-chip{left:auto;right:var(--s-3)}
+
+/* ---- entity card ---- */
+.app .entity-card{position:relative;display:flex;flex-direction:column;
+  padding:0;overflow:hidden;
+  border:1px solid var(--line);border-radius:var(--r-4);
+  background:var(--n-0);box-shadow:var(--e-1);
+  transition:transform var(--t-comp) var(--ease-out),
+             box-shadow var(--t-comp) var(--ease-out),
+             border-color var(--t-micro) var(--ease-std)}
+.app .entity-card:hover{transform:translateY(-4px);box-shadow:var(--e-4);
+  border-color:color-mix(in srgb,var(--accent) 30%,var(--line))}
+.app .entity-card .plate{aspect-ratio:16/7}
+
+.app .ec-body{display:flex;flex-direction:column;gap:var(--s-2);
+  padding:var(--s-4) var(--s-4) 0;flex:1}
+.app .ec-body h3{margin:0;font-family:var(--font-display);
+  font-size:var(--fs-500);line-height:var(--lh-snug);letter-spacing:-.012em;
+  color:var(--ink-1)}
+/* Stretched link: the whole card opens the detail page, but the footer
+   controls sit above it so Apply and Compare stay independently clickable. */
+.app .ec-link{background:none;border:0;padding:0;margin:0;font:inherit;
+  color:inherit;text-align:left;cursor:pointer}
+.app .ec-link::after{content:"";position:absolute;inset:0;z-index:1}
+.app .ec-link:focus-visible{outline:none}
+.app .entity-card:has(.ec-link:focus-visible){outline:2px solid var(--accent);outline-offset:3px}
+.app .ec-body>p{display:flex;align-items:center;gap:6px;margin:0;
+  font-size:var(--fs-200);line-height:var(--lh-body);color:var(--ink-3)}
+.app .ec-body>p svg{width:14px;height:14px;flex:none;color:var(--ink-4)}
+
+.app .ec-save{position:absolute;left:var(--s-3);top:var(--s-3);z-index:3;
+  width:38px;height:38px;border:0;border-radius:12px;cursor:pointer;
+  display:grid;place-items:center;color:#fff;
+  background:rgb(6 14 28/.44);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  box-shadow:inset 0 1px 0 rgb(255 255 255/.30),0 4px 12px rgb(0 0 0/.28);
+  transition:background var(--t-micro) var(--ease-std),transform var(--t-micro) var(--ease-out)}
+.app .ec-save:hover{background:rgb(6 14 28/.68);transform:scale(1.06)}
+.app .ec-save svg{width:18px;height:18px;stroke-width:2}
+.app .ec-save.active{background:color-mix(in srgb,var(--spark) 94%,#fff);color:var(--ink-1)}
+.app .ec-save.active svg{fill:currentColor}
+
+.app .ec-body .metrics{margin:var(--s-1) 0 0;padding:var(--s-3) 0;
+  border-block:1px solid var(--line);gap:0}
+.app .ec-body .metrics small{font-size:var(--fs-100);letter-spacing:var(--tr-caps);
+  text-transform:uppercase;color:var(--ink-4);margin-bottom:5px}
+.app .ec-body .metrics b{display:flex;align-items:center;gap:4px;
+  font-size:var(--fs-300);line-height:1.35;color:var(--ink-1)}
+.app .ec-body .metrics b svg{width:14px;height:14px;flex:none;
+  color:var(--spark);fill:var(--spark);stroke-width:1.5}
+.app .ec-body .tags{margin-top:auto;padding-bottom:var(--s-1)}
+.app .tag-more{background:var(--wash)!important;color:var(--accent-text)!important;font-weight:700}
+
+.app .entity-foot{position:relative;z-index:2;display:flex;align-items:center;
+  gap:var(--s-2);margin-top:auto;padding:var(--s-3) var(--s-4) var(--s-4)}
+.app .ec-compare{margin-right:auto;display:flex;align-items:center;gap:7px;
+  min-height:36px;font-size:var(--fs-200);font-weight:600;color:var(--ink-3);cursor:pointer}
+.app .ec-compare input{accent-color:var(--accent);width:16px;height:16px}
+.app .entity-foot .btn.small{min-height:38px}
+
+/* Listing rows are full-width, where a 16/7 banner would swamp the text.
+   Recompose to a row: plate on the left at a fixed column, body beside it. */
+@media(min-width:761px){
+  .app .results>.entity-card{display:grid;
+    grid-template-columns:224px minmax(0,1fr);
+    grid-template-areas:"plate body" "plate foot"}
+  .app .results>.entity-card .plate{grid-area:plate;aspect-ratio:auto;height:100%;
+    border-radius:var(--r-4) 0 0 var(--r-4)}
+  .app .results>.entity-card .ec-body{grid-area:body;padding:var(--s-4) var(--s-5) 0}
+  .app .results>.entity-card .entity-foot{grid-area:foot;padding:var(--s-3) var(--s-5) var(--s-4)}
+  .app .results>.entity-card .ec-save{left:auto;right:var(--s-3)}
+}
+
+/* ---- course table: the actual apply surface (item 5) ---- */
+.app .course-table{border:1px solid var(--line);border-radius:var(--r-3);
+  background:var(--n-0);overflow:hidden}
+.app .ct-head,.app .ct-row{display:grid;
+  grid-template-columns:minmax(0,1.6fr) .8fr .9fr auto;
+  align-items:center;gap:var(--s-3);padding:var(--s-3) var(--s-4)}
+.app .ct-head{background:var(--n-1);border-bottom:1px solid var(--line);
+  font-size:var(--fs-100);font-weight:700;letter-spacing:var(--tr-caps);
+  text-transform:uppercase;color:var(--ink-4)}
+.app .ct-row+.ct-row{border-top:1px solid var(--line)}
+.app .ct-row{transition:background var(--t-micro) var(--ease-std)}
+.app .ct-row:hover{background:var(--wash)}
+.app .ct-row b{display:block;font-size:var(--fs-300);color:var(--ink-1)}
+.app .ct-row small{display:block;margin-top:3px;font-size:var(--fs-100);color:var(--ink-4)}
+.app .ct-row span{font-size:var(--fs-200);color:var(--ink-2);font-variant-numeric:tabular-nums}
+@media(max-width:760px){
+  .app .ct-head{display:none}
+  .app .ct-row{grid-template-columns:1fr auto;gap:var(--s-2) var(--s-3);
+    padding:var(--s-4);align-items:start}
+  .app .ct-row>span:first-child{grid-column:1/-1}
+  .app .ct-row>span[data-lbl]:before{content:attr(data-lbl) " · ";color:var(--ink-4)}
+  .app .ct-row>span:nth-child(2){grid-column:1}
+  .app .ct-row>span:nth-child(3){grid-column:1}
+  .app .ct-row>span:last-child{grid-column:2;grid-row:2/4;align-self:center}
+}
+
+/* ---- application context strip in the lead modal ---- */
+.app .lead-context{display:flex;align-items:center;gap:8px;
+  margin:var(--s-3) 0 0;padding:10px 12px;border-radius:var(--r-2);
+  background:var(--wash);color:var(--ink-2);font-size:var(--fs-200)}
+.app .lead-context svg{width:15px;height:15px;flex:none;color:var(--accent-text)}
+
+/* ===== Boards page (item 6) =============================================== */
+.app .tool-hero{position:relative;overflow:hidden;background:var(--ink-deep,#081528);
+  min-height:430px;display:flex;flex-direction:column;justify-content:center;
+  padding-block:var(--s-8) var(--s-8)}
+.app .tool-hero>picture{position:absolute;inset:0;display:block}
+.app .tool-hero>picture>img{width:100%;height:100%;object-fit:cover;
+  object-position:64% 34%;display:block}
+.app .tool-hero .hero-shade{background:linear-gradient(96deg,
+  color-mix(in srgb,var(--ink-deep) 97%,transparent) 0%,
+  color-mix(in srgb,var(--ink-deep) 90%,transparent) 46%,
+  color-mix(in srgb,var(--ink-deep) 40%,transparent) 76%,
+  color-mix(in srgb,var(--ink-deep) 14%,transparent) 100%)}
+.app .tool-hero-copy{position:relative;color:#fff;max-width:none}
+.app .tool-hero-copy>*+*{margin-top:var(--s-4)}
+.app .tool-hero-copy .eyebrow{color:var(--spark-lift,#F7D98C)}
+.app .tool-hero-copy h1{font-family:var(--font-display);font-weight:900;
+  font-size:clamp(34px,3.7vw,52px);line-height:1.07;letter-spacing:-.028em;margin:0;
+  color:#fff}   /* the global heading rule paints ink-1; this band is dark */
+.app .tool-hero-copy h1 em{font-style:normal;font-weight:400;
+  color:var(--spark-lift,#F7D98C);letter-spacing:-.02em}
+.app .tool-hero-copy>p{margin:0;max-width:58ch;font-size:var(--fs-400);
+  line-height:1.62;color:rgb(255 255 255/.84)}
+.app .tool-hero-copy .hero-ctas{display:flex;flex-wrap:wrap;gap:var(--s-3)}
+.app .tool-hero-copy .btn.ghost{text-decoration:none}
+@media(max-width:760px){
+  .app .tool-hero{min-height:360px;padding-block:var(--s-7)}
+  .app .tool-hero .hero-shade{background:linear-gradient(180deg,
+    color-mix(in srgb,var(--ink-deep) 78%,transparent),
+    color-mix(in srgb,var(--ink-deep) 96%,transparent) 66%)}
+  .app .tool-hero-copy .hero-ctas{flex-direction:column;align-items:stretch}
+}
+
+.app .section-lede{margin:calc(var(--s-4) * -1) 0 var(--s-5);
+  max-width:66ch;font-size:var(--fs-300);line-height:var(--lh-body);color:var(--ink-3)}
+
+.app .board-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:1100px){.app .board-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.app .board-grid{grid-template-columns:minmax(0,1fr)}}
+.app .board-card .plate{aspect-ratio:16/9}
+.app .board-card .pc-body{gap:var(--s-2)}
+ /* Cards in a row have to read as one row, so the variable-length strings get
+    a floor: two lines for the full name and the best-for note, two lines for
+    every fact value. Without it a board whose name wraps drags its whole
+    column out of step with the others. */
+.app .bc-full{font-size:var(--fs-100)!important;color:var(--ink-4)!important;
+  line-height:1.45;margin:0!important;min-height:2.9em}
+.app .bc-facts{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-2) var(--s-3);
+  margin:var(--s-2) 0 0;padding:var(--s-3) 0;border-block:1px solid var(--line)}
+.app .bc-facts dt{font-size:var(--fs-100);letter-spacing:var(--tr-caps);
+  text-transform:uppercase;color:var(--ink-4);margin-bottom:3px}
+.app .bc-facts dd{margin:0;font-size:var(--fs-200);font-weight:700;color:var(--ink-1);
+  line-height:1.4;min-height:2.8em;font-variant-numeric:tabular-nums}
+.app .bc-best{display:flex;gap:7px;align-items:flex-start;margin:0!important;
+  font-size:var(--fs-200)!important;line-height:1.5;color:var(--ink-2)!important;
+  min-height:3em}
+.app .bc-best svg{width:15px;height:15px;flex:none;margin-top:2px;
+  color:var(--ok,#158467);stroke-width:2.5}
+.app .bc-foot{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-2);
+  margin-top:auto;padding-top:var(--s-3)}
+.app .bc-foot .text-btn{display:inline-flex;align-items:center;gap:6px}
+.app .bc-foot .text-btn svg{width:15px;height:15px}
+
+/* The quiz used to float on its own; it now closes the page's argument, so it
+   reads as the last step rather than a stray widget. */
+.app .quiz{margin-top:var(--s-7);border-radius:var(--r-4);box-shadow:var(--e-1)}
+.app .recommend .bc-foot{margin-top:var(--s-4)}
+
+/* ===========================================================================
+   JOBS: LOCATION-FIRST DISCOVERY
+   A course is chosen by money; a job is chosen by PLACE. So the jobs listing
+   leads with an editorial band and a locator strip, and every card carries the
+   three signals that decide whether somebody bothers to apply: how far it is,
+   whether it can be done from home, and how fresh the posting is.
+   =========================================================================== */
+
+.app .jobs-hero{min-height:470px}
+.app .jobs-hero img{object-position:58% 38%}
+
+/* Proof pills sit under the hero CTAs: counts, not adjectives. */
+.app .hero-pills{display:flex;flex-wrap:wrap;gap:var(--s-2);margin-top:var(--s-5)}
+.app .hero-pills span{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;
+  font-size:var(--fs-200);font-weight:600;letter-spacing:.01em;color:#fff;
+  background:rgb(255 255 255/.13);border:1px solid rgb(255 255 255/.2);
+  backdrop-filter:blur(10px) saturate(140%)}
+.app .hero-pills svg{width:15px;height:15px;stroke-width:2.2;color:var(--spark)}
+
+/* ---- Locator band -------------------------------------------------------- */
+.app .locator{margin-top:calc(var(--s-6) * -1);position:relative;z-index:3;
+  padding:var(--s-5) var(--s-5) var(--s-4);border-radius:var(--r-4);
+  background:var(--n-0);box-shadow:var(--e-3);border:1px solid var(--line)}
+.app .locator-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s-2) var(--s-4);margin-bottom:var(--s-4)}
+.app .locator .kicker{display:inline-flex;align-items:center;gap:7px;margin:0}
+.app .locator .kicker svg{width:14px;height:14px;stroke-width:2.4}
+.app .locator-note{margin:0;font-size:var(--fs-200);color:var(--ink-3);max-width:56ch}
+.app .locator-live{margin:0;display:inline-flex;align-items:center;gap:8px;font-size:var(--fs-200);color:var(--ink-2)}
+.app .locator-live b{color:var(--accent-ink)}
+/* A live dot earns its motion: it marks state the user just granted. */
+.app .pulse{width:8px;height:8px;border-radius:50%;background:var(--ok,#1E9E5A);
+  box-shadow:0 0 0 0 rgb(30 158 90/.55);animation:pulse-ring 2s ease-out infinite}
+@keyframes pulse-ring{70%{box-shadow:0 0 0 9px rgb(30 158 90/0)}100%{box-shadow:0 0 0 0 rgb(30 158 90/0)}}
+@media (prefers-reduced-motion:reduce){.app .pulse{animation:none}}
+
+.app .locator-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-3);justify-content:space-between}
+.app .city-chips{display:flex;flex-wrap:wrap;gap:8px}
+.app .city-chips .chip{display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:999px;
+  border:1px solid var(--line);background:var(--n-0);color:var(--ink-2);
+  font-family:var(--font-ui,inherit);font-size:var(--fs-200);font-weight:600;cursor:pointer;
+  transition:background .16s ease,border-color .16s ease,color .16s ease,transform .16s ease}
+.app .city-chips .chip svg{width:14px;height:14px;stroke-width:2.2}
+.app .city-chips .chip small{font-size:11px;font-weight:700;padding:2px 6px;border-radius:999px;
+  background:var(--wash);color:var(--accent-ink);font-variant-numeric:tabular-nums}
+.app .city-chips .chip:hover{border-color:var(--accent);color:var(--accent-ink);transform:translateY(-1px)}
+.app .city-chips .chip.on{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:var(--e-2)}
+.app .city-chips .chip.on small{background:rgb(255 255 255/.22);color:#fff}
+.app .btn.locate svg{width:16px;height:16px}
+.app .btn.locate.on{border-color:var(--ok,#1E9E5A);color:var(--ok,#1E9E5A)}
+
+/* ---- Card signals -------------------------------------------------------- */
+.app .ec-signals{display:flex;flex-wrap:wrap;gap:6px;margin:calc(var(--s-2) * -1) 0 var(--s-3)}
+.app .ec-signals .sig{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:8px;
+  font-size:12px;font-weight:700;letter-spacing:.01em;line-height:1.4}
+.app .ec-signals .sig svg{width:13px;height:13px;stroke-width:2.4}
+.app .ec-signals .near{background:var(--wash);color:var(--accent-ink)}
+.app .ec-signals .wfh{background:#E8F4EC;color:#146B3E}
+.app .ec-signals .fresh{background:#FEF1DC;color:#8A5300}
+
+/* ---- Active filter summary ---------------------------------------------- */
+.app .active-filters{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-bottom:var(--s-3)}
+.app .active-filters span{padding:5px 11px;border-radius:999px;background:var(--wash);
+  color:var(--accent-ink);font-size:12px;font-weight:650}
+.app .linkish{background:none;border:0;padding:0 4px;color:var(--accent-ink);font-weight:650;
+  font-size:12px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.app .filter-title b{display:inline-flex;align-items:center;gap:7px}
+.app .filter-title b svg{width:15px;height:15px;stroke-width:2.2}
+
+/* ---- Nearby pop-up ------------------------------------------------------
+   The recommendation the location prompt earns. It floats rather than pushing
+   the results down, and it is dismissible — a permission grant must never
+   cost somebody their place on the page. */
+.app .nearby-pop{position:fixed;right:var(--s-5);bottom:calc(var(--s-5) + 76px);z-index:60;width:min(370px,calc(100vw - 32px));
+  padding:var(--s-4);border-radius:var(--r-4);background:var(--n-0);border:1px solid var(--line);
+  box-shadow:0 24px 60px rgb(11 21 38/.24),0 2px 6px rgb(11 21 38/.08);
+  animation:np-in .32s cubic-bezier(.2,.8,.3,1) both}
+@keyframes np-in{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.app .nearby-pop{animation:none}}
+.app .np-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3)}
+.app .np-head .kicker{display:inline-flex;align-items:center;gap:6px;margin:0}
+.app .np-head .kicker svg{width:14px;height:14px;stroke-width:2.4;color:var(--accent)}
+.app .np-head button{width:30px;height:30px;display:grid;place-items:center;border:0;border-radius:9px;
+  background:var(--n-1);color:var(--ink-3);cursor:pointer}
+.app .np-head button:hover{background:var(--wash);color:var(--accent-ink)}
+.app .np-head button svg{width:15px;height:15px}
+.app .nearby-pop>p{margin:var(--s-2) 0 var(--s-3);font-size:var(--fs-200);color:var(--ink-3);line-height:1.5}
+.app .np-list{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.app .np-list li{display:flex;align-items:center;gap:var(--s-3);padding:9px 8px;border-radius:11px}
+.app .np-list li:hover{background:var(--n-1)}
+.app .np-mark{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border-radius:10px;
+  background:var(--accent);color:#fff;font-family:var(--font-display);font-weight:800;font-size:13px}
+.app .np-copy{flex:1;min-width:0;display:grid}
+.app .np-copy b{font-size:var(--fs-200);color:var(--ink-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app .np-copy small{font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app .np-km{flex:0 0 auto;display:grid;justify-items:center;font-family:var(--font-display);font-weight:800;
+  font-size:var(--fs-300);color:var(--accent-ink);font-variant-numeric:tabular-nums;line-height:1}
+.app .np-km small{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--ink-3)}
+.app .np-foot{display:flex;gap:var(--s-2);margin-top:var(--s-3);padding-top:var(--s-3);border-top:1px solid var(--line)}
+.app .np-foot .btn{flex:1;justify-content:center}
+@media (max-width:640px){
+  .app .nearby-pop{left:var(--s-3);right:var(--s-3);bottom:calc(var(--s-3) + 68px);width:auto}
+}
+
+/* ---- Detail banner ------------------------------------------------------
+   Every detail page opened onto a bare monogram. A photographic band gives
+   the page a subject before it gives it data. */
+.app .detail-banner{position:relative;min-height:230px;display:flex;align-items:flex-end;overflow:hidden}
+.app .detail-banner>picture{position:absolute;inset:0}
+.app .detail-banner img{width:100%;height:100%;object-fit:cover;object-position:60% 36%}
+.app .detail-banner .hero-shade{position:absolute;inset:0;
+  background:linear-gradient(96deg,rgb(11 21 38/.86) 0%,rgb(11 21 38/.68) 46%,rgb(11 21 38/.28) 100%)}
+.app .db-copy{position:relative;z-index:2;padding-block:var(--s-6) var(--s-5)}
+.app .db-kicker{display:inline-block;margin-bottom:10px;padding:5px 12px;border-radius:999px;
+  font-size:11px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--spark-ink);background:var(--spark)}
+.app .detail-banner h2{margin:0;color:#fff;   /* the global heading rule paints ink-1; this band is dark */
+  font-size:clamp(1.6rem,3.4vw,2.5rem);line-height:1.12;letter-spacing:-.02em}
+.app .db-copy p{display:flex;align-items:center;gap:7px;margin:10px 0 0;
+  font-size:var(--fs-200);color:rgb(255 255 255/.82)}
+.app .db-copy p svg{width:15px;height:15px;stroke-width:2.2;color:var(--spark)}
+@media (max-width:760px){
+  .app .detail-banner{min-height:170px}
+  .app .db-copy{padding-block:var(--s-5) var(--s-4)}
+}
+/* When the chip row wraps, the locate button must stay on the right edge
+   rather than snapping to the start of a new line. */
+.app .btn.locate{margin-left:auto}
+
+/* ---- Role panel: the job detail page's substance ------------------------
+   A job page that shows only a salary and a deadline tells somebody nothing
+   about the work. Duties on the left, the checkable facts on the right. */
+.app .role-panel{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:var(--s-5);align-items:start}
+.app .rp-main{padding:var(--s-5);border-radius:var(--r-4);background:var(--n-0);
+  border:1px solid var(--line);box-shadow:var(--e-1)}
+.app .rp-main h3{margin:0 0 var(--s-4);font-size:var(--fs-400)}
+.app .rp-main ul{list-style:none;margin:0;padding:0;display:grid;gap:var(--s-3)}
+.app .rp-main li{display:flex;gap:10px;font-size:var(--fs-200);line-height:1.55;color:var(--ink-2)}
+.app .rp-main li svg{flex:0 0 18px;width:18px;height:18px;margin-top:2px;stroke-width:2.6;color:var(--ok,#1E9E5A)}
+.app .rp-pay{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-3);
+  margin-top:var(--s-5);padding-top:var(--s-4);border-top:1px solid var(--line)}
+.app .rp-pay span{display:grid;gap:4px;min-width:0}
+.app .rp-pay small{font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--ink-3)}
+.app .rp-pay b{font-family:var(--font-display);font-size:var(--fs-300);color:var(--ink-1);
+  font-variant-numeric:tabular-nums;line-height:1.25}
+.app .rp-facts{margin:0;padding:var(--s-4) var(--s-5);border-radius:var(--r-4);
+  background:var(--wash);border:1px solid var(--tint);display:grid;gap:0}
+.app .rp-facts>div{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--s-3);
+  align-items:baseline;padding:11px 0;border-bottom:1px solid rgb(11 21 38/.07)}
+.app .rp-facts>div:last-child{border-bottom:0}
+.app .rp-facts dt{font-size:var(--fs-100);font-weight:700;letter-spacing:.03em;
+  text-transform:uppercase;color:var(--ink-3)}
+.app .rp-facts dd{margin:0;text-align:right;font-size:var(--fs-200);font-weight:650;color:var(--ink-1)}
+@media (max-width:860px){.app .role-panel{grid-template-columns:1fr}}
+@media (max-width:480px){.app .rp-pay{grid-template-columns:1fr;gap:var(--s-2)}
+  .app .rp-pay span{grid-template-columns:auto auto;justify-content:space-between;align-items:baseline}}
+
+/* ===== Resume builder =======================================================
+   Two columns: a form that stays scrollable, and a live A4 page. The page is
+   rendered at real proportions (210 x 297) so what somebody sees is what the
+   printer produces — the export is the browser's own Save as PDF, not an
+   image, so the text stays selectable and screening software can read it. */
+.app .resume-layout{grid-template-columns:minmax(0,460px) minmax(0,1fr);gap:var(--s-7);align-items:start}
+.app .resume-form{position:sticky;top:96px;max-height:calc(100vh - 128px);overflow:auto;
+  display:flex;flex-direction:column;gap:var(--s-4);scrollbar-width:thin}
+.app .resume-form h3{font-size:15px;margin:var(--s-2) 0 0}
+.app .resume-form .two-up{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-3)}
+.app .resume-form label{display:block}
+.app .resume-form label small{display:block;margin-top:6px;color:var(--ink-3);font-size:12px;font-weight:600;letter-spacing:0}
+.app .resume-form textarea{height:auto;padding:10px 12px;line-height:1.55;resize:vertical}
+.app .resume-form .note{display:flex;gap:10px;align-items:flex-start;margin:0;padding:12px 14px;
+  background:var(--wash);border-radius:12px;color:var(--ink-2);font-size:13px;line-height:1.5}
+.app .resume-form .note svg{width:16px;height:16px;flex:none;margin-top:2px;color:var(--accent)}
+
+/* The stepper is a progress map, not a tab bar: past steps carry a tick so
+   people can see how much of the resume is already behind them. */
+.app .resume-form .stepper{display:flex;gap:6px;list-style:none;margin:0 0 var(--s-2);padding:0}
+.app .resume-form .stepper li{flex:1;min-width:0}
+.app .resume-form .stepper button{display:flex;flex-direction:column;gap:6px;width:100%;padding:0;
+  text-align:left;font-size:11px;font-weight:800;letter-spacing:.02em;color:var(--ink-3);
+  border:0;background:none;border-top:3px solid var(--line);padding-top:8px;transition:color .16s,border-color .16s}
+.app .resume-form .stepper button b{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;
+  background:var(--line-2,#E4E9F0);color:var(--ink-2);font-size:11px}
+.app .resume-form .stepper button b svg{width:12px;height:12px}
+.app .resume-form .stepper .done{color:var(--ink-2);border-top-color:var(--accent)}
+.app .resume-form .stepper .done b{background:var(--accent);color:#fff}
+.app .resume-form .stepper .active{color:var(--accent);border-top-color:var(--accent)}
+.app .resume-form .stepper .active b{background:var(--accent);color:#fff}
+
+/* Repeating blocks (each qualification, each role) are real fieldsets so a
+   screen reader announces which one it is reading. */
+.app .repeater{display:flex;flex-direction:column;gap:var(--s-4)}
+.app .repeater fieldset{border:1px solid var(--line);border-radius:14px;padding:var(--s-3) var(--s-4) var(--s-4);
+  margin:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--s-3)}
+.app .repeater legend{grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:0 8px;
+  font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.app .repeater legend button{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;
+  border:1px solid var(--line);background:#fff;color:var(--ink-3)}
+.app .repeater legend button:hover{border-color:#C9433F;color:#C9433F}
+.app .repeater legend button svg{width:12px;height:12px}
+.app .repeater label.wide{grid-column:1/-1}
+.app .repeater .add{align-self:flex-start}
+
+/* Skills are chips because a comma-separated string prints badly and a chip
+   can be removed with one tap on a phone. */
+.app .chip-input .ci-box{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:7px;
+  min-height:48px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.app .chip-input .ci-box:focus-within{border-color:var(--focus-ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 14%,transparent)}
+.app .chip-input .ci-box input{flex:1;min-width:130px;height:30px;min-height:30px;border:0;margin:0;padding:0;background:none}
+.app .chip-input .ci-box input:focus-visible{outline:none;border:0;box-shadow:none}
+.app .ci-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 6px 5px 10px;border-radius:99px;
+  background:var(--wash);color:var(--accent-ink);font-size:12px;font-weight:700}
+.app .ci-chip button{display:grid;place-items:center;width:16px;height:16px;border:0;border-radius:50%;
+  background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent-ink)}
+.app .ci-chip button svg{width:10px;height:10px}
+.app .ci-chip button:hover{background:var(--accent);color:#fff}
+
+/* Layout choices are shown, not described: each button carries a wireframe of
+   what the page will look like, plus the one situation it suits. */
+.app .template-picks{grid-template-columns:repeat(3,1fr)}
+.app .template-picks button{display:flex;flex-direction:column;gap:6px;padding:10px;text-align:left;
+  border:1px solid var(--line);border-radius:14px;background:#fff;transition:border-color .16s,box-shadow .16s}
+.app .template-picks button:hover{border-color:var(--accent);box-shadow:var(--e-1)}
+.app .template-picks button b{font-size:13px}
+.app .template-picks button small{color:var(--ink-3);font-size:11px;line-height:1.4}
+.app .template-picks button em{font-style:normal;font-size:10px;font-weight:800;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--accent-ink)}
+.app .tp-thumb{display:block;height:58px;border-radius:8px;border:1px solid var(--line);background:#fff;
+  padding:7px;position:relative;overflow:hidden}
+.app .tp-thumb i{display:block;height:4px;border-radius:2px;background:var(--line-2,#E4E9F0);margin-bottom:5px}
+.app .tp-classic i:first-child{width:60%;height:7px;background:var(--ink-2)}
+.app .tp-classic i:nth-child(2){width:85%}
+.app .tp-classic i:last-child{width:70%}
+.app .tp-sidebar{padding-left:34%}
+.app .tp-sidebar:before{content:"";position:absolute;left:0;top:0;bottom:0;width:30%;background:var(--wash)}
+.app .tp-sidebar i:first-child{width:70%;height:7px;background:var(--ink-2)}
+.app .tp-banded{padding-top:20px}
+.app .tp-banded:before{content:"";position:absolute;left:0;right:0;top:0;height:16px;background:var(--accent)}
+.app .tp-banded i{width:80%}
+.app .tp-banded i:last-child{width:55%}
+
+.app .accent-picks{display:flex;gap:8px}
+.app .accent-picks button{width:30px;height:30px;border-radius:50%;border:2px solid transparent;
+  background:var(--sw);box-shadow:inset 0 0 0 2px #fff}
+.app .accent-picks button.active{border-color:var(--ink-2)}
+
+/* ----- the preview column ----- */
+.app .resume-side{display:flex;flex-direction:column;gap:var(--s-4);align-items:center}
+.app .resume-hint{margin:0;color:var(--ink-3);font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+
+/* A score is only useful if it says what is missing, so the ring is always
+   paired with the unmet checks in plain words. */
+.app .score-card{width:min(100%,640px);background:#fff;border:1px solid var(--line);border-radius:16px;
+  padding:var(--s-4);box-shadow:var(--e-1)}
+.app .sc-head{display:flex;align-items:center;gap:var(--s-4)}
+.app .sc-head b{display:block;font-size:15px}
+.app .sc-head small{display:block;color:var(--ink-3);font-size:13px;margin-top:2px}
+.app .sc-ring{display:grid;place-items:center;width:64px;height:64px;flex:none;border-radius:50%;
+  background:conic-gradient(var(--accent) var(--pct),var(--line-2,#E4E9F0) 0);position:relative}
+.app .sc-ring:before{content:"";position:absolute;inset:6px;border-radius:50%;background:#fff}
+.app .sc-ring b,.app .sc-ring small{position:relative;line-height:1}
+.app .sc-ring b{font-size:22px;letter-spacing:-.03em}
+.app .sc-ring small{font-size:10px;color:var(--ink-3)}
+.app .sc-miss{list-style:none;margin:var(--s-3) 0 0;padding:var(--s-3) 0 0;border-top:1px solid var(--line);
+  display:grid;gap:8px}
+.app .sc-miss li{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2)}
+.app .sc-miss svg{width:14px;height:14px;flex:none;color:#C9433F}
+.app .sc-done{display:flex;align-items:center;gap:8px;margin:var(--s-3) 0 0;padding-top:var(--s-3);
+  border-top:1px solid var(--line);font-size:13px;font-weight:700;color:#146B3E}
+.app .sc-done svg{width:15px;height:15px}
+
+/* ----- the page itself ----- */
+.app .resume-doc{--rc:#16233B;width:min(100%,640px);min-height:905px;background:#fff;
+  box-shadow:0 24px 70px #0b172018;color:#22303F;
+  font-family:Manrope,system-ui,sans-serif;font-size:12.5px;line-height:1.55}
+.app .resume-doc.a-ink{--rc:#16233B}
+.app .resume-doc.a-blue{--rc:#0B4DA8}
+.app .resume-doc.a-teal{--rc:#0C6E62}
+.app .resume-doc.a-plum{--rc:#6B2E63}
+.app .resume-doc.a-rust{--rc:#A5520A}
+.app .resume-doc h2{font-size:27px;line-height:1.1;letter-spacing:-.02em;margin:0;color:inherit}
+.app .resume-doc .rd-role{margin:5px 0 0;font-size:13.5px;font-weight:700;color:var(--rc)}
+.app .resume-doc .rd-contact{display:flex;flex-wrap:wrap;gap:4px 14px;margin:10px 0 0;font-size:11.5px;color:#5A6A7A}
+.app .resume-doc .rd-contact span+span:before{content:"";display:inline-block;width:3px;height:3px;
+  border-radius:50%;background:#B6C1CC;vertical-align:middle;margin-right:14px}
+.app .resume-doc section{margin-top:20px}
+.app .resume-doc h3{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rc);margin:0 0 8px;padding-bottom:5px;border-bottom:1.5px solid var(--rc)}
+.app .resume-doc article{margin-bottom:12px}
+.app .resume-doc article:last-child{margin-bottom:0}
+.app .resume-doc .rd-row{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.app .resume-doc .rd-row b{font-size:13.5px;color:#16233B}
+.app .resume-doc .rd-row span{font-size:11px;color:#6B7A89;white-space:nowrap}
+.app .resume-doc em{display:block;font-style:normal;font-size:12px;color:#5A6A7A;margin-top:1px}
+.app .resume-doc p{margin:6px 0 0}
+.app .resume-doc .rd-inline{color:#3C4A59}
+.app .resume-doc ul{margin:7px 0 0;padding-left:16px}
+.app .resume-doc li{margin-bottom:4px}
+.app .resume-doc li::marker{color:var(--rc)}
+
+.app .resume-doc.t-classic{padding:48px 52px}
+.app .resume-doc .rd-plain{padding-bottom:16px;border-bottom:3px solid var(--rc)}
+
+.app .resume-doc.t-banded{padding:0 0 48px}
+.app .resume-doc .rd-band{background:var(--rc);color:#fff;padding:34px 52px}
+/* The global h1–h4 rule paints ink-1; this band is dark, so it is overridden
+   here rather than left to inherit an invisible colour. */
+.app .resume-doc .rd-band h2{color:#fff}
+.app .resume-doc .rd-band .rd-role{color:#fff;opacity:.92}
+.app .resume-doc .rd-band .rd-contact{color:#fff;opacity:.8}
+.app .resume-doc .rd-band .rd-contact span+span:before{background:currentColor;opacity:.5}
+.app .resume-doc.t-banded .rd-main{padding:26px 52px 0}
+
+.app .resume-doc.t-sidebar{display:grid;grid-template-columns:34% 1fr}
+.app .rd-rail{background:color-mix(in srgb,var(--rc) 8%,#fff);padding:38px 22px;color:#3C4A59}
+.app .rd-rail .rd-initials{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;
+  background:var(--rc);color:#fff;font-size:20px;font-weight:800;letter-spacing:.02em;margin-bottom:22px}
+.app .rd-rail h4{margin:18px 0 7px;font-size:10px;font-weight:800;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--rc)}
+.app .rd-rail h4:first-of-type{margin-top:0}
+.app .rd-rail ul{list-style:none;margin:0;padding:0;font-size:11.5px}
+.app .rd-rail li{margin-bottom:5px;word-break:break-word}
+.app .resume-doc.t-sidebar .rd-main{padding:38px 34px}
+.app .resume-doc.t-sidebar .rd-main h2{margin-bottom:2px}
+.app .resume-doc.t-sidebar .rd-main section:first-of-type{margin-top:22px}
+
+@media(max-width:1080px){
+  .app .resume-form{position:static;max-height:none;overflow:visible}
+  .app .resume-side{align-items:stretch}
+}
+@media(max-width:640px){
+  .app .resume-form .two-up,.app .repeater fieldset{grid-template-columns:1fr}
+  .app .template-picks{grid-template-columns:1fr}
+  .app .template-picks button{flex-direction:row;align-items:center;gap:12px;flex-wrap:wrap}
+  .app .tp-thumb{width:64px;flex:none}
+  .app .resume-doc{min-height:0;font-size:11.5px}
+  .app .resume-doc.t-classic{padding:26px 22px}
+  .app .resume-doc .rd-band,.app .resume-doc.t-banded .rd-main{padding-left:22px;padding-right:22px}
+  .app .resume-doc.t-sidebar{grid-template-columns:1fr}
+  .app .rd-rail{padding:22px}
+  .app .resume-doc.t-sidebar .rd-main{padding:22px}
+  .app .sc-ring{width:56px;height:56px}
+}
+
+/* Overrides for the older globals.css rules the rewrite outgrew: labels no
+   longer need their own bottom margin (the form is a flex column with a gap),
+   and template buttons size to their content rather than a fixed 75px. */
+.app .resume-form label{margin-bottom:0}
+.app .template-picks button{height:auto}
+.app .resume-form fieldset label,.app .chip-input{margin-bottom:0}
+
+/* globals.css styles the site chrome with a bare `header` selector — fixed
+   height, sticky, grid columns, a bottom border. That leaks into any nested
+   <header>, including the one on the resume page, so it is reset here and the
+   two header variants restate their own padding afterwards. */
+.app .resume-doc header{height:auto;display:block;position:static;top:auto;z-index:auto;
+  grid-template-columns:none;gap:0;background:none;border-bottom:0;backdrop-filter:none;padding:0}
+.app .resume-doc .rd-plain{padding:0 0 16px;border-bottom:3px solid var(--rc)}
+.app .resume-doc .rd-band{padding:34px 52px}
+@media(max-width:640px){.app .resume-doc .rd-band{padding:24px 22px}}
+
+/* The two-column layout needs roughly 1000px to keep an A4 page legible next
+   to the form; below that the page stacks under it. This lives here because
+   the unmediated `.app .resume-layout` rule above outranks the older
+   max-width:760px rule in globals.css. */
+@media(max-width:1080px){
+  .app .resume-layout{grid-template-columns:minmax(0,1fr);gap:var(--s-5)}
+  .app .resume-side{max-width:640px}
+}
+
+/* Five step labels do not fit across a phone. Rather than truncating all of
+   them into nonsense, only the step you are on keeps its name; the rest stay
+   as numbered ticks, which is enough to show progress and to jump back. */
+@media(max-width:620px){
+  .app .resume-form .stepper button span{display:none}
+  .app .resume-form .stepper .active span{display:inline;font-size:12px}
+  .app .resume-form .stepper .active{flex:none}
+  .app .resume-form .stepper li:has(.active){flex:2.4}
+}
+
+/* ===== About / Blog / Reviews ==============================================
+   The three pages a stranger reads before trusting the rest of the site. They
+   share the editorial hero and the chip filters already used by jobs, so the
+   company pages feel like the same product rather than a bolted-on CMS. */
+
+/* Used by the jobs hero too, which had no rule for it at all. */
+.app .tool-hero-cta{display:flex;flex-wrap:wrap;gap:var(--s-3);margin-top:var(--s-5)}
+.app .tool-hero-cta .btn{text-decoration:none}
+
+.app .about-hero{min-height:500px}
+.app .about-hero img{object-position:50% 34%}
+
+/* Figures earn their size by carrying their basis on the same card, so the
+   number and the caveat can never be separated in a screenshot. */
+.app .about-figures{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s-4);
+  margin-top:calc(var(--s-6) * -1);position:relative;z-index:3}
+.app .about-figures article{background:#fff;border:1px solid var(--line);border-radius:18px;
+  padding:var(--s-5);box-shadow:var(--e-2)}
+.app .about-figures b{display:block;font-family:var(--font-display);font-size:34px;line-height:1;
+  letter-spacing:-.035em;color:var(--accent-ink)}
+.app .about-figures small{display:block;margin-top:10px;font-size:13px;font-weight:700;color:var(--ink-1)}
+.app .about-figures em{display:block;margin-top:6px;font-style:normal;font-size:11.5px;color:var(--ink-3);line-height:1.45}
+.app .figures-note{grid-column:1/-1;display:flex;align-items:center;gap:8px;margin:0;
+  font-size:12.5px;color:var(--ink-3)}
+.app .figures-note svg{width:15px;height:15px;flex:none;color:var(--accent)}
+
+.app .about-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:var(--s-7);
+  align-items:start;padding-top:var(--s-8);padding-bottom:var(--s-8)}
+.app .as-copy h2{font-family:var(--font-display);font-size:clamp(28px,3.4vw,40px);line-height:1.1;
+  letter-spacing:-.035em;margin:10px 0 var(--s-4)}
+.app .as-copy p{color:var(--ink-2);line-height:1.7;margin:0 0 var(--s-4);max-width:52ch}
+.app .as-principles{list-style:none;margin:0;padding:0;display:grid;gap:var(--s-3);scroll-margin-top:120px}
+.app .as-principles li{display:flex;gap:var(--s-4);padding:var(--s-4);background:#fff;
+  border:1px solid var(--line);border-radius:16px}
+.app .ap-icon{display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:12px;
+  background:var(--wash);color:var(--accent)}
+.app .ap-icon svg{width:20px;height:20px}
+.app .as-principles b{display:block;font-size:14px;margin-bottom:4px}
+.app .as-principles small{display:block;font-size:13px;line-height:1.6;color:var(--ink-2)}
+.app .about-h2{font-family:var(--font-display);font-size:clamp(26px,3vw,36px);line-height:1.12;
+  letter-spacing:-.035em;margin:10px 0 var(--s-5)}
+
+/* A rail rather than four cards: the point of a history is the sequence, and
+   a row of equal cards hides it. */
+.app .timeline-rail{list-style:none;margin:0;padding:0;display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s-4)}
+.app .timeline-rail li{position:relative;padding-top:var(--s-5)}
+.app .timeline-rail li:before{content:"";position:absolute;left:0;right:0;top:9px;height:2px;background:var(--line)}
+.app .timeline-rail li:after{content:"";position:absolute;left:0;top:4px;width:12px;height:12px;
+  border-radius:50%;background:#fff;border:3px solid var(--line)}
+.app .timeline-rail li.now:after{border-color:var(--accent);background:var(--accent)}
+.app .timeline-rail li:last-child:before{right:auto;width:12px}
+.app .tr-year{display:block;font-family:var(--font-display);font-size:22px;letter-spacing:-.02em;
+  color:var(--accent-ink);margin-bottom:8px}
+.app .tr-card b{display:block;font-size:14px;margin-bottom:6px}
+.app .tr-card p{margin:0;font-size:13px;line-height:1.6;color:var(--ink-2)}
+
+.app .about-money{padding-top:var(--s-8);padding-bottom:var(--s-8)}
+.app .am-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-4)}
+.app .am-grid article{padding:var(--s-5);border-radius:16px;background:var(--wash);border:1px solid var(--line)}
+.app .am-grid article:last-child{background:var(--ink,#0b1720);border-color:transparent;color:#fff}
+.app .am-grid b{display:block;font-size:15px;margin-bottom:8px}
+.app .am-grid p{margin:0;font-size:13.5px;line-height:1.65;color:var(--ink-2)}
+.app .am-grid article:last-child p{color:#c6d2d7}
+
+.app .about-contact{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:var(--s-6);
+  align-items:center;padding:var(--s-6);margin-bottom:var(--s-8);
+  background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--e-1)}
+.app .about-contact .about-h2{margin-bottom:8px}
+.app .about-contact p{margin:0;color:var(--ink-2);line-height:1.65;max-width:44ch}
+.app .about-contact dl{margin:0;display:grid;gap:12px}
+.app .about-contact dt{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.app .about-contact dd{margin:2px 0 0;font-size:13.5px;font-weight:700}
+.app .ac-actions{display:grid;gap:8px}
+
+/* ----- blog ----- */
+.app .blog-lead{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:var(--s-6);
+  width:100%;text-align:left;padding:var(--s-5);background:#fff;border:1px solid var(--line);
+  border-radius:22px;box-shadow:var(--e-1);transition:box-shadow .2s,transform .2s,border-color .2s}
+.app .blog-lead:hover{transform:translateY(-3px);box-shadow:var(--e-3);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.app .blog-lead .plate{aspect-ratio:16/10;border-radius:16px}
+.app .blog-lead>div{align-self:center;min-width:0}
+.app .blog-lead h2{font-family:var(--font-display);font-size:clamp(24px,2.6vw,32px);line-height:1.14;
+  letter-spacing:-.03em;margin:10px 0 12px}
+.app .blog-lead p{margin:0 0 var(--s-4);color:var(--ink-2);line-height:1.65;font-size:15px}
+.app .bl-meta,.app .pc-meta{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-3)}
+.app .bl-meta b,.app .pc-meta b{color:var(--ink-1)}
+.app .bl-meta i,.app .pc-meta i{width:3px;height:3px;border-radius:50%;background:var(--line-2,#D8DEE6)}
+.app .bl-go{display:inline-flex;align-items:center;gap:8px;margin-top:var(--s-4);
+  font-size:12px;font-weight:800;color:var(--accent)}
+.app .bl-go svg{width:16px;height:16px;transition:transform .2s}
+.app .blog-lead:hover .bl-go svg{transform:translateX(3px)}
+
+.app .blog-chips{margin:var(--s-6) 0 var(--s-4)}
+.app .blog-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-4);
+  padding-bottom:var(--s-7)}
+.app .post-card{display:flex;flex-direction:column;text-align:left;padding:0;overflow:hidden;
+  background:#fff;border:1px solid var(--line);border-radius:18px;transition:box-shadow .2s,transform .2s,border-color .2s}
+.app .post-card:hover{transform:translateY(-3px);box-shadow:var(--e-2);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.app .post-card .plate{aspect-ratio:16/8;border-radius:0}
+.app .pc-body{padding:var(--s-4);display:flex;flex-direction:column;gap:10px;flex:1}
+.app .pc-body h3{font-size:17px;line-height:1.25;letter-spacing:-.02em;margin:0}
+.app .pc-body p{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink-2);flex:1}
+
+.app .article{max-width:760px;padding-top:var(--s-5);padding-bottom:var(--s-7)}
+.app .article h1{font-family:var(--font-display);font-size:clamp(30px,4.4vw,48px);line-height:1.08;
+  letter-spacing:-.04em;margin:10px 0 var(--s-4)}
+.app .art-dek{font-size:18px;line-height:1.6;color:var(--ink-2);margin:0 0 var(--s-5)}
+.app .art-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:var(--s-4) 0;border-block:1px solid var(--line)}
+.app .am-mark{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;
+  background:var(--wash);color:var(--accent);font-size:13px;font-weight:800}
+.app .art-meta b{display:block;font-size:13.5px}
+.app .art-meta small{display:block;font-size:12px;color:var(--ink-3)}
+.app .am-when{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3)}
+.app .am-when svg{width:14px;height:14px}
+.app .art-plate{margin:var(--s-5) 0}
+.app .art-plate .plate{aspect-ratio:16/7;border-radius:18px}
+.app .art-body p{font-size:17px;line-height:1.75;color:var(--ink-1);margin:0 0 var(--s-4)}
+.app .art-body p:first-child:first-letter{float:left;font-family:var(--font-display);font-size:56px;
+  line-height:.82;padding:4px 10px 0 0;color:var(--accent-ink)}
+.app .art-more{padding-bottom:var(--s-8)}
+.app .art-more .blog-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+
+/* ----- reviews ----- */
+.app .rating-panel{display:grid;grid-template-columns:auto minmax(220px,1fr) minmax(0,1.1fr);
+  gap:var(--s-6);align-items:center;padding:var(--s-5) var(--s-6);
+  background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--e-1)}
+.app .rp-score{text-align:center}
+.app .rp-score>b{display:block;font-family:var(--font-display);font-size:52px;line-height:1;
+  letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.app .rp-score small{display:block;margin-top:8px;font-size:12px;color:var(--ink-3)}
+.app .stars{display:inline-flex;gap:2px}
+.app .stars svg{width:15px;height:15px;color:var(--line-2,#D8DEE6);fill:none}
+.app .stars svg.on{color:var(--spark,#F5C93B);fill:var(--spark,#F5C93B)}
+.app .stars.big svg{width:19px;height:19px}
+.app .rp-dist{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.app .rp-dist li{display:grid;grid-template-columns:34px 1fr 24px;align-items:center;gap:10px;
+  font-size:12px;color:var(--ink-3)}
+.app .rp-dist li>span{display:inline-flex;align-items:center;gap:3px;font-weight:700;color:var(--ink-2)}
+.app .rp-dist li>span svg{width:12px;height:12px;color:var(--spark,#F5C93B);fill:var(--spark,#F5C93B)}
+.app .rp-dist i{display:block;height:8px;border-radius:99px;background:var(--wash);overflow:hidden}
+.app .rp-dist i b{display:block;height:100%;border-radius:99px;background:var(--accent)}
+.app .rp-dist small{text-align:right;font-variant-numeric:tabular-nums}
+.app .rp-cta{border-left:1px solid var(--line);padding-left:var(--s-5)}
+.app .rp-cta p{display:flex;gap:8px;margin:0 0 var(--s-4);font-size:12.5px;line-height:1.55;color:var(--ink-3)}
+.app .rp-cta p svg{width:15px;height:15px;flex:none;color:var(--accent)}
+
+.app .reviews-page .results-head{margin-top:var(--s-6);flex-wrap:wrap;gap:var(--s-3)}
+.app .review-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-4)}
+.app .review-card{display:flex;flex-direction:column;gap:12px;padding:var(--s-5);
+  background:#fff;border:1px solid var(--line);border-radius:18px}
+.app .review-card header{display:flex;align-items:center;gap:10px;height:auto;padding:0;position:static;
+  background:none;border:0;backdrop-filter:none;grid-template-columns:none;z-index:auto}
+.app .rv-mark{display:grid;place-items:center;width:38px;height:38px;flex:none;border-radius:50%;
+  background:var(--wash);color:var(--accent);font-size:12px;font-weight:800}
+.app .review-card header b{display:block;font-size:13.5px}
+.app .review-card header small{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--ink-3)}
+.app .review-card header small svg{width:12px;height:12px}
+.app .rv-check{display:inline-flex;align-items:center;gap:4px;margin-left:auto;padding:4px 8px;
+  border-radius:99px;background:#E8F4EC;color:#146B3E;font-size:10px;font-weight:800;white-space:nowrap}
+.app .rv-check svg{width:12px;height:12px}
+.app .rv-subject{margin:0;font-size:12px;font-weight:800;color:var(--accent-ink)}
+.app .rv-text{margin:0;font-size:14px;line-height:1.65;color:var(--ink-1);flex:1}
+.app .review-card footer{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding-top:12px;border-top:1px solid var(--line)}
+.app .rv-tag{padding:4px 9px;border-radius:99px;background:var(--wash);color:var(--accent-ink);
+  font-size:11px;font-weight:800}
+.app .review-card footer button{display:inline-flex;align-items:center;gap:6px;border:0;background:none;
+  font-size:12px;font-weight:700;color:var(--ink-3)}
+.app .review-card footer button:hover{color:var(--accent)}
+.app .review-card footer button svg{width:14px;height:14px}
+.app .review-foot{display:flex;align-items:center;justify-content:space-between;gap:var(--s-4);
+  flex-wrap:wrap;margin-top:var(--s-6);padding-top:var(--s-5);border-top:1px solid var(--line)}
+.app .review-foot p{margin:0;font-size:12.5px;color:var(--ink-3)}
+
+@media(max-width:1080px){
+  .app .about-figures{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:calc(var(--s-5) * -1)}
+  .app .about-split{grid-template-columns:1fr;gap:var(--s-6)}
+  .app .timeline-rail,.app .blog-grid,.app .review-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .app .am-grid{grid-template-columns:1fr}
+  .app .about-contact{grid-template-columns:1fr;gap:var(--s-5)}
+  .app .blog-lead{grid-template-columns:1fr}
+  .app .rating-panel{grid-template-columns:auto 1fr}
+  .app .rp-cta{grid-column:1/-1;border-left:0;padding-left:0;padding-top:var(--s-4);border-top:1px solid var(--line)}
+}
+@media(max-width:760px){
+  .app .about-figures,.app .timeline-rail,.app .blog-grid,.app .review-grid,
+  .app .art-more .blog-grid{grid-template-columns:1fr}
+  .app .timeline-rail li:before{left:5px;right:auto;top:16px;bottom:-16px;width:2px;height:auto}
+  .app .timeline-rail li{padding:0 0 0 var(--s-5)}
+  .app .timeline-rail li:after{top:2px}
+  .app .rating-panel{grid-template-columns:1fr;text-align:left}
+  .app .art-body p{font-size:16px}
+}
+
+/* On a dark hero photo the kicker cannot be var(--accent): the distance blue
+   sits at roughly 2:1 against the image. The heroes already carry a warm gold
+   for emphasis (hero h1 em), so the eyebrow borrows it and stays legible in
+   all three verticals. */
+.app .tool-hero-copy .kicker{color:#F7D98C}
