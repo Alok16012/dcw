@@ -1,0 +1,30 @@
+# Render blueprint — one long-lived Node process.
+#
+# WHY NOT SERVERLESS. lib/jobs-repo.js, lib/integrations/ats.js and crm.js keep
+# the demo dataset in module-level memory — a deliberate stand-in for Supabase,
+# documented at the top of lib/store.js. That is correct for one process and
+# wrong for many: on a serverless platform every instance gets its own copy, so
+# a job posted in /admin would appear to save and then vanish on the next
+# request that happened to land elsewhere. `next start` is a single Node
+# process, so the admin CRM behaves here exactly as it does on a laptop.
+#
+# WHAT THE FREE PLAN COSTS YOU. The instance sleeps after ~15 minutes idle and
+# loses that memory. The seed data returns on wake; anything added during a demo
+# does not, and the first request after a sleep takes ~30s to answer. Fine for a
+# walkthrough. Durable state is the Supabase swap, not a plan upgrade.
+
+services:
+  - type: web
+    name: dcw
+    runtime: node
+    plan: free
+    region: singapore          # closest Render region to the Indian audience
+    branch: main
+    buildCommand: npm ci && npm run build
+    startCommand: npm start    # `next start` reads PORT from the env; Render sets it
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"            # next 16.3.1 requires >=20.9.0
+      - key: DCW_SESSION_SECRET
+        generateValue: true    # Render mints it — no secret is typed, pasted or committed
