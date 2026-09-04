@@ -26,7 +26,8 @@
   --font-body:'Open Sans','Noto Sans Devanagari',system-ui,sans-serif;
   --font-num:'Open Sans',ui-monospace,system-ui,sans-serif;
 
-  --fs-100:12px;    /* legal, timestamps, table meta — hard floor */
+  --fs-050:11px;    /* micro label: caps eyebrows, badge counts — hard floor */
+  --fs-100:12px;    /* legal, timestamps, table meta */
   --fs-200:13px;    /* dense UI: chips, tags, captions */
   --fs-300:14px;    /* controls, nav, buttons */
   --fs-400:16px;    /* body */
@@ -35,6 +36,7 @@
   --fs-700:26px;    /* h3 */
   --fs-800:32px;    /* h2 */
   --fs-900:40px;    /* h1 on interior pages */
+  --fs-1000:52px;   /* interior page display */
   --fs-display:clamp(38px,4.4vw,60px);
 
   --lh-tight:1.12;  /* display */
@@ -193,7 +195,7 @@
 .app .tags span,.app .entity-card small{font-size:var(--fs-200)}
 
 /* 16px on fields — anything smaller makes iOS Safari zoom the page on focus. */
-.app input,.app select,.app textarea{font-size:16px;font-family:var(--font-body)}
+.app input,.app select,.app textarea{font-size:var(--fs-400);font-family:var(--font-body)}
 
 /* ═══ BUTTONS ═════════════════════════════════════════════════════════════
    The old system had five loosely-related variants at 11px/weight-800 with a
@@ -490,8 +492,6 @@
       an invisible heading, not a low-contrast one. The card already declares
       the right colour for its surface, so let the heading take it. */
 .app .path-card h1,.app .path-card h2,.app .path-card h3,.app .path-card h4{color:inherit}
-.app .path-card.p1 p,.app .path-card.p3 p{color:rgb(255 255 255/.86)}
-.app .path-card.p1>small,.app .path-card.p3>small{color:var(--spark-lift,#F7D98C)}
 
 /* 2. The hero search sits on 72%-white glass over the dark hero, so its label
       composites onto ~#BABEC3 rather than white: --ink-3 measured 2.9:1. */
@@ -522,8 +522,6 @@
 .app .entity-mark,
 .app .stepper .active,
 .app .mobile-nav button.active{color:var(--accent-text)}
-.app .path-card.p1>small,.app .path-card.p3>small{color:var(--spark-lift,#F7D98C)}
-.app .path-card.p1 p,.app .path-card.p3 p{color:rgb(255 255 255/.94)}
 
 /* 6. The footer is a dark band, but `.brand small` was written for the light
       masthead — the same rule put --ink-4 grey on near-black at 3.66:1. */
@@ -562,7 +560,6 @@
       clears AA for pure white (4.9:1) but not for tinted or faded white —
       pale green measured 3.78:1 and 94% white 4.44:1. Carry the hierarchy on
       that surface with weight and size, not with opacity. */
-.app .path-card.p3>small,.app .path-card.p3 p{color:#fff}
 
 /* ── TOUCH TARGETS ────────────────────────────────────────────────────────
    A sweep of every interactive element found two below the floor: the
@@ -693,13 +690,13 @@
   .app .util-live small{display:none}
   .app .ticker span.util-label{display:none}
 }
-@media(max-width:860px){
+@media(max-width:900px){
   /* Below this the headline and three doors start fighting. The doors win —
      a live line is nice to have, a way in is not. */
   .app .util-live b{display:none}
   .app .ticker.utility .util-row{width:calc(100% - 32px)}
 }
-@media(max-width:620px){
+@media(max-width:640px){
   .app .util-role{display:none}
   .app .util-compact{display:inline-flex}
   .app .util-who{display:none}
@@ -1011,11 +1008,21 @@
 .app .plate{
   position:relative;display:block;overflow:hidden;isolation:isolate;
   aspect-ratio:16/10;border-radius:var(--r-3) var(--r-3) 0 0;
-  --plate-a:color-mix(in oklab,var(--accent) var(--plate-mix,72%),var(--ink-1));
-  --plate-b:color-mix(in oklab,var(--accent) 22%,var(--ink-1));
-  --plate-line:color-mix(in srgb,var(--spark,#F5C93B) 88%,#fff);
+  /* Every plate derives from one key colour. g0 is the vertical's own accent;
+     g1..g5 bend it toward a fixed anchor, far enough apart to read as six
+     different cards, near enough that the grid still looks like one family. */
+  --plate-key:var(--accent);
+  --plate-a:color-mix(in oklab,var(--plate-key) var(--plate-mix,72%),var(--ink-1));
+  --plate-b:color-mix(in oklab,var(--plate-key) 22%,var(--ink-1));
+  --plate-line:color-mix(in srgb,var(--spark,#F5C93B) 80%,var(--plate-key) 20%);
   --plate-node:#fff;
   background:var(--ink-1)}
+.app .plate.g0{--plate-key:var(--accent)}
+.app .plate.g1{--plate-key:color-mix(in oklab,var(--accent) 36%,#0E7C5A)}  /* teal */
+.app .plate.g2{--plate-key:color-mix(in oklab,var(--accent) 36%,#4A2F87)}  /* indigo */
+.app .plate.g3{--plate-key:color-mix(in oklab,var(--accent) 36%,#C2570B)}  /* amber */
+.app .plate.g4{--plate-key:color-mix(in oklab,var(--accent) 36%,#2F6B1E)}  /* forest */
+.app .plate.g5{--plate-key:color-mix(in oklab,var(--accent) 36%,#9E1F4B)}  /* plum  */
 
 .app .plate-art,.app .plate-photo{position:absolute;inset:0;width:100%;height:100%;display:block}
 .app .plate-photo{object-fit:cover}
@@ -1039,8 +1046,8 @@
 
 .app .plate-tag{
   position:absolute;right:var(--s-3);top:var(--s-3);z-index:2;
-  font-size:11px;font-weight:800;letter-spacing:var(--tr-caps);
-  text-transform:uppercase;color:var(--ink-1);
+  font-size:var(--fs-050);font-weight:800;letter-spacing:var(--tr-caps);
+  text-transform:uppercase;color:var(--spark-ink,var(--ink-1));
   background:color-mix(in srgb,var(--spark,#F5C93B) 92%,#fff);
   padding:5px 9px;border-radius:var(--r-pill);
   box-shadow:0 4px 12px rgb(0 0 0/.26),inset 0 1px 0 rgb(255 255 255/.5)}
@@ -1261,7 +1268,7 @@
   max-width:66ch;font-size:var(--fs-300);line-height:var(--lh-body);color:var(--ink-3)}
 
 .app .board-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
-@media(max-width:1100px){.app .board-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1120px){.app .board-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.app .board-grid{grid-template-columns:minmax(0,1fr)}}
 .app .board-card .plate{aspect-ratio:16/9}
 .app .board-card .pc-body{gap:var(--s-2)}
@@ -1334,18 +1341,18 @@
   font-family:var(--font-ui,inherit);font-size:var(--fs-200);font-weight:600;cursor:pointer;
   transition:background .16s ease,border-color .16s ease,color .16s ease,transform .16s ease}
 .app .city-chips .chip svg{width:14px;height:14px;stroke-width:2.2}
-.app .city-chips .chip small{font-size:11px;font-weight:700;padding:2px 6px;border-radius:999px;
+.app .city-chips .chip small{font-size:var(--fs-050);font-weight:700;padding:2px 6px;border-radius:999px;
   background:var(--wash);color:var(--accent-ink);font-variant-numeric:tabular-nums}
 .app .city-chips .chip:hover{border-color:var(--accent);color:var(--accent-ink);transform:translateY(-1px)}
-.app .city-chips .chip.on{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:var(--e-2)}
-.app .city-chips .chip.on small{background:rgb(255 255 255/.22);color:#fff}
+.app .city-chips .chip.on{background:var(--accent-solid,var(--accent));border-color:var(--accent-solid,var(--accent));color:#fff;box-shadow:var(--e-2)}
+.app .city-chips .chip.on small{background:rgb(255 255 255/.92);color:var(--accent-solid,var(--accent))}
 .app .btn.locate svg{width:16px;height:16px}
 .app .btn.locate.on{border-color:var(--ok,#1E9E5A);color:var(--ok,#1E9E5A)}
 
 /* ---- Card signals -------------------------------------------------------- */
 .app .ec-signals{display:flex;flex-wrap:wrap;gap:6px;margin:calc(var(--s-2) * -1) 0 var(--s-3)}
 .app .ec-signals .sig{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:8px;
-  font-size:12px;font-weight:700;letter-spacing:.01em;line-height:1.4}
+  font-size:var(--fs-100);font-weight:700;letter-spacing:.01em;line-height:1.4}
 .app .ec-signals .sig svg{width:13px;height:13px;stroke-width:2.4}
 .app .ec-signals .near{background:var(--wash);color:var(--accent-ink)}
 .app .ec-signals .wfh{background:#E8F4EC;color:#146B3E}
@@ -1354,9 +1361,9 @@
 /* ---- Active filter summary ---------------------------------------------- */
 .app .active-filters{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-bottom:var(--s-3)}
 .app .active-filters span{padding:5px 11px;border-radius:999px;background:var(--wash);
-  color:var(--accent-ink);font-size:12px;font-weight:650}
+  color:var(--accent-ink);font-size:var(--fs-100);font-weight:650}
 .app .linkish{background:none;border:0;padding:0 4px;color:var(--accent-ink);font-weight:650;
-  font-size:12px;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+  font-size:var(--fs-100);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .app .filter-title b{display:inline-flex;align-items:center;gap:7px}
 .app .filter-title b svg{width:15px;height:15px;stroke-width:2.2}
 
@@ -1382,13 +1389,13 @@
 .app .np-list li{display:flex;align-items:center;gap:var(--s-3);padding:9px 8px;border-radius:11px}
 .app .np-list li:hover{background:var(--n-1)}
 .app .np-mark{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border-radius:10px;
-  background:var(--accent);color:#fff;font-family:var(--font-display);font-weight:800;font-size:13px}
+  background:var(--accent-solid,var(--accent));color:#fff;font-family:var(--font-display);font-weight:800;font-size:var(--fs-200)}
 .app .np-copy{flex:1;min-width:0;display:grid}
 .app .np-copy b{font-size:var(--fs-200);color:var(--ink-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.app .np-copy small{font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app .np-copy small{font-size:var(--fs-100);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .app .np-km{flex:0 0 auto;display:grid;justify-items:center;font-family:var(--font-display);font-weight:800;
   font-size:var(--fs-300);color:var(--accent-ink);font-variant-numeric:tabular-nums;line-height:1}
-.app .np-km small{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--ink-3)}
+.app .np-km small{font-size:var(--fs-050);font-weight:700;letter-spacing:.08em;color:var(--ink-3)}
 .app .np-foot{display:flex;gap:var(--s-2);margin-top:var(--s-3);padding-top:var(--s-3);border-top:1px solid var(--line)}
 .app .np-foot .btn{flex:1;justify-content:center}
 @media (max-width:640px){
@@ -1405,7 +1412,7 @@
   background:linear-gradient(96deg,rgb(11 21 38/.86) 0%,rgb(11 21 38/.68) 46%,rgb(11 21 38/.28) 100%)}
 .app .db-copy{position:relative;z-index:2;padding-block:var(--s-6) var(--s-5)}
 .app .db-kicker{display:inline-block;margin-bottom:10px;padding:5px 12px;border-radius:999px;
-  font-size:11px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;
+  font-size:var(--fs-050);font-weight:800;letter-spacing:.11em;text-transform:uppercase;
   color:var(--spark-ink);background:var(--spark)}
 .app .detail-banner h2{margin:0;color:#fff;   /* the global heading rule paints ink-1; this band is dark */
   font-size:clamp(1.6rem,3.4vw,2.5rem);line-height:1.12;letter-spacing:-.02em}
@@ -1433,7 +1440,7 @@
 .app .rp-pay{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-3);
   margin-top:var(--s-5);padding-top:var(--s-4);border-top:1px solid var(--line)}
 .app .rp-pay span{display:grid;gap:4px;min-width:0}
-.app .rp-pay small{font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--ink-3)}
+.app .rp-pay small{font-size:var(--fs-050);font-weight:800;letter-spacing:.1em;color:var(--ink-3)}
 .app .rp-pay b{font-family:var(--font-display);font-size:var(--fs-300);color:var(--ink-1);
   font-variant-numeric:tabular-nums;line-height:1.25}
 .app .rp-facts{margin:0;padding:var(--s-4) var(--s-5);border-radius:var(--r-4);
@@ -1444,7 +1451,7 @@
 .app .rp-facts dt{font-size:var(--fs-100);font-weight:700;letter-spacing:.03em;
   text-transform:uppercase;color:var(--ink-3)}
 .app .rp-facts dd{margin:0;text-align:right;font-size:var(--fs-200);font-weight:650;color:var(--ink-1)}
-@media (max-width:860px){.app .role-panel{grid-template-columns:1fr}}
+@media (max-width:900px){.app .role-panel{grid-template-columns:1fr}}
 @media (max-width:480px){.app .rp-pay{grid-template-columns:1fr;gap:var(--s-2)}
   .app .rp-pay span{grid-template-columns:auto auto;justify-content:space-between;align-items:baseline}}
 
@@ -1456,13 +1463,13 @@
 .app .resume-layout{grid-template-columns:minmax(0,460px) minmax(0,1fr);gap:var(--s-7);align-items:start}
 .app .resume-form{position:sticky;top:96px;max-height:calc(100vh - 128px);overflow:auto;
   display:flex;flex-direction:column;gap:var(--s-4);scrollbar-width:thin}
-.app .resume-form h3{font-size:15px;margin:var(--s-2) 0 0}
+.app .resume-form h3{font-size:var(--fs-400);margin:var(--s-2) 0 0}
 .app .resume-form .two-up{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-3)}
 .app .resume-form label{display:block}
-.app .resume-form label small{display:block;margin-top:6px;color:var(--ink-3);font-size:12px;font-weight:600;letter-spacing:0}
+.app .resume-form label small{display:block;margin-top:6px;color:var(--ink-3);font-size:var(--fs-100);font-weight:600;letter-spacing:0}
 .app .resume-form textarea{height:auto;padding:10px 12px;line-height:1.55;resize:vertical}
 .app .resume-form .note{display:flex;gap:10px;align-items:flex-start;margin:0;padding:12px 14px;
-  background:var(--wash);border-radius:12px;color:var(--ink-2);font-size:13px;line-height:1.5}
+  background:var(--wash);border-radius:12px;color:var(--ink-2);font-size:var(--fs-200);line-height:1.5}
 .app .resume-form .note svg{width:16px;height:16px;flex:none;margin-top:2px;color:var(--accent)}
 
 /* The stepper is a progress map, not a tab bar: past steps carry a tick so
@@ -1470,15 +1477,15 @@
 .app .resume-form .stepper{display:flex;gap:6px;list-style:none;margin:0 0 var(--s-2);padding:0}
 .app .resume-form .stepper li{flex:1;min-width:0}
 .app .resume-form .stepper button{display:flex;flex-direction:column;gap:6px;width:100%;padding:0;
-  text-align:left;font-size:11px;font-weight:800;letter-spacing:.02em;color:var(--ink-3);
+  text-align:left;font-size:var(--fs-050);font-weight:800;letter-spacing:.02em;color:var(--ink-3);
   border:0;background:none;border-top:3px solid var(--line);padding-top:8px;transition:color .16s,border-color .16s}
 .app .resume-form .stepper button b{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;
-  background:var(--line-2,#E4E9F0);color:var(--ink-2);font-size:11px}
+  background:var(--line-2,#E4E9F0);color:var(--ink-2);font-size:var(--fs-050)}
 .app .resume-form .stepper button b svg{width:12px;height:12px}
 .app .resume-form .stepper .done{color:var(--ink-2);border-top-color:var(--accent)}
-.app .resume-form .stepper .done b{background:var(--accent);color:#fff}
+.app .resume-form .stepper .done b{background:var(--accent-solid,var(--accent));color:#fff}
 .app .resume-form .stepper .active{color:var(--accent);border-top-color:var(--accent)}
-.app .resume-form .stepper .active b{background:var(--accent);color:#fff}
+.app .resume-form .stepper .active b{background:var(--accent-solid,var(--accent));color:#fff}
 
 /* Repeating blocks (each qualification, each role) are real fieldsets so a
    screen reader announces which one it is reading. */
@@ -1486,7 +1493,7 @@
 .app .repeater fieldset{border:1px solid var(--line);border-radius:14px;padding:var(--s-3) var(--s-4) var(--s-4);
   margin:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--s-3)}
 .app .repeater legend{grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:0 8px;
-  font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+  font-size:var(--fs-050);font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
 .app .repeater legend button{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;
   border:1px solid var(--line);background:#fff;color:var(--ink-3)}
 .app .repeater legend button:hover{border-color:#C9433F;color:#C9433F}
@@ -1502,11 +1509,11 @@
 .app .chip-input .ci-box input{flex:1;min-width:130px;height:30px;min-height:30px;border:0;margin:0;padding:0;background:none}
 .app .chip-input .ci-box input:focus-visible{outline:none;border:0;box-shadow:none}
 .app .ci-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 6px 5px 10px;border-radius:99px;
-  background:var(--wash);color:var(--accent-ink);font-size:12px;font-weight:700}
+  background:var(--wash);color:var(--accent-ink);font-size:var(--fs-100);font-weight:700}
 .app .ci-chip button{display:grid;place-items:center;width:16px;height:16px;border:0;border-radius:50%;
   background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent-ink)}
 .app .ci-chip button svg{width:10px;height:10px}
-.app .ci-chip button:hover{background:var(--accent);color:#fff}
+.app .ci-chip button:hover{background:var(--accent-solid,var(--accent));color:#fff}
 
 /* Layout choices are shown, not described: each button carries a wireframe of
    what the page will look like, plus the one situation it suits. */
@@ -1514,9 +1521,9 @@
 .app .template-picks button{display:flex;flex-direction:column;gap:6px;padding:10px;text-align:left;
   border:1px solid var(--line);border-radius:14px;background:#fff;transition:border-color .16s,box-shadow .16s}
 .app .template-picks button:hover{border-color:var(--accent);box-shadow:var(--e-1)}
-.app .template-picks button b{font-size:13px}
-.app .template-picks button small{color:var(--ink-3);font-size:11px;line-height:1.4}
-.app .template-picks button em{font-style:normal;font-size:10px;font-weight:800;letter-spacing:.05em;
+.app .template-picks button b{font-size:var(--fs-200)}
+.app .template-picks button small{color:var(--ink-3);font-size:var(--fs-050);line-height:1.4}
+.app .template-picks button em{font-style:normal;font-size:var(--fs-050);font-weight:800;letter-spacing:.05em;
   text-transform:uppercase;color:var(--accent-ink)}
 .app .tp-thumb{display:block;height:58px;border-radius:8px;border:1px solid var(--line);background:#fff;
   padding:7px;position:relative;overflow:hidden}
@@ -1539,52 +1546,52 @@
 
 /* ----- the preview column ----- */
 .app .resume-side{display:flex;flex-direction:column;gap:var(--s-4);align-items:center}
-.app .resume-hint{margin:0;color:var(--ink-3);font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.app .resume-hint{margin:0;color:var(--ink-3);font-size:var(--fs-100);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
 
 /* A score is only useful if it says what is missing, so the ring is always
    paired with the unmet checks in plain words. */
 .app .score-card{width:min(100%,640px);background:#fff;border:1px solid var(--line);border-radius:16px;
   padding:var(--s-4);box-shadow:var(--e-1)}
 .app .sc-head{display:flex;align-items:center;gap:var(--s-4)}
-.app .sc-head b{display:block;font-size:15px}
-.app .sc-head small{display:block;color:var(--ink-3);font-size:13px;margin-top:2px}
+.app .sc-head b{display:block;font-size:var(--fs-400)}
+.app .sc-head small{display:block;color:var(--ink-3);font-size:var(--fs-200);margin-top:2px}
 .app .sc-ring{display:grid;place-items:center;width:64px;height:64px;flex:none;border-radius:50%;
   background:conic-gradient(var(--accent) var(--pct),var(--line-2,#E4E9F0) 0);position:relative}
 .app .sc-ring:before{content:"";position:absolute;inset:6px;border-radius:50%;background:#fff}
 .app .sc-ring b,.app .sc-ring small{position:relative;line-height:1}
-.app .sc-ring b{font-size:22px;letter-spacing:-.03em}
-.app .sc-ring small{font-size:10px;color:var(--ink-3)}
+.app .sc-ring b{font-size:var(--fs-600);letter-spacing:-.03em}
+.app .sc-ring small{font-size:var(--fs-050);color:var(--ink-3)}
 .app .sc-miss{list-style:none;margin:var(--s-3) 0 0;padding:var(--s-3) 0 0;border-top:1px solid var(--line);
   display:grid;gap:8px}
-.app .sc-miss li{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2)}
+.app .sc-miss li{display:flex;align-items:center;gap:8px;font-size:var(--fs-200);color:var(--ink-2)}
 .app .sc-miss svg{width:14px;height:14px;flex:none;color:#C9433F}
 .app .sc-done{display:flex;align-items:center;gap:8px;margin:var(--s-3) 0 0;padding-top:var(--s-3);
-  border-top:1px solid var(--line);font-size:13px;font-weight:700;color:#146B3E}
+  border-top:1px solid var(--line);font-size:var(--fs-200);font-weight:700;color:#146B3E}
 .app .sc-done svg{width:15px;height:15px}
 
 /* ----- the page itself ----- */
 .app .resume-doc{--rc:#16233B;width:min(100%,640px);min-height:905px;background:#fff;
   box-shadow:0 24px 70px #0b172018;color:#22303F;
-  font-family:Manrope,system-ui,sans-serif;font-size:12.5px;line-height:1.55}
+  font-family:Manrope,system-ui,sans-serif;font-size:var(--fs-200);line-height:1.55}
 .app .resume-doc.a-ink{--rc:#16233B}
 .app .resume-doc.a-blue{--rc:#0B4DA8}
-.app .resume-doc.a-teal{--rc:#0C6E62}
+.app .resume-doc.a-teal{--rc:#0E7C5A}
 .app .resume-doc.a-plum{--rc:#6B2E63}
 .app .resume-doc.a-rust{--rc:#A5520A}
-.app .resume-doc h2{font-size:27px;line-height:1.1;letter-spacing:-.02em;margin:0;color:inherit}
-.app .resume-doc .rd-role{margin:5px 0 0;font-size:13.5px;font-weight:700;color:var(--rc)}
-.app .resume-doc .rd-contact{display:flex;flex-wrap:wrap;gap:4px 14px;margin:10px 0 0;font-size:11.5px;color:#5A6A7A}
+.app .resume-doc h2{font-size:var(--fs-700);line-height:1.1;letter-spacing:-.02em;margin:0;color:inherit}
+.app .resume-doc .rd-role{margin:5px 0 0;font-size:var(--fs-300);font-weight:700;color:var(--rc)}
+.app .resume-doc .rd-contact{display:flex;flex-wrap:wrap;gap:4px 14px;margin:10px 0 0;font-size:var(--fs-100);color:#5A6A7A}
 .app .resume-doc .rd-contact span+span:before{content:"";display:inline-block;width:3px;height:3px;
   border-radius:50%;background:#B6C1CC;vertical-align:middle;margin-right:14px}
 .app .resume-doc section{margin-top:20px}
-.app .resume-doc h3{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+.app .resume-doc h3{font-size:var(--fs-050);font-weight:800;letter-spacing:.14em;text-transform:uppercase;
   color:var(--rc);margin:0 0 8px;padding-bottom:5px;border-bottom:1.5px solid var(--rc)}
 .app .resume-doc article{margin-bottom:12px}
 .app .resume-doc article:last-child{margin-bottom:0}
 .app .resume-doc .rd-row{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
-.app .resume-doc .rd-row b{font-size:13.5px;color:#16233B}
-.app .resume-doc .rd-row span{font-size:11px;color:#6B7A89;white-space:nowrap}
-.app .resume-doc em{display:block;font-style:normal;font-size:12px;color:#5A6A7A;margin-top:1px}
+.app .resume-doc .rd-row b{font-size:var(--fs-300);color:#16233B}
+.app .resume-doc .rd-row span{font-size:var(--fs-050);color:#5A6A7A;white-space:nowrap}
+.app .resume-doc em{display:block;font-style:normal;font-size:var(--fs-100);color:#5A6A7A;margin-top:1px}
 .app .resume-doc p{margin:6px 0 0}
 .app .resume-doc .rd-inline{color:#3C4A59}
 .app .resume-doc ul{margin:7px 0 0;padding-left:16px}
@@ -1607,11 +1614,11 @@
 .app .resume-doc.t-sidebar{display:grid;grid-template-columns:34% 1fr}
 .app .rd-rail{background:color-mix(in srgb,var(--rc) 8%,#fff);padding:38px 22px;color:#3C4A59}
 .app .rd-rail .rd-initials{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;
-  background:var(--rc);color:#fff;font-size:20px;font-weight:800;letter-spacing:.02em;margin-bottom:22px}
-.app .rd-rail h4{margin:18px 0 7px;font-size:10px;font-weight:800;letter-spacing:.14em;
+  background:var(--rc);color:#fff;font-size:var(--fs-600);font-weight:800;letter-spacing:.02em;margin-bottom:22px}
+.app .rd-rail h4{margin:18px 0 7px;font-size:var(--fs-050);font-weight:800;letter-spacing:.14em;
   text-transform:uppercase;color:var(--rc)}
 .app .rd-rail h4:first-of-type{margin-top:0}
-.app .rd-rail ul{list-style:none;margin:0;padding:0;font-size:11.5px}
+.app .rd-rail ul{list-style:none;margin:0;padding:0;font-size:var(--fs-100)}
 .app .rd-rail li{margin-bottom:5px;word-break:break-word}
 .app .resume-doc.t-sidebar .rd-main{padding:38px 34px}
 .app .resume-doc.t-sidebar .rd-main h2{margin-bottom:2px}
@@ -1626,7 +1633,7 @@
   .app .template-picks{grid-template-columns:1fr}
   .app .template-picks button{flex-direction:row;align-items:center;gap:12px;flex-wrap:wrap}
   .app .tp-thumb{width:64px;flex:none}
-  .app .resume-doc{min-height:0;font-size:11.5px}
+  .app .resume-doc{min-height:0;font-size:var(--fs-100)}
   .app .resume-doc.t-classic{padding:26px 22px}
   .app .resume-doc .rd-band,.app .resume-doc.t-banded .rd-main{padding-left:22px;padding-right:22px}
   .app .resume-doc.t-sidebar{grid-template-columns:1fr}
@@ -1664,9 +1671,9 @@
 /* Five step labels do not fit across a phone. Rather than truncating all of
    them into nonsense, only the step you are on keeps its name; the rest stay
    as numbered ticks, which is enough to show progress and to jump back. */
-@media(max-width:620px){
+@media(max-width:640px){
   .app .resume-form .stepper button span{display:none}
-  .app .resume-form .stepper .active span{display:inline;font-size:12px}
+  .app .resume-form .stepper .active span{display:inline;font-size:var(--fs-100)}
   .app .resume-form .stepper .active{flex:none}
   .app .resume-form .stepper li:has(.active){flex:2.4}
 }
@@ -1689,12 +1696,12 @@
   margin-top:calc(var(--s-6) * -1);position:relative;z-index:3}
 .app .about-figures article{background:#fff;border:1px solid var(--line);border-radius:18px;
   padding:var(--s-5);box-shadow:var(--e-2)}
-.app .about-figures b{display:block;font-family:var(--font-display);font-size:34px;line-height:1;
+.app .about-figures b{display:block;font-family:var(--font-display);font-size:var(--fs-800);line-height:1;
   letter-spacing:-.035em;color:var(--accent-ink)}
-.app .about-figures small{display:block;margin-top:10px;font-size:13px;font-weight:700;color:var(--ink-1)}
-.app .about-figures em{display:block;margin-top:6px;font-style:normal;font-size:11.5px;color:var(--ink-3);line-height:1.45}
+.app .about-figures small{display:block;margin-top:10px;font-size:var(--fs-200);font-weight:700;color:var(--ink-1)}
+.app .about-figures em{display:block;margin-top:6px;font-style:normal;font-size:var(--fs-100);color:var(--ink-3);line-height:1.45}
 .app .figures-note{grid-column:1/-1;display:flex;align-items:center;gap:8px;margin:0;
-  font-size:12.5px;color:var(--ink-3)}
+  font-size:var(--fs-200);color:var(--ink-3)}
 .app .figures-note svg{width:15px;height:15px;flex:none;color:var(--accent)}
 
 .app .about-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:var(--s-7);
@@ -1708,8 +1715,8 @@
 .app .ap-icon{display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:12px;
   background:var(--wash);color:var(--accent)}
 .app .ap-icon svg{width:20px;height:20px}
-.app .as-principles b{display:block;font-size:14px;margin-bottom:4px}
-.app .as-principles small{display:block;font-size:13px;line-height:1.6;color:var(--ink-2)}
+.app .as-principles b{display:block;font-size:var(--fs-300);margin-bottom:4px}
+.app .as-principles small{display:block;font-size:var(--fs-200);line-height:1.6;color:var(--ink-2)}
 .app .about-h2{font-family:var(--font-display);font-size:clamp(26px,3vw,36px);line-height:1.12;
   letter-spacing:-.035em;margin:10px 0 var(--s-5)}
 
@@ -1723,17 +1730,17 @@
   border-radius:50%;background:#fff;border:3px solid var(--line)}
 .app .timeline-rail li.now:after{border-color:var(--accent);background:var(--accent)}
 .app .timeline-rail li:last-child:before{right:auto;width:12px}
-.app .tr-year{display:block;font-family:var(--font-display);font-size:22px;letter-spacing:-.02em;
+.app .tr-year{display:block;font-family:var(--font-display);font-size:var(--fs-600);letter-spacing:-.02em;
   color:var(--accent-ink);margin-bottom:8px}
-.app .tr-card b{display:block;font-size:14px;margin-bottom:6px}
-.app .tr-card p{margin:0;font-size:13px;line-height:1.6;color:var(--ink-2)}
+.app .tr-card b{display:block;font-size:var(--fs-300);margin-bottom:6px}
+.app .tr-card p{margin:0;font-size:var(--fs-200);line-height:1.6;color:var(--ink-2)}
 
 .app .about-money{padding-top:var(--s-8);padding-bottom:var(--s-8)}
 .app .am-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-4)}
 .app .am-grid article{padding:var(--s-5);border-radius:16px;background:var(--wash);border:1px solid var(--line)}
 .app .am-grid article:last-child{background:var(--ink,#0b1720);border-color:transparent;color:#fff}
-.app .am-grid b{display:block;font-size:15px;margin-bottom:8px}
-.app .am-grid p{margin:0;font-size:13.5px;line-height:1.65;color:var(--ink-2)}
+.app .am-grid b{display:block;font-size:var(--fs-400);margin-bottom:8px}
+.app .am-grid p{margin:0;font-size:var(--fs-300);line-height:1.65;color:var(--ink-2)}
 .app .am-grid article:last-child p{color:#c6d2d7}
 
 .app .about-contact{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:var(--s-6);
@@ -1742,8 +1749,8 @@
 .app .about-contact .about-h2{margin-bottom:8px}
 .app .about-contact p{margin:0;color:var(--ink-2);line-height:1.65;max-width:44ch}
 .app .about-contact dl{margin:0;display:grid;gap:12px}
-.app .about-contact dt{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
-.app .about-contact dd{margin:2px 0 0;font-size:13.5px;font-weight:700}
+.app .about-contact dt{font-size:var(--fs-050);font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.app .about-contact dd{margin:2px 0 0;font-size:var(--fs-300);font-weight:700}
 .app .ac-actions{display:grid;gap:8px}
 
 /* ----- blog ----- */
@@ -1755,12 +1762,12 @@
 .app .blog-lead>div{align-self:center;min-width:0}
 .app .blog-lead h2{font-family:var(--font-display);font-size:clamp(24px,2.6vw,32px);line-height:1.14;
   letter-spacing:-.03em;margin:10px 0 12px}
-.app .blog-lead p{margin:0 0 var(--s-4);color:var(--ink-2);line-height:1.65;font-size:15px}
-.app .bl-meta,.app .pc-meta{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-3)}
+.app .blog-lead p{margin:0 0 var(--s-4);color:var(--ink-2);line-height:1.65;font-size:var(--fs-400)}
+.app .bl-meta,.app .pc-meta{display:flex;align-items:center;gap:8px;font-size:var(--fs-100);color:var(--ink-3)}
 .app .bl-meta b,.app .pc-meta b{color:var(--ink-1)}
 .app .bl-meta i,.app .pc-meta i{width:3px;height:3px;border-radius:50%;background:var(--line-2,#D8DEE6)}
 .app .bl-go{display:inline-flex;align-items:center;gap:8px;margin-top:var(--s-4);
-  font-size:12px;font-weight:800;color:var(--accent)}
+  font-size:var(--fs-100);font-weight:800;color:var(--accent)}
 .app .bl-go svg{width:16px;height:16px;transition:transform .2s}
 .app .blog-lead:hover .bl-go svg{transform:translateX(3px)}
 
@@ -1772,24 +1779,24 @@
 .app .post-card:hover{transform:translateY(-3px);box-shadow:var(--e-2);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
 .app .post-card .plate{aspect-ratio:16/8;border-radius:0}
 .app .pc-body{padding:var(--s-4);display:flex;flex-direction:column;gap:10px;flex:1}
-.app .pc-body h3{font-size:17px;line-height:1.25;letter-spacing:-.02em;margin:0}
-.app .pc-body p{margin:0;font-size:13.5px;line-height:1.6;color:var(--ink-2);flex:1}
+.app .pc-body h3{font-size:var(--fs-500);line-height:1.25;letter-spacing:-.02em;margin:0}
+.app .pc-body p{margin:0;font-size:var(--fs-300);line-height:1.6;color:var(--ink-2);flex:1}
 
 .app .article{max-width:760px;padding-top:var(--s-5);padding-bottom:var(--s-7)}
 .app .article h1{font-family:var(--font-display);font-size:clamp(30px,4.4vw,48px);line-height:1.08;
   letter-spacing:-.04em;margin:10px 0 var(--s-4)}
-.app .art-dek{font-size:18px;line-height:1.6;color:var(--ink-2);margin:0 0 var(--s-5)}
+.app .art-dek{font-size:var(--fs-500);line-height:1.6;color:var(--ink-2);margin:0 0 var(--s-5)}
 .app .art-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
   padding:var(--s-4) 0;border-block:1px solid var(--line)}
 .app .am-mark{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;
-  background:var(--wash);color:var(--accent);font-size:13px;font-weight:800}
-.app .art-meta b{display:block;font-size:13.5px}
-.app .art-meta small{display:block;font-size:12px;color:var(--ink-3)}
-.app .am-when{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3)}
+  background:var(--wash);color:var(--accent);font-size:var(--fs-200);font-weight:800}
+.app .art-meta b{display:block;font-size:var(--fs-300)}
+.app .art-meta small{display:block;font-size:var(--fs-100);color:var(--ink-3)}
+.app .am-when{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-100);color:var(--ink-3)}
 .app .am-when svg{width:14px;height:14px}
 .app .art-plate{margin:var(--s-5) 0}
 .app .art-plate .plate{aspect-ratio:16/7;border-radius:18px}
-.app .art-body p{font-size:17px;line-height:1.75;color:var(--ink-1);margin:0 0 var(--s-4)}
+.app .art-body p{font-size:var(--fs-500);line-height:1.75;color:var(--ink-1);margin:0 0 var(--s-4)}
 .app .art-body p:first-child:first-letter{float:left;font-family:var(--font-display);font-size:56px;
   line-height:.82;padding:4px 10px 0 0;color:var(--accent-ink)}
 .app .art-more{padding-bottom:var(--s-8)}
@@ -1802,21 +1809,21 @@
 .app .rp-score{text-align:center}
 .app .rp-score>b{display:block;font-family:var(--font-display);font-size:52px;line-height:1;
   letter-spacing:-.04em;font-variant-numeric:tabular-nums}
-.app .rp-score small{display:block;margin-top:8px;font-size:12px;color:var(--ink-3)}
+.app .rp-score small{display:block;margin-top:8px;font-size:var(--fs-100);color:var(--ink-3)}
 .app .stars{display:inline-flex;gap:2px}
 .app .stars svg{width:15px;height:15px;color:var(--line-2,#D8DEE6);fill:none}
 .app .stars svg.on{color:var(--spark,#F5C93B);fill:var(--spark,#F5C93B)}
 .app .stars.big svg{width:19px;height:19px}
 .app .rp-dist{list-style:none;margin:0;padding:0;display:grid;gap:7px}
 .app .rp-dist li{display:grid;grid-template-columns:34px 1fr 24px;align-items:center;gap:10px;
-  font-size:12px;color:var(--ink-3)}
+  font-size:var(--fs-100);color:var(--ink-3)}
 .app .rp-dist li>span{display:inline-flex;align-items:center;gap:3px;font-weight:700;color:var(--ink-2)}
 .app .rp-dist li>span svg{width:12px;height:12px;color:var(--spark,#F5C93B);fill:var(--spark,#F5C93B)}
 .app .rp-dist i{display:block;height:8px;border-radius:99px;background:var(--wash);overflow:hidden}
 .app .rp-dist i b{display:block;height:100%;border-radius:99px;background:var(--accent)}
 .app .rp-dist small{text-align:right;font-variant-numeric:tabular-nums}
 .app .rp-cta{border-left:1px solid var(--line);padding-left:var(--s-5)}
-.app .rp-cta p{display:flex;gap:8px;margin:0 0 var(--s-4);font-size:12.5px;line-height:1.55;color:var(--ink-3)}
+.app .rp-cta p{display:flex;gap:8px;margin:0 0 var(--s-4);font-size:var(--fs-200);line-height:1.55;color:var(--ink-3)}
 .app .rp-cta p svg{width:15px;height:15px;flex:none;color:var(--accent)}
 
 .app .reviews-page .results-head{margin-top:var(--s-6);flex-wrap:wrap;gap:var(--s-3)}
@@ -1826,26 +1833,30 @@
 .app .review-card header{display:flex;align-items:center;gap:10px;height:auto;padding:0;position:static;
   background:none;border:0;backdrop-filter:none;grid-template-columns:none;z-index:auto}
 .app .rv-mark{display:grid;place-items:center;width:38px;height:38px;flex:none;border-radius:50%;
-  background:var(--wash);color:var(--accent);font-size:12px;font-weight:800}
-.app .review-card header b{display:block;font-size:13.5px}
-.app .review-card header small{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--ink-3)}
+  background:var(--wash);color:var(--accent);font-size:var(--fs-100);font-weight:800}
+.app .review-card header b{display:block;font-size:var(--fs-300)}
+.app .review-card header small{display:flex;align-items:center;gap:4px;font-size:var(--fs-100);color:var(--ink-3)}
 .app .review-card header small svg{width:12px;height:12px}
 .app .rv-check{display:inline-flex;align-items:center;gap:4px;margin-left:auto;padding:4px 8px;
-  border-radius:99px;background:#E8F4EC;color:#146B3E;font-size:10px;font-weight:800;white-space:nowrap}
+  border-radius:99px;background:#E8F4EC;color:#146B3E;font-size:var(--fs-050);font-weight:800;white-space:nowrap}
 .app .rv-check svg{width:12px;height:12px}
-.app .rv-subject{margin:0;font-size:12px;font-weight:800;color:var(--accent-ink)}
-.app .rv-text{margin:0;font-size:14px;line-height:1.65;color:var(--ink-1);flex:1}
+.app .rv-subject{margin:0;font-size:var(--fs-100);font-weight:800;color:var(--accent-ink)}
+.app .rv-text{margin:0;font-size:var(--fs-300);line-height:1.65;color:var(--ink-1);flex:1}
 .app .review-card footer{display:flex;align-items:center;justify-content:space-between;gap:10px;
   padding-top:12px;border-top:1px solid var(--line)}
 .app .rv-tag{padding:4px 9px;border-radius:99px;background:var(--wash);color:var(--accent-ink);
-  font-size:11px;font-weight:800}
-.app .review-card footer button{display:inline-flex;align-items:center;gap:6px;border:0;background:none;
-  font-size:12px;font-weight:700;color:var(--ink-3)}
-.app .review-card footer button:hover{color:var(--accent)}
+  font-size:var(--fs-050);font-weight:800}
+.app .review-card footer button{display:inline-flex;align-items:center;gap:6px;
+  min-height:34px;padding:0 12px;border:1px solid var(--line);border-radius:var(--r-pill);
+  background:var(--n-0);font-size:var(--fs-100);font-weight:700;color:var(--ink-2);
+  transition:border-color var(--t-micro) var(--ease-std),color var(--t-micro) var(--ease-std),
+             background var(--t-micro) var(--ease-std)}
+.app .review-card footer button:hover{color:var(--accent-ink);border-color:var(--accent);
+  background:var(--wash)}
 .app .review-card footer button svg{width:14px;height:14px}
 .app .review-foot{display:flex;align-items:center;justify-content:space-between;gap:var(--s-4);
   flex-wrap:wrap;margin-top:var(--s-6);padding-top:var(--s-5);border-top:1px solid var(--line)}
-.app .review-foot p{margin:0;font-size:12.5px;color:var(--ink-3)}
+.app .review-foot p{margin:0;font-size:var(--fs-200);color:var(--ink-3)}
 
 @media(max-width:1080px){
   .app .about-figures{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:calc(var(--s-5) * -1)}
@@ -1864,7 +1875,7 @@
   .app .timeline-rail li{padding:0 0 0 var(--s-5)}
   .app .timeline-rail li:after{top:2px}
   .app .rating-panel{grid-template-columns:1fr;text-align:left}
-  .app .art-body p{font-size:16px}
+  .app .art-body p{font-size:var(--fs-400)}
 }
 
 /* On a dark hero photo the kicker cannot be var(--accent): the distance blue
@@ -1872,3 +1883,170 @@
    for emphasis (hero h1 em), so the eyebrow borrows it and stays legible in
    all three verticals. */
 .app .tool-hero-copy .kicker{color:#F7D98C}
+
+
+/* ============================================================================
+   AUDIT FIXES — results heading, plate variety, click affordance
+   ========================================================================= */
+
+/* The results count is an <h2> for document outline reasons; it must not
+   inherit display-heading scale. It is a label, so it reads as one. */
+.app .results-head .rh-count{
+  font-size:var(--fs-200);font-weight:500;color:var(--ink-2);
+  margin:0;letter-spacing:0;line-height:1.3}
+.app .results-head .rh-count b{font-weight:800;color:var(--ink-1)}
+
+/* ============================================================================
+   INTERIOR PAGE HEROES
+   Every interior page now opens with a hero. Content pages (listings) carry the
+   editorial photograph; tool pages carry a generated field, because a stock
+   photo above a resume form claims something the page cannot deliver.
+   ========================================================================= */
+
+.app .page-hero{min-height:420px}
+.app .page-hero .tool-hero-copy h1{max-width:20ch}
+
+/* --- generated field -------------------------------------------------------
+   One key colour per page, drawn from the same six-tone family as the plates,
+   so the heroes and the cards below them read as one system. */
+.app .canvas-hero{
+  --hero-key:var(--accent);
+  min-height:340px;
+  background:var(--ink-1)}
+.app .canvas-hero.t-teal  {--hero-key:color-mix(in oklab,var(--accent) 36%,#0E7C5A)}
+.app .canvas-hero.t-indigo{--hero-key:color-mix(in oklab,var(--accent) 36%,#4A2F87)}
+.app .canvas-hero.t-rust  {--hero-key:color-mix(in oklab,var(--accent) 36%,#C2570B)}
+.app .canvas-hero.t-forest{--hero-key:color-mix(in oklab,var(--accent) 36%,#2F6B1E)}
+.app .canvas-hero.t-plum  {--hero-key:color-mix(in oklab,var(--accent) 36%,#9E1F4B)}
+
+.app .hero-weave{
+  position:absolute;inset:0;display:block;pointer-events:none;
+  background:
+    /* the spark, low and to the right, so the copy column stays the darkest */
+    radial-gradient(120% 90% at 88% 12%,
+      color-mix(in srgb,var(--spark,#F5C93B) 26%,transparent) 0%,transparent 58%),
+    /* the key colour bleeding in from the right edge */
+    radial-gradient(95% 120% at 100% 62%,
+      color-mix(in srgb,var(--hero-key) 78%,transparent) 0%,transparent 66%),
+    /* the ruled field: the same "measured" language as the plate motifs */
+    repeating-linear-gradient(101deg,
+      rgba(255,255,255,.055) 0 1px,transparent 1px 46px),
+    linear-gradient(105deg,
+      color-mix(in oklab,var(--ink-1) 92%,var(--hero-key)) 0%,
+      color-mix(in oklab,var(--ink-1) 70%,var(--hero-key)) 100%)}
+/* keeps the left third readable no matter how bright the key is */
+.app .hero-weave::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(96deg,
+    color-mix(in srgb,var(--ink-1) 88%,transparent) 0%,
+    color-mix(in srgb,var(--ink-1) 72%,transparent) 38%,
+    transparent 78%)}
+
+@media (max-width:900px){
+  .app .page-hero{min-height:300px}
+  .app .canvas-hero{min-height:260px}
+  .app .hero-weave::after{background:linear-gradient(180deg,
+    color-mix(in srgb,var(--ink-1) 74%,transparent) 0%,
+    color-mix(in srgb,var(--ink-1) 88%,transparent) 100%)}
+}
+
+/* The listing pages now start with a hero, so the results block needs its own
+   breathing room where the page-head used to provide it. */
+.app .page-hero+.locator,
+.app .page-hero+.container,
+.app .page-hero+.listing-layout{margin-top:var(--s-7)}
+
+/* ============================================================================
+   CLICK OPTIMISATION
+   Three things decide whether a card gets clicked: does it look clickable at
+   rest, is the target big enough for a thumb, and does the press acknowledge.
+   ========================================================================= */
+
+/* 1 — the whole card is the target, so it must carry the pointer. */
+.app .path-card,.app .board-card,.app .blog-card{cursor:pointer}
+
+/* 2 — the affordance is visible at rest, not only on hover. A grey "Explore"
+       that only colours up under a mouse is invisible on touch. */
+.app .path-card .pc-go{
+  /* full width on purpose: the card is the target, so the CTA bar should be
+     as wide as the thumb can reach, with the arrow parked at the far edge. */
+  display:flex;width:100%;align-items:center;justify-content:space-between;gap:7px;
+  min-height:38px;padding:0 14px;border-radius:var(--r-pill);
+  border:1px solid color-mix(in srgb,var(--accent) 26%,var(--line));
+  background:var(--wash);color:var(--accent-ink);
+  font-size:var(--fs-200);font-weight:800;letter-spacing:.01em;
+  transition:background var(--t-micro) var(--ease-std),
+             border-color var(--t-micro) var(--ease-std),
+             transform var(--t-micro) var(--ease-std)}
+.app .path-card .pc-go svg{width:15px;height:15px;
+  transition:transform var(--t-fast,.16s) var(--ease-std)}
+.app .path-card:hover .pc-go{
+  background:var(--accent-solid,var(--accent));border-color:transparent;color:#fff}
+.app .path-card:hover .pc-go svg{transform:translateX(3px)}
+.app .path-card:active{transform:translateY(-1px) scale(.996)}
+
+/* 3 — every control clears the 44px thumb target on touch pointers. Desktop
+       keeps the tighter rhythm; coarse pointers get the room. */
+@media (pointer:coarse){
+  .app .btn,.app .btn.small{min-height:46px}
+  .app .review-card footer button,
+  .app .filter-title button,
+  .app .text-btn{min-height:44px}
+  .app .icon{width:44px;height:44px}
+}
+
+/* 4 — the hero CTA is the page's one primary action; give it real weight. */
+.app .tool-hero-cta .btn.primary,.app .page-hero .btn.primary{
+  min-height:52px;padding-inline:22px;font-size:var(--fs-300)}
+.app .tool-hero-cta .btn.ghost{border-color:#ffffff5c}
+.app .tool-hero-cta .btn.ghost:hover{background:#ffffff1f;border-color:#fff}
+
+/* ============================================================================
+   MOBILE TYPE FLOOR
+   The desktop ramp leans on 11-12px for metadata. On a phone held at arm's
+   length that is the first thing that stops being read, so the bottom three
+   steps lift by one and prose returns to full body size.
+   ========================================================================= */
+@media (max-width:640px){
+  .app .path-card p,.app .board-card p,.app .blog-card p,
+  .app .side-card p,.app .recommend p,.app .human-cta p,
+  .app .decision>div:first-child p,.app .saved-row p,
+  .app .empty p,.app .review-card p{font-size:var(--fs-300);line-height:1.6}
+
+  .app .entity-top p,.app .detail-copy>p,
+  .app .metrics small,.app .metrics b,
+  .app .fact-grid small,.app .fact-grid b,
+  .app .tags span,.app .detail-tags span,
+  .app .proof-cards small,.app .command-results small,
+  .app .hero-pills span,.app .plate-tag{font-size:var(--fs-200)}
+
+  /* eyebrows and counters stay small but never below the 11px floor */
+  .app .kicker,.app .eyebrow,.app .verified,
+  .app .stepper span,.app .timeline-labels{font-size:var(--fs-100)}
+
+  .app .tool-hero-copy>p,.app .page-head p{font-size:var(--fs-400);line-height:1.6}
+}
+
+/* ============================================================================
+   HIGH CONTRAST & FORCED COLOURS
+   Windows high-contrast mode replaces our palette wholesale. The plates and
+   hero fields are decoration, so they step aside; what has to survive is the
+   boundary of every card and the fact that a control is a control.
+   ========================================================================= */
+@media (prefers-contrast:more){
+  .app{--line:#8A97A6;--ink-2:#2A3644}
+  .app .path-card,.app .entity-card,.app .side-card,
+  .app .filters,.app .review-card{border-width:2px}
+  .app .pc-go{border-color:var(--accent);background:var(--n-0)}
+  .app :focus-visible{outline-width:4px}
+}
+
+@media (forced-colors:active){
+  .app .plate-art,.app .hero-weave,.app .hero-shade{forced-color-adjust:none;opacity:.35}
+  .app .path-card,.app .entity-card,.app .board-card,
+  .app .review-card,.app .side-card,.app .filters{border:1px solid CanvasText}
+  .app .pc-go,.app .btn{border:1px solid ButtonText;forced-color-adjust:auto}
+  .app :focus-visible{outline:3px solid Highlight;outline-offset:2px}
+  /* colour is never the only signal, but make sure the fallbacks are visible */
+  .app .verified svg,.app .hero-pills svg{forced-color-adjust:auto}
+}

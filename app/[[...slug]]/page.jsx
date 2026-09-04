@@ -4,7 +4,7 @@ import {usePathname,useRouter} from 'next/navigation';
 import Image from 'next/image';
 import {ArrowRight,ArrowUp,Bookmark,Building2,Check,ChevronDown,ChevronRight,Clock3,FileText,GraduationCap,Heart,Home,MapPin,Search,ShieldCheck,Sparkles,Star,Users,X,Bell,UserRound,BookOpen,ExternalLink,Download,ArrowLeft,TrendingUp,CalendarDays,MessageCircle,RotateCcw,Zap,Navigation,LocateFixed,Wifi,Flame,Filter,Stethoscope,Plane,Scale,Award,Briefcase,IndianRupee,ScrollText,Laptop,Cog,Calculator,Wrench,BadgeCheck,Landmark,Workflow} from 'lucide-react';
 
-const V={distance:{label:'Distance',sub:'Courses Wala',logoAlt:'Distance Courses Wala',legal:'Distance Courses Wala, Patna',mark:'/distance-mark.png',lockup:'/distance-lockup.png',theme:{'--accent':'#0B4DA8','--accent-deep':'#07356F','--accent-ink':'#0B4DA8','--wash':'#EAF1FB','--spark':'#F5C93B','--spark-ink':'#3A2A00','--spark-lift':'#F7D98C','--tint':'#B7D2F6','--mark':"url('/distance-mark.png')"}},colleges:{label:'Colleges',sub:'Colleges Wala',logoAlt:'Colleges Wala',legal:'Colleges Wala, Patna',mark:'/colleges-mark.png',lockup:'/colleges-lockup.png',theme:{'--accent':'#C1272D','--accent-deep':'#8C1A20','--accent-ink':'#C1272D','--wash':'#FBEDEC','--spark':'#1B3B78','--spark-ink':'#FFFFFF','--spark-lift':'#F6C9C4','--tint':'#F3C0BC','--mark':"url('/colleges-mark.png')"}},jobs:{label:'Jobs',sub:'Berojgar Bharat',logoAlt:'Berojgar Bharat',legal:'Berojgar Bharat, Patna',mark:'/jobs-mark.png',lockup:'/jobs-lockup.png',theme:{'--accent':'#E2760F','--accent-deep':'#A5520A','--accent-ink':'#A5520A','--wash':'#FDF2E5','--spark':'#5AB436','--spark-ink':'#0C2A05','--spark-lift':'#B6EE99','--tint':'#F8D3A6','--mark':"url('/jobs-mark.png')"}}};
+const V={distance:{label:'Distance',sub:'Courses Wala',logoAlt:'Distance Courses Wala',legal:'Distance Courses Wala, Patna',mark:'/distance-mark.png',lockup:'/distance-lockup.png',theme:{'--accent':'#0B4DA8','--accent-deep':'#07356F','--accent-ink':'#0B4DA8','--accent-solid':'#0B4DA8','--wash':'#EAF1FB','--spark':'#F5C93B','--spark-ink':'#3A2A00','--spark-lift':'#F7D98C','--tint':'#B7D2F6','--mark':"url('/distance-mark.png')"}},colleges:{label:'Colleges',sub:'Colleges Wala',logoAlt:'Colleges Wala',legal:'Colleges Wala, Patna',mark:'/colleges-mark.png',lockup:'/colleges-lockup.png',theme:{'--accent':'#C1272D','--accent-deep':'#8C1A20','--accent-ink':'#C1272D','--accent-solid':'#C1272D','--wash':'#FBEDEC','--spark':'#1B3B78','--spark-ink':'#FFFFFF','--spark-lift':'#F6C9C4','--tint':'#F3C0BC','--mark':"url('/colleges-mark.png')"}},jobs:{label:'Jobs',sub:'Berojgar Bharat',logoAlt:'Berojgar Bharat',legal:'Berojgar Bharat, Patna',mark:'/jobs-mark.png',lockup:'/jobs-lockup.png',theme:{'--accent':'#E2760F','--accent-deep':'#A5520A','--accent-ink':'#A5520A','--accent-solid':'#A5520A','--wash':'#FDF2E5','--spark':'#5AB436','--spark-ink':'#0C2A05','--spark-lift':'#B6EE99','--tint':'#F8D3A6','--mark':"url('/jobs-mark.png')"}}};
 const universities=[
 {id:'amity-online',mark:'AU',name:'Amity University Online',place:'Noida, Uttar Pradesh',type:'Private university',course:'Online MBA',fee:149000,mrp:180000,emi:'₹6,208/mo',rating:4.4,reviews:1284,approval:['UGC-DEB','NAAC A+'],duration:'2 years',mode:'100% online',deadline:'28 Aug',featured:true},
 {id:'lpu',mark:'LP',name:'Lovely Professional University',place:'Jalandhar, Punjab',type:'Private university',course:'Distance BBA',fee:78000,mrp:92000,emi:'₹3,250/mo',rating:4.2,reviews:721,approval:['UGC-DEB','AICTE'],duration:'3 years',mode:'Distance',deadline:'02 Sep',featured:true},
@@ -185,7 +185,7 @@ function Hero({vertical,go,setSearchOpen}){const copy={distance:{eyebrow:'Guidin
      {(vertical==='jobs'?[['1,240','vacancies today','/jobs/search',Briefcase,null,'up 12% on last week'],['18','walk-in drives','/jobs/search',MapPin,null,'across 6 Bihar districts'],['312','hiring partners','/jobs/search',Building2,null,'each verified in person']]:vertical==='colleges'?[['100%','verified colleges','/colleges/search',ShieldCheck,100,'approvals checked at source'],['12,000+','students admitted','/applications',Users,null,'since 2019'],['1:1','counsellor for life','/counsellor',MessageCircle,null,'no cost, no sales pitch']]:[['100%','verified universities','/distance/universities',ShieldCheck,100,'UGC-DEB status confirmed'],['12,000+','students admitted','/applications',Users,null,'since 2019'],['1:1','counsellor for life','/counsellor',MessageCircle,null,'no cost, no sales pitch']]).map(([n,l,href,Icon,share,note],i)=><button key={l} onClick={()=>go(href)} style={{'--i':i}}><span className="stat-i" aria-hidden="true"><Icon/></span><StatNumber value={n} delay={140+i*110}/><small>{l}</small>{share===null?<span className="stat-rule" aria-hidden="true"/>:<span className="stat-bar" style={{'--fill':share+'%'}} role="img" aria-label={`${share}% of ${l}`}/>}<span className="stat-note"><TrendingUp/>{note}</span></button>)}</div></div></div></section>}
 function HomePage(ctx){const {vertical,go}=ctx;const pool=vertical==='distance'?universities:vertical==='colleges'?colleges:jobs;return <main><Hero {...ctx}/><section className="trust-strip"><div className="container"><span><ShieldCheck/>Data checked by our research team</span><span><Users/>12,000+ students admitted</span><span><Clock3/>Updated every admission cycle</span></div></section><section className="section container"><SectionTitle kicker="CHOOSE YOUR NEXT MOVE" title={vertical==='jobs'?'Start with what you need today':vertical==='colleges'?'Explore by your ambition':'Learn on your terms'} action="View everything" onAction={()=>go(vertical==='distance'?'/distance/universities':`/${vertical}/search`)}/><div className="path-grid">{categories(vertical).map((x,i)=><PathCard key={x.name} item={x} i={i} onClick={()=>go(x.href)}/>)}</div></section><section className="section wash"><div className="container"><SectionTitle kicker="RESEARCHED, NOT RANKED BY ADS" title={vertical==='jobs'?'Fresh opportunities near you':vertical==='colleges'?'Colleges worth comparing':'Popular flexible programs'} action="See all results" onAction={()=>go(vertical==='distance'?'/distance/universities':`/${vertical}/search`)}/><div className="card-grid">{pool.slice(0,3).map(x=><EntityCard key={x.id} item={x} {...ctx}/>)}</div></div></section>{vertical!=='distance'&&<section className="section container section-plate"><SectionTitle kicker={vertical==='colleges'?'STUDY ABROAD':'SKILL TO JOB'} title={vertical==='colleges'?'Intake and total cost, country by country':'Short courses that lead to a job'} action={vertical==='colleges'?'Compare countries':'See all courses'} onAction={()=>go(vertical==='colleges'?'/colleges/search':'/jobs/search')}/><div className="path-grid">{(vertical==='colleges'?[{name:'Georgia',kicker:'MBBS',desc:'\u20b924L total \u00b7 September intake \u00b7 NMC-approved universities.',icon:<Plane/>},{name:'Russia',kicker:'MBBS',desc:'\u20b919L total \u00b7 August intake \u00b7 English-medium teaching.',icon:<Plane/>},{name:'Canada',kicker:'PG DIPLOMA',desc:'\u20b918L \u00b7 January intake \u00b7 post-study work pathway.',icon:<Plane/>},{name:'UK',kicker:'MSc \u00b7 1 YEAR',desc:'\u20b922L \u00b7 September intake \u00b7 one-year master\u2019s.',icon:<Plane/>}]:[{name:'Digital Marketing',kicker:'6 WEEKS',desc:'Certificate on completion, portfolio project included.',icon:<TrendingUp/>},{name:'Tally + GST',kicker:'8 WEEKS',desc:'Job assistance for accounts and back-office roles.',icon:<Calculator/>},{name:'Spoken English',kicker:'12 WEEKS',desc:'Live classes with practice partners, not recordings.',icon:<MessageCircle/>},{name:'Interview Prep',kicker:'MOCK + REVIEW',desc:'Mock interviews and a line-by-line resume review.',icon:<Briefcase/>}]).map((x,i)=><PathCard key={x.name} item={x} i={i} cta={vertical==='colleges'?'See cost':'See course'} onClick={()=>go(vertical==='colleges'?'/colleges/search':'/jobs/search')}/>)}</div></section>}<DecisionBlock {...ctx}/><section className="section container"><div className="human-cta"><div><span className="kicker">NEED A HUMAN POINT OF VIEW?</span><h2>Talk it through with someone<br/>who knows the details.</h2><p>Free guidance, zero pressure. Our counsellors help you compare the options that fit your goal and budget.</p></div><button className="btn light" onClick={()=>ctx.setLead({title:'Talk to a DCW counsellor',interest:vertical})}>Book a free call<ArrowRight/></button></div></section></main>}
 function categories(v){if(v==='distance')return[{name:'Complete 10th',kicker:'OPEN SCHOOL',desc:'Recognised open boards with flexible exam cycles.',icon:<BookOpen/>,href:'/distance/boards'},{name:'Complete 12th',kicker:'OPEN SCHOOL',desc:'Finish 12th in as little as 45 days, gap years covered.',icon:<ScrollText/>,href:'/distance/boards'},{name:'UG distance',kicker:'BACHELOR\u2019S',desc:'BA, B.Com, BBA and BCA from UGC-DEB universities.',icon:<GraduationCap/>,href:'/distance/universities'},{name:'PG distance',kicker:'MASTER\u2019S',desc:'MBA, MCA and MA built around working hours.',icon:<Award/>,href:'/distance/universities'},{name:'Online degree',kicker:'100% ONLINE',desc:'Fully online degrees with proctored online exams.',icon:<Laptop/>,href:'/distance/universities'},{name:'Fast track',kicker:'QUICKEST ROUTE',desc:'The fastest legitimate path to your certificate.',icon:<Zap/>,href:'/distance/boards'}];if(v==='colleges')return[{name:'Medical',kicker:'MBBS & BDS',desc:'Cutoffs, seats and the full cost \u2014 not just tuition.',icon:<Stethoscope/>,href:'/colleges/search'},{name:'Engineering',kicker:'B.TECH',desc:'JEE percentile, branch-wise fees and placement records.',icon:<Cog/>,href:'/colleges/search'},{name:'Management',kicker:'BBA & MBA',desc:'Entrance accepted, fee versus average package.',icon:<TrendingUp/>,href:'/colleges/search'},{name:'Law',kicker:'BA LLB',desc:'CLAT and state law entrances with five-year options.',icon:<Scale/>,href:'/colleges/search'},{name:'Study abroad',kicker:'GLOBAL OPTIONS',desc:'Country-wise cost, approvals and intake timelines.',icon:<Plane/>,href:'/colleges/search'},{name:'Commerce',kicker:'B.COM',desc:'Regular and honours streams with CA-friendly timing.',icon:<Calculator/>,href:'/colleges/search'}];return[{name:'Jobs near me',kicker:'LOCAL ROLES',desc:'Verified Patna openings with the salary stated upfront.',icon:<MapPin/>,href:'/jobs/search'},{name:'Free resume builder',kicker:'3 SIMPLE STEPS',desc:'Create a clean, recruiter-ready resume in minutes.',icon:<FileText/>,href:'/jobs/resume-builder'},{name:'Skill to job',kicker:'SHORT COURSES',desc:'Job-linked courses from six weeks, with placement help.',icon:<Wrench/>,href:'/jobs/search'},{name:'Sarkari exam alerts',kicker:'BSSC \u00b7 SSC \u00b7 RAILWAY',desc:'Form dates and eligibility, pushed before the deadline.',icon:<Bell/>,href:'/jobs/search'}]}
-function SectionTitle({kicker,title,action,onAction}){return <div className="section-title"><div><span className="kicker">{kicker}</span><h2>{title}</h2></div><button onClick={onAction}>{action}<ArrowRight/></button></div>}
+function SectionTitle({kicker,title,action,onAction}){return <div className="section-title"><div><span className="kicker">{kicker}</span><h2>{title}</h2></div>{action&&<button onClick={onAction}>{action}<ArrowRight/></button>}</div>}
 /* ---------- Generated card artwork ----------------------------------------
    public/ holds three editorial photographs and the logo lockups; there is no
    per-category or per-university imagery, and inventing a university's logo or
@@ -199,15 +199,101 @@ function seedOf(s){let h=2166136261;for(let i=0;i<String(s).length;i++){h^=Strin
 /* Cubic through the points with horizontal control handles — always smooth,
    never overshoots, and cheap enough to run per card during render. */
 function routePath(pts){return pts.map(([x,y],i,a)=>{if(i===0)return `M${x} ${y}`;const[px,py]=a[i-1];const dx=(x-px)*.5;return `C${(px+dx).toFixed(1)} ${py} ${(x-dx).toFixed(1)} ${y} ${x} ${y}`}).join('')}
-function Plate({seed,icon,mark,tag,image,alt='',ratio}){
+/* ── PLATE ────────────────────────────────────────────────────────────────
+   One motif on every card made the grid read as wallpaper: six tiles that
+   differed only in the wiggle of a line. A plate now draws from six motif
+   families and six tonal keys, both picked from the item's own name, so a
+   card looks the same on every visit but no two neighbours look alike.
+   Pass `image` and licensed photography replaces the drawing outright. */
+const PLATE_MOTIFS=['route','arcs','grid','climb','orbit','strata'];
+
+function plateMotif(kind,h,uid){
+  const R=(i)=>((h>>>((i*5)%27))&31)/31;              /* stable 0..1 per slot */
+  const line='var(--plate-line)',node='var(--plate-node)';
+  if(kind==='route'){
+    const N=4,pts=Array.from({length:N+1},(_,i)=>[+((i/N)*120).toFixed(1),+(19+R(i)*38).toFixed(1)]);
+    const d=routePath(pts);
+    return <>
+      {[-15,-10,-5,5,10,15].map(o=><path key={o} d={d} transform={`translate(0 ${o})`} fill="none"
+        stroke={line} strokeOpacity={o%10===0?'.10':'.16'} strokeWidth=".7"/>)}
+      <path d={d} fill="none" stroke={`url(#${uid}s)`} strokeWidth="1.9" strokeLinecap="round"/>
+      {pts.filter((_,i)=>i%2===0).map(([x,y],i)=><g key={i}>
+        <circle cx={x} cy={y} r="3.4" fill={node} opacity=".22"/><circle cx={x} cy={y} r="1.7" fill={node}/></g>)}
+    </>;
+  }
+  if(kind==='arcs'){
+    /* Widening rings from the lower-left: distance covered, not a path. */
+    const cx=-4,cy=84;
+    return <>
+      {Array.from({length:8},(_,i)=>{const r=16+i*13.5;
+        return <path key={i} d={`M${cx+r} ${cy}A${r} ${r} 0 0 1 ${cx} ${cy-r}`} fill="none" stroke={line}
+          strokeOpacity={i===3?'.9':(i%2?'.13':'.2')} strokeWidth={i===3?'1.9':'.75'} strokeLinecap="round"/>})}
+      {[0,1,2].map(i=>{const r=16+3*13.5,a=(.18+R(i)*.5)*Math.PI/2;
+        return <g key={i} transform={`translate(${(cx+r*Math.cos(a)).toFixed(1)} ${(cy-r*Math.sin(a)).toFixed(1)})`}>
+          <circle r="3.4" fill={node} opacity=".22"/><circle r="1.7" fill={node}/></g>})}
+    </>;
+  }
+  if(kind==='grid'){
+    /* A plane receding to a horizon — structure, syllabus, a laid-out plan. */
+    const vy=14;
+    return <>
+      {Array.from({length:9},(_,i)=>{const y=+(76-62*Math.pow(1-i/9,1.75)).toFixed(1);
+        return <line key={'h'+i} x1="0" y1={y} x2="120" y2={y} stroke={line} strokeOpacity={i>6?'.24':'.13'} strokeWidth=".7"/>})}
+      {Array.from({length:9},(_,i)=>{const x=i*15;
+        return <line key={'v'+i} x1={x} y1="76" x2={(60+(x-60)*.16).toFixed(1)} y2={vy}
+          stroke={line} strokeOpacity=".12" strokeWidth=".7"/>})}
+      <line x1="0" y1="76" x2="120" y2="76" stroke={line} strokeOpacity=".5" strokeWidth="1.6"/>
+      {[0,1,2].map(i=><g key={i} transform={`translate(${(22+i*38+R(i)*10).toFixed(1)} ${(52+R(i+3)*14).toFixed(1)})`}>
+        <circle r="3.4" fill={node} opacity=".2"/><circle r="1.7" fill={node}/></g>)}
+    </>;
+  }
+  if(kind==='climb'){
+    /* Ascending steps: a level gained, a salary band, a year completed. */
+    const n=7,w=11,gap=5.4,x0=8;
+    return <>
+      {Array.from({length:n},(_,i)=>{const hgt=14+i*6.4+R(i)*9,x=x0+i*(w+gap);
+        return <rect key={i} x={+x.toFixed(1)} y={+(70-hgt).toFixed(1)} width={w} height={+hgt.toFixed(1)} rx="2.5"
+          fill={line} fillOpacity={i===n-1?'.82':(.13+i*.055).toFixed(2)}/>})}
+      <line x1="0" y1="70.6" x2="120" y2="70.6" stroke={line} strokeOpacity=".42" strokeWidth="1.2"/>
+    </>;
+  }
+  if(kind==='orbit'){
+    /* Concentric reach — options circling one decision at the centre. */
+    const cx=84,cy=26;
+    return <>
+      {[13,24,35,47,60].map((r,i)=><ellipse key={i} cx={cx} cy={cy} rx={r} ry={r*.62} fill="none"
+        stroke={line} strokeOpacity={i===1?'.7':'.14'} strokeWidth={i===1?'1.7':'.75'}/>)}
+      <circle cx={cx} cy={cy} r="4.6" fill={node} opacity=".2"/><circle cx={cx} cy={cy} r="2.2" fill={node}/>
+      {[0,1,2,3].map(i=>{const r=[13,24,35,47][i],a=R(i)*Math.PI*2;
+        return <g key={i} transform={`translate(${(cx+r*Math.cos(a)).toFixed(1)} ${(cy+r*.62*Math.sin(a)).toFixed(1)})`}>
+          <circle r="3" fill={node} opacity=".2"/><circle r="1.5" fill={node}/></g>})}
+    </>;
+  }
+  /* strata — layered ground: intakes, semesters, things that stack up. */
+  const band=(off,amp)=>routePath(Array.from({length:5},(_,i)=>
+    [+((i/4)*120).toFixed(1),+(off+Math.sin(i*1.3+amp)*amp).toFixed(1)]))+'L120 76L0 76Z';
+  return <>
+    {[0,1,2,3,4].map(i=><path key={i} d={band(28+i*11,2.4+R(i)*4)} fill={line}
+      fillOpacity={(.07+i*.045).toFixed(2)}/>)}
+    <path d={routePath(Array.from({length:5},(_,i)=>[+((i/4)*120).toFixed(1),+(28+Math.sin(i*1.3+2.4)*2.4).toFixed(1)]))}
+      fill="none" stroke={`url(#${uid}s)`} strokeWidth="1.7" strokeLinecap="round"/>
+  </>;
+}
+
+function Plate({seed,icon,mark,tag,image,alt='',ratio,tone,motif}){
   const h=seedOf(seed);
   const uid='pl'+(h%1679616).toString(36);
-  const N=4;
-  const pts=Array.from({length:N+1},(_,i)=>[+((i/N)*120).toFixed(1),+(19+((h>>>(i*6))&63)/63*38).toFixed(1)]);
-  const d=routePath(pts);
-  const mix=58+((h>>>19)&31);   /* how far the field leans on the accent */
-  const tilt=((h>>>26)&7)-3;    /* keeps the family varied without breaking it */
-  return <span className="plate" style={{'--plate-mix':mix+'%',...(ratio?{aspectRatio:ratio}:null)}}>
+  const g=tone??h%6;                       /* tonal key */
+  /* In a grid the caller passes `tone`, and stride 5 (coprime with 6) then
+     guarantees neighbouring cards never share a motif; the seed only decides
+     which motif the row starts on, so two grids of the same length still
+     differ. Loose plates fall back to the pure seed. */
+  const kind=motif??(tone==null
+    ? PLATE_MOTIFS[(h>>>11)%6]
+    : PLATE_MOTIFS[(tone*5+((h>>>11)%6))%6]);
+  const mix=58+((h>>>19)&31);              /* how far the field leans on the accent */
+  const tilt=((h>>>26)&7)-3;               /* keeps the family varied without breaking it */
+  return <span className={`plate g${g}`} style={{'--plate-mix':mix+'%',...(ratio?{aspectRatio:ratio}:null)}}>
     {image
       ? <Image className="plate-photo" src={image} alt={alt} fill sizes="(max-width:760px) 100vw, 33vw"/>
       : <svg className="plate-art" viewBox="0 0 120 76" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
@@ -222,23 +308,38 @@ function Plate({seed,icon,mark,tag,image,alt='',ratio}){
             </linearGradient>
           </defs>
           <rect width="120" height="76" fill={`url(#${uid})`}/>
-          <g transform={`rotate(${tilt} 60 38)`}>
-            {[-15,-10,-5,5,10,15].map(o=><path key={o} d={d} transform={`translate(0 ${o})`} fill="none" stroke="var(--plate-line)" strokeOpacity={o%10===0?'.10':'.16'} strokeWidth=".7"/>)}
-            <path d={d} fill="none" stroke={`url(#${uid}s)`} strokeWidth="1.9" strokeLinecap="round"/>
-            {pts.filter((_,i)=>i%2===0).map(([x,y],i)=><g key={i}><circle cx={x} cy={y} r="3.4" fill="var(--plate-node)" opacity=".22"/><circle cx={x} cy={y} r="1.7" fill="var(--plate-node)"/></g>)}
-          </g>
+          <g transform={`rotate(${tilt} 60 38)`}>{plateMotif(kind,h,uid)}</g>
         </svg>}
     {tag&&<span className="plate-tag">{tag}</span>}
     {mark&&<span className="plate-mark" aria-hidden="true">{mark}</span>}
     {icon&&<span className="plate-chip" aria-hidden="true">{icon}</span>}
   </span>;
 }
-/* The card is an <article> with a stretched link rather than a <button>
-   wrapping an <h3> and a <p>: a button's content model is phrasing content,
-   so the old markup was invalid and screen readers flattened the heading. */
+/* One hero contract for every interior page. Content pages get the editorial
+   photograph; tool pages get a generated field in the vertical's own palette,
+   because stock imagery on a resume builder would be a lie about the page. */
+function PageHero({kicker,title,lead,photo,alt='',pills,children,tone='canvas'}){
+  return <section className={`tool-hero page-hero ${photo?'photo-hero':'canvas-hero t-'+tone}`}>
+    {photo
+      ? <><picture>
+          <source type="image/webp" media="(max-width:900px)" srcSet={`/${photo}-900.webp`}/>
+          <source type="image/webp" srcSet={`/${photo}-full.webp`}/>
+          <img src={`/${photo}.png`} alt={alt} decoding="async"/>
+        </picture><span className="hero-shade" aria-hidden="true"/></>
+      : <span className="hero-weave" aria-hidden="true"/>}
+    <div className="container tool-hero-copy">
+      <span className="kicker">{kicker}</span>
+      <h1>{title}</h1>
+      {lead&&<p>{lead}</p>}
+      {children&&<div className="tool-hero-cta">{children}</div>}
+      {pills&&<div className="hero-pills">{pills}</div>}
+    </div>
+  </section>;
+}
+
 function PathCard({item,i,cta='Explore',onClick}){
   return <article className={`path-card p${i}`}>
-    <Plate seed={item.name} icon={item.icon} tag={item.kicker} image={item.image} alt={item.imageAlt||''}/>
+    <Plate seed={item.name} tone={i%6} icon={item.icon} tag={item.kicker} image={item.image} alt={item.imageAlt||''}/>
     <div className="pc-body">
       <h3><button type="button" className="pc-link" onClick={onClick}>{item.name}</button></h3>
       <p>{item.desc}</p>
@@ -297,7 +398,7 @@ function DecisionBlock({vertical,go}){const data=vertical==='distance'?['BOARD D
    leads with an editorial hero and a locator band (city chips + "use my
    location"), and only then falls into the shared filter/results layout. */
 function Listing(ctx){
-  const {vertical}=ctx;
+  const {vertical,setLead}=ctx;
   const isJobs=vertical==='jobs';
   const initial=isJobs?jobs:vertical==='colleges'?colleges:universities;
   const limit=isJobs?600000:15000000;
@@ -404,11 +505,24 @@ function Listing(ctx){
         </div>
       </div>
     </section>
-    :<div className="container page-head">
-      <span className="kicker">{V[vertical].label.toUpperCase()} DISCOVERY</span>
-      <h1>{vertical==='colleges'?'Medical colleges you can compare':'Online & distance universities'}</h1>
-      <p>Indicative demo data • researched for transparent comparison</p>
-    </div>}
+    :<PageHero
+      photo="campus-editorial"
+      alt="Students on an Indian university campus"
+      kicker={`${V[vertical].label.toUpperCase()} · RESEARCHED, NOT RANKED BY ADS`}
+      title={vertical==='colleges'
+        ?<>Medical colleges,<br/><em>compared on the real numbers.</em></>
+        :<>Recognised degrees,<br/><em>studied on your schedule.</em></>}
+      lead={vertical==='colleges'
+        ?'Total cost, seat count, approval body and cut-off — side by side, from the records we keep rather than the brochures colleges send.'
+        :'UGC-entitled online and distance programmes with the fee, the approval and the exam mode stated up front. Filter it down, then shortlist.'}
+      pills={<>
+        <span><ShieldCheck/>{data.length} verified {vertical==='colleges'?'colleges':'universities'}</span>
+        <span><Scale/>Compare up to 3 side by side</span>
+        <span><Clock3/>Updated every admission cycle</span>
+      </>}>
+      <a className="btn primary tactile" href="#results">Browse {data.length} results<ArrowRight/></a>
+      <button className="btn ghost" onClick={()=>setLead({title:'Talk to a DCW counsellor',interest:vertical})}>Talk to a counsellor</button>
+    </PageHero>}
 
     {isJobs&&<div className="container locator">
       <div className="locator-head">
@@ -461,7 +575,7 @@ function Listing(ctx){
 
       <div className="results">
         <div className="results-head">
-          <span><b>{data.length}</b> matching {isJobs?'openings':'results'}{isJobs&&city!=='All'?` in ${city}`:''}</span>
+          <h2 className="rh-count"><b>{data.length}</b> matching {isJobs?'openings':'results'}{isJobs&&city!=='All'?` in ${city}`:''}</h2>
           <label>Sort by<select value={sort} onChange={e=>setSort(e.target.value)}>
             {sortOptions.map(o=><option key={o}>{o}</option>)}
           </select></label>
@@ -541,9 +655,9 @@ function Boards(ctx){const {setLead,go}=ctx;const [step,setStep]=useState(0),[an
 
     <section className="section container">
       <SectionTitle kicker="YOUR FOUR ROUTES" title="Pick the board that matches your deadline" action="Jump to comparison" onAction={()=>document.getElementById('compare')?.scrollIntoView({behavior:'smooth',block:'start'})}/>
-      <div className="path-grid board-grid">{BOARDS.map(b=>
+      <div className="path-grid board-grid">{BOARDS.map((b,i)=>
         <article className="path-card board-card" key={b.id}>
-          <Plate seed={b.full} mark={b.name} tag={b.kicker} icon={b.icon}/>
+          <Plate seed={b.full} tone={i%6} mark={b.name} tag={b.kicker} icon={b.icon}/>
           <div className="pc-body">
             <h3>{b.name}</h3>
             <p className="bc-full">{b.full}</p>
@@ -751,13 +865,20 @@ function ResumeBuilder({notify}){
   const missing=checks.filter(c=>!c[1]);
 
   return <main className="tool-page resume-page">
-    <div className="container page-head">
-      <span className="kicker">FREE RESUME BUILDER</span>
-      <h1>A resume that survives the first ten seconds.</h1>
-      <p>Recruiters scan for a role, a number and a reason to call. Fill these five steps and the page on the right updates as you type — then print it to PDF from your own browser.</p>
-    </div>
+    <PageHero
+      tone="rust"
+      kicker="FREE RESUME BUILDER · NO SIGN-UP"
+      title={<>A resume that survives<br/><em>the first ten seconds.</em></>}
+      lead="Recruiters scan for a role, a number and a reason to call. Fill five steps and the page updates as you type — then print it to PDF from your own browser."
+      pills={<>
+        <span><FileText/>5 ATS-safe templates</span>
+        <span><ShieldCheck/>Nothing leaves this device</span>
+        <span><Clock3/>About 6 minutes</span>
+      </>}>
+      <a className="btn primary tactile" href="#builder">Start building<ArrowRight/></a>
+    </PageHero>
 
-    <div className="container resume-layout">
+    <div className="container resume-layout" id="builder">
       <div className="resume-form">
         <ol className="stepper">{STEPS.map((x,i)=>
           <li key={x}><button onClick={()=>setStep(i)} className={step===i?'active':i<step?'done':''}>
@@ -855,10 +976,10 @@ function ResumeBuilder({notify}){
     </div>
   </main>;
 }
-function SavedPage(ctx){const all=[...universities,...colleges,...jobs].filter(x=>ctx.saved.includes(x.id));return <main className="listing-page"><div className="container page-head"><span className="kicker">YOUR SHORTLIST</span><h1>Saved for later</h1><p>Everything you bookmarked across courses, colleges and jobs.</p></div><div className="container saved-grid">{all.length?all.map(x=><article className="saved-row" key={x.id}><span className="entity-mark">{x.mark}</span><div><h3>{x.name}</h3><p>{x.place}</p></div><button className="btn outline" onClick={()=>ctx.toggleSave(x.id)}>Remove</button></article>):<div className="empty"><Heart/><h2>Your shortlist is empty</h2><p>Save an institution or job and it will appear here—even after refresh.</p><button className="btn primary" onClick={()=>ctx.go('/distance')}>Start exploring</button></div>}</div></main>}
-function ApplicationsPage({go}){const [records,setRecords]=useState([]);useEffect(()=>{try{setRecords(JSON.parse(localStorage.getItem('dcw-enquiries-v1')||'[]'))}catch{}},[]);return <main className="listing-page"><div className="container page-head"><span className="kicker">YOUR ACTIVITY</span><h1>Applications & updates</h1><p>Every demo enquiry and application created on this device appears here.</p></div><div className="container app-timeline">{records.map(r=><article key={r.id}><span className="entity-mark">{r.title.slice(0,2).toUpperCase()}</span><div><small>{r.kind||'Enquiry'} • {r.id}{r.course?` • ${r.course}`:''}</small><h3>{r.title}</h3><div className="timeline-line"><i className="done"/><i/><i/><i/></div><div className="timeline-labels"><span>Submitted</span><span>Contact</span><span>Documents</span><span>Decision</span></div></div><button className="btn outline" onClick={()=>go('/notifications')}>Updates</button></article>)}<article><span className="entity-mark">AU</span><div><small>ONLINE MBA • AMITY ONLINE</small><h3>Application in review</h3><div className="timeline-line"><i className="done"/><i className="done"/><i/><i/></div><div className="timeline-labels"><span>Enquiry sent</span><span>Counsellor called</span><span>Documents</span><span>Confirmed</span></div></div><button className="btn outline" onClick={()=>go('/distance/university/amity-online')}>View</button></article><article><span className="entity-mark">HF</span><div><small>RELATIONSHIP EXECUTIVE • HDFC SALES</small><h3>Interview details received</h3><div className="timeline-line"><i className="done"/><i className="done"/><i className="done"/><i/></div><div className="timeline-labels"><span>Applied</span><span>Shortlisted</span><span>Interview</span><span>Offer</span></div></div><button className="btn outline" onClick={()=>go('/jobs/bpo-voice-associate-noida')}>View</button></article></div></main>}
-function AccountPage({type,go,notify}){const [read,setRead]=useState([]);const notices=[['Deadline approaching','Amity Online August intake closes in 3 days.','/distance/university/amity-online'],['New match found','A verified fresher role matching Accounts was added.','/jobs/search'],['Predictor update','NEET counselling dates were refreshed today.','/colleges/neet-predictor']];if(type==='profile')return <main className="listing-page"><div className="container page-head"><span className="kicker">YOUR ACCOUNT</span><h1>Profile & preferences</h1><p>Demo profile information used to prefill applications and recommendations.</p></div><div className="container profile-card"><div className="profile-head"><span className="entity-mark large">AK</span><div><h2>Amit Kumar</h2><p>Graduate · Patna, Bihar</p></div><button className="btn outline" onClick={()=>notify('Profile edit mode enabled — demo only')}>Edit profile</button></div><div className="fact-grid"><button onClick={()=>go('/saved')}><small>SHORTLIST</small><b>View saved choices</b></button><button onClick={()=>go('/applications')}><small>ACTIVITY</small><b>Track applications</b></button><button onClick={()=>go('/automations')}><small>PREFERENCES</small><b>Manage alerts</b></button><button onClick={()=>notify('Document vault opened — demo only')}><small>DOCUMENTS</small><b>Open demo vault</b></button></div></div></main>;return <main className="listing-page"><div className="container page-head"><span className="kicker">STAY ON TRACK</span><h1>Notifications</h1><p>Actionable updates from your saved choices and applications.</p></div><div className="container notification-list">{notices.map((n,i)=><article className={read.includes(i)?'read':''} key={n[0]}><span><Bell/><i/></span><div><h3>{n[0]}</h3><p>{n[1]}</p><small>{i+1} hour{i?'s':''} ago</small></div><button className="btn outline" onClick={()=>{setRead(x=>x.includes(i)?x:[...x,i]);go(n[2])}}>View update</button></article>)}<button className="text-btn" onClick={()=>{setRead([0,1,2]);notify('All notifications marked as read')}}>Mark all as read</button></div></main>}
-function ComparePage({vertical,compare,toggleCompare,setLead}){const pool=vertical==='distance'?universities:vertical==='colleges'?colleges:jobs;const items=pool.filter(x=>compare[vertical].includes(x.id));return <main className="listing-page"><div className="container page-head"><span className="kicker">DECISION MATRIX</span><h1>Compare without the clutter.</h1><p>Only meaningful differences are highlighted. Add up to three choices.</p></div><div className="container compare-page">{items.length<2?<div className="empty"><TrendingUp/><h2>Add one more option</h2><p>You need at least two choices for a useful comparison.</p></div>:<><div className="comparison-grid"><div className="compare-col labels"><b>Choice</b><span>Total fee / salary</span><span>Duration / eligibility</span><span>Approval</span><span>Rating</span><span>Deadline</span></div>{items.map(x=><div className="compare-col" key={x.id}><button className="remove" onClick={()=>toggleCompare(x.id)}><X/></button><span className="entity-mark">{x.mark}</span><b>{x.name}</b><span className="different">{vertical==='jobs'?x.duration:fmt(x.fee)}</span><span>{vertical==='jobs'?x.course:x.duration}</span><span>{x.approval[0]}</span><span>{x.rating} ★</span><span>{x.deadline}</span></div>)}</div><button className="btn primary compare-all" onClick={()=>setLead({title:`Enquire about ${items.length} compared choices`,interest:items.map(x=>x.id).join(',')})}>Enquire about all {items.length}<ArrowRight/></button></>}</div></main>}
+function SavedPage(ctx){const all=[...universities,...colleges,...jobs].filter(x=>ctx.saved.includes(x.id));return <main className="listing-page"><PageHero tone="teal" kicker="YOUR SHORTLIST" title={<>Saved for later.</>} lead="Everything you bookmarked across courses, colleges and jobs — kept on this device, so it survives a refresh." pills={<><span><Heart/>{all.length} saved</span><span><Scale/>Ready to compare</span></>}>{all.length>0&&<button className="btn primary tactile" onClick={()=>ctx.go(`/${ctx.vertical}/compare`)}>Compare these<ArrowRight/></button>}</PageHero><div className="container saved-grid">{all.length?all.map(x=><article className="saved-row" key={x.id}><span className="entity-mark">{x.mark}</span><div><h3>{x.name}</h3><p>{x.place}</p></div><button className="btn outline" onClick={()=>ctx.toggleSave(x.id)}>Remove</button></article>):<div className="empty"><Heart/><h2>Your shortlist is empty</h2><p>Save an institution or job and it will appear here—even after refresh.</p><button className="btn primary" onClick={()=>ctx.go('/distance')}>Start exploring</button></div>}</div></main>}
+function ApplicationsPage({go}){const [records,setRecords]=useState([]);useEffect(()=>{try{setRecords(JSON.parse(localStorage.getItem('dcw-enquiries-v1')||'[]'))}catch{}},[]);return <main className="listing-page"><PageHero tone="forest" kicker="YOUR ACTIVITY" title={<>Applications <em>&amp; updates.</em></>} lead="Every enquiry and application created on this device, with the stage it has reached." pills={<><span><FileText/>{records.length} in progress</span><span><Clock3/>Updated live</span></>}/><div className="container app-timeline">{records.map(r=><article key={r.id}><span className="entity-mark">{r.title.slice(0,2).toUpperCase()}</span><div><small>{r.kind||'Enquiry'} • {r.id}{r.course?` • ${r.course}`:''}</small><h3>{r.title}</h3><div className="timeline-line"><i className="done"/><i/><i/><i/></div><div className="timeline-labels"><span>Submitted</span><span>Contact</span><span>Documents</span><span>Decision</span></div></div><button className="btn outline" onClick={()=>go('/notifications')}>Updates</button></article>)}<article><span className="entity-mark">AU</span><div><small>ONLINE MBA • AMITY ONLINE</small><h3>Application in review</h3><div className="timeline-line"><i className="done"/><i className="done"/><i/><i/></div><div className="timeline-labels"><span>Enquiry sent</span><span>Counsellor called</span><span>Documents</span><span>Confirmed</span></div></div><button className="btn outline" onClick={()=>go('/distance/university/amity-online')}>View</button></article><article><span className="entity-mark">HF</span><div><small>RELATIONSHIP EXECUTIVE • HDFC SALES</small><h3>Interview details received</h3><div className="timeline-line"><i className="done"/><i className="done"/><i className="done"/><i/></div><div className="timeline-labels"><span>Applied</span><span>Shortlisted</span><span>Interview</span><span>Offer</span></div></div><button className="btn outline" onClick={()=>go('/jobs/bpo-voice-associate-noida')}>View</button></article></div></main>}
+function AccountPage({type,go,notify}){const [read,setRead]=useState([]);const notices=[['Deadline approaching','Amity Online August intake closes in 3 days.','/distance/university/amity-online'],['New match found','A verified fresher role matching Accounts was added.','/jobs/search'],['Predictor update','NEET counselling dates were refreshed today.','/colleges/neet-predictor']];if(type==='profile')return <main className="listing-page"><PageHero tone="indigo" kicker="YOUR ACCOUNT" title={<>Profile <em>&amp; preferences.</em></>} lead="The details we reuse to prefill applications and sharpen recommendations."/><div className="container profile-card"><div className="profile-head"><span className="entity-mark large">AK</span><div><h2>Amit Kumar</h2><p>Graduate · Patna, Bihar</p></div><button className="btn outline" onClick={()=>notify('Profile edit mode enabled — demo only')}>Edit profile</button></div><div className="fact-grid"><button onClick={()=>go('/saved')}><small>SHORTLIST</small><b>View saved choices</b></button><button onClick={()=>go('/applications')}><small>ACTIVITY</small><b>Track applications</b></button><button onClick={()=>go('/automations')}><small>PREFERENCES</small><b>Manage alerts</b></button><button onClick={()=>notify('Document vault opened — demo only')}><small>DOCUMENTS</small><b>Open demo vault</b></button></div></div></main>;return <main className="listing-page"><div className="container page-head"><span className="kicker">STAY ON TRACK</span><h1>Notifications</h1><p>Actionable updates from your saved choices and applications.</p></div><div className="container notification-list">{notices.map((n,i)=><article className={read.includes(i)?'read':''} key={n[0]}><span><Bell/><i/></span><div><h3>{n[0]}</h3><p>{n[1]}</p><small>{i+1} hour{i?'s':''} ago</small></div><button className="btn outline" onClick={()=>{setRead(x=>x.includes(i)?x:[...x,i]);go(n[2])}}>View update</button></article>)}<button className="text-btn" onClick={()=>{setRead([0,1,2]);notify('All notifications marked as read')}}>Mark all as read</button></div></main>}
+function ComparePage({vertical,compare,toggleCompare,setLead}){const pool=vertical==='distance'?universities:vertical==='colleges'?colleges:jobs;const items=pool.filter(x=>compare[vertical].includes(x.id));return <main className="listing-page"><PageHero tone="canvas" kicker="DECISION MATRIX" title={<>Compare without<br/><em>the clutter.</em></>} lead="Only meaningful differences are highlighted. Add up to three choices and the row that actually decides it stands out." pills={<><span><Scale/>{items.length} of 3 selected</span></>}/><div className="container compare-page">{items.length<2?<div className="empty"><TrendingUp/><h2>Add one more option</h2><p>You need at least two choices for a useful comparison.</p></div>:<><div className="comparison-grid"><div className="compare-col labels"><b>Choice</b><span>Total fee / salary</span><span>Duration / eligibility</span><span>Approval</span><span>Rating</span><span>Deadline</span></div>{items.map(x=><div className="compare-col" key={x.id}><button className="remove" onClick={()=>toggleCompare(x.id)}><X/></button><span className="entity-mark">{x.mark}</span><b>{x.name}</b><span className="different">{vertical==='jobs'?x.duration:fmt(x.fee)}</span><span>{vertical==='jobs'?x.course:x.duration}</span><span>{x.approval[0]}</span><span>{x.rating} ★</span><span>{x.deadline}</span></div>)}</div><button className="btn primary compare-all" onClick={()=>setLead({title:`Enquire about ${items.length} compared choices`,interest:items.map(x=>x.id).join(',')})}>Enquire about all {items.length}<ArrowRight/></button></>}</div></main>}
 function AutomationCenter({notify}){const [on,setOn]=useState(['Deadline reminders','Application status updates','New matching opportunities']);const groups=[['RIGHT-TIME ALERTS',[['Deadline reminders','7, 3 and 1 day nudges for saved choices'],['New matching opportunities','Jobs and courses matching your profile'],['Fee & cutoff changes','Material changes to your shortlist']]],['APPLICATION SUPPORT',[['Application status updates','Next action when your status changes'],['Document checklist nudges','Only the missing documents, before deadline'],['Interview preparation','Reminder plus role-specific preparation']]],['CONTROL & PRIVACY',[['Weekly shortlist digest','One concise weekly summary'],['WhatsApp updates','Use WhatsApp for selected alerts'],['Abandoned-form recovery','Resume unfinished applications once']]]];return <main className="listing-page automation-page"><div className="container page-head"><span className="kicker">AUTOMATION CENTRE</span><h1>Useful nudges. Never noise.</h1><p>Configure a transparent demo of the automations DCW can support. No external messages are sent.</p></div><div className="container automation-grid"><aside><Workflow/><h2>3 automations active</h2><p>Automation saves repetition, but you remain in control of channels, frequency and consent.</p><span>DEMO ONLY</span></aside><div>{groups.map(g=><section key={g[0]}><b>{g[0]}</b>{g[1].map(x=><button key={x[0]} onClick={()=>{setOn(a=>a.includes(x[0])?a.filter(y=>y!==x[0]):[...a,x[0]]);notify(`${x[0]} ${on.includes(x[0])?'paused':'enabled'} — demo only`)}}><span><strong>{x[0]}</strong><small>{x[1]}</small></span><i className={on.includes(x[0])?'enabled':''}><em/></i></button>)}</section>)}</div></div></main>}
 function AskDCW({open,setOpen,vertical,go,setLead,compare}){const [view,setView]=useState('home');const actions=vertical==='jobs'?[['Find matching jobs','jobs'],['Improve my resume','resume'],['Check application status','status']]:vertical==='colleges'?[['Predict from my NEET rank','predict'],['Compare two colleges','compare'],['Talk to a counsellor','human']]:[['Find my best program','find'],['Compare two choices','compare'],['Check board validity','boards']];const choose=id=>{if(id==='jobs'||id==='find'){setOpen(false);go(vertical==='jobs'?'/jobs/search':'/distance/universities')}else if(id==='resume'){setOpen(false);go('/jobs/resume-builder')}else if(id==='status'){setOpen(false);go('/applications')}else if(id==='predict'){setOpen(false);go('/colleges/neet-predictor')}else if(id==='compare'){if(compare[vertical].length>=2){setOpen(false);go(`/${vertical}/compare`)}else setView('need-compare')}else if(id==='boards'){setOpen(false);go('/distance/boards')}else {setOpen(false);setLead({title:'Talk to a DCW counsellor',interest:vertical})}};return <div className={`bot-wrap ${open?'open':''}`}>{open&&<section className="bot-panel glass"><header><span><MessageCircle/><b>Ask DCW</b><small>Rule-based demo assistant</small></span><button aria-label="Close assistant" onClick={()=>setOpen(false)}><X/></button></header><div className="bot-body">{view==='home'?<><div className="bot-message">Hi—what would make your next decision easier?</div>{actions.map(x=><button className="bot-action" key={x[1]} onClick={()=>choose(x[1])}><span>{x[0]}</span><ArrowRight/></button>)}</>:<><div className="bot-message">Add at least two choices from the listing. I’ll keep them in a comparison tray for you.</div><button className="bot-action" onClick={()=>{setOpen(false);go(vertical==='distance'?'/distance/universities':`/${vertical}/search`)}}>Browse choices<ArrowRight/></button><button className="bot-reset" onClick={()=>setView('home')}><RotateCcw/>Back</button></>}</div><footer><ShieldCheck/> Indicative guidance • Human handoff available</footer></section>}<button className="bot-launch tactile" aria-label="Ask DCW assistant" onClick={()=>{setOpen(!open);setView('home')}}><MessageCircle/><i/></button></div>}
 function SearchPanel({vertical,setSearchOpen,query,setQuery,go}){const [active,setActive]=useState(0);const pool=vertical==='distance'?universities:vertical==='colleges'?colleges:jobs;const results=query?pool.filter(x=>`${x.name} ${x.course} ${x.place}`.toLowerCase().includes(query.toLowerCase())):pool.slice(0,3);const open=x=>{setSearchOpen(false);go(vertical==='distance'?`/distance/university/${x.id}`:vertical==='colleges'?`/colleges/college/${x.id}`:`/jobs/${x.id}`)};useEffect(()=>{const key=e=>{if(e.key==='Escape')setSearchOpen(false);if(e.key==='ArrowDown'){e.preventDefault();setActive(x=>Math.min(x+1,results.length-1))}if(e.key==='ArrowUp'){e.preventDefault();setActive(x=>Math.max(x-1,0))}if(e.key==='Enter'&&results[active]){e.preventDefault();open(results[active])}};addEventListener('keydown',key);return()=>removeEventListener('keydown',key)},[results,active]);const chips=vertical==='distance'?['MBA','BCA','IGNOU','Delhi']:vertical==='colleges'?['MBBS','Patna','Government','Manipal']:['Fresher','Patna','Remote','Accounts'];return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setSearchOpen(false)}}><div className="command" role="dialog" aria-label={`Search ${V[vertical].label}`}><div className="command-input"><Search/><input autoFocus value={query} onChange={e=>{setQuery(e.target.value);setActive(0)}} placeholder="Search by course, institution, role or city"/><button aria-label="Close search" onClick={()=>setSearchOpen(false)}><X/></button></div><div className="intent-chips"><span>{query?'MATCHING RESULTS':'POPULAR RIGHT NOW'}</span>{chips.map(x=><button key={x} onClick={()=>{setQuery(x);setActive(0)}}>{x}</button>)}</div><div className="command-results">{results.length?results.map((x,i)=><button className={active===i?'active':''} key={x.id} onMouseEnter={()=>setActive(i)} onClick={()=>open(x)}><span className="entity-mark">{x.mark}</span><span><b>{x.name}</b><small>{x.course} · {x.place}</small></span><ArrowRight/></button>):<div className="empty"><Search/><h3>Nothing exact yet</h3><p>Try a broader keyword or explore the complete listing.</p><button className="btn primary" onClick={()=>{setSearchOpen(false);go(vertical==='distance'?'/distance/universities':`/${vertical}/search`)}}>Browse everything</button></div>}</div><footer><span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span><span><kbd>ENTER</kbd> Open · <kbd>ESC</kbd> Close</span></footer></div></div>}
@@ -1081,12 +1202,15 @@ function BlogPage({path,go}){
      rather than disappearing and leaving the count lying. */
   const rest=cat==='All'?POSTS.filter(p=>p!==lead):POSTS.filter(p=>p.cat===cat);
   return <main className="tool-page blog-page">
-    <div className="container page-head">
-      <span className="kicker">DCW JOURNAL</span>
-      <h1>Plain answers to the expensive questions.</h1>
-      <p>Approvals, fees, boards and first jobs — written by the people who keep the records, and published whether or not it suits an advertiser.</p>
-    </div>
-
+    <PageHero
+      tone="indigo"
+      kicker="DCW JOURNAL"
+      title={<>Plain answers to<br/><em>the expensive questions.</em></>}
+      lead="Approvals, fees, boards and first jobs — written by the people who keep the records, and published whether or not it suits an advertiser."
+      pills={<>
+        <span><FileText/>{POSTS.length} articles</span>
+        <span><ShieldCheck/>No sponsored placements</span>
+      </>}/>
     <div className="container">
       {cat==='All'&&<button className="blog-lead" onClick={()=>go(`/blog/${lead.slug}`)}>
         <Plate seed={lead.slug} tag={lead.cat}/>
@@ -1105,15 +1229,15 @@ function BlogPage({path,go}){
       </div>
 
       {rest.length>0
-        ?<div className="blog-grid">{rest.map(p=><PostCard key={p.slug} post={p} go={go}/>)}</div>
+        ?<div className="blog-grid">{rest.map((p,i)=><PostCard key={p.slug} post={p} i={i} go={go}/>)}</div>
         :<div className="empty"><BookOpen/><h2>Nothing here yet</h2><p>No other pieces filed under {cat}. Try another topic.</p></div>}
     </div>
   </main>;
 }
 
-function PostCard({post,go}){
+function PostCard({post,i=0,go}){
   return <button className="post-card" onClick={()=>go(`/blog/${post.slug}`)}>
-    <Plate seed={post.slug} tag={post.cat}/>
+    <Plate seed={post.slug} tone={i%6} tag={post.cat}/>
     <div className="pc-body">
       <h3>{post.title}</h3>
       <p>{post.dek}</p>
@@ -1139,12 +1263,15 @@ function ReviewsPage({go,notify}){
   const stars=n=>Array.from({length:5},(_,i)=><Star key={i} className={i<n?'on':''}/>);
 
   return <main className="tool-page reviews-page">
-    <div className="container page-head">
-      <span className="kicker">STUDENT REVIEWS</span>
-      <h1>Unedited, including the ones that sting.</h1>
-      <p>Reviews come from people who used DCW to choose a course, a college or a job. We do not delete low ratings and we do not pay for high ones.</p>
-    </div>
-
+    <PageHero
+      tone="plum"
+      kicker="STUDENT REVIEWS"
+      title={<>Unedited, including<br/><em>the ones that sting.</em></>}
+      lead="Reviews come from people who used DCW to choose a course, a college or a job. We do not delete low ratings and we do not pay for high ones."
+      pills={<>
+        <span><Star/>{REVIEWS.length} verified reviews</span>
+        <span><ShieldCheck/>Nothing removed for rating</span>
+      </>}/>
     <section className="container rating-panel">
       <div className="rp-score">
         <b>{avg}</b>
