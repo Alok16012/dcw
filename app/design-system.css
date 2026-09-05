@@ -352,6 +352,18 @@
 .app .proof{
   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;
   border-radius:var(--r-4);padding:var(--s-2);overflow:hidden}
+/* app/globals.css still carries the pre-redesign strip, and one of its rules is
+   `.proof span{padding-right:30px;margin-right:30px;border-right:1px solid #ffffff25}`.
+   That sheet is unscoped, and .stat-i and .stat-note are both spans inside
+   .proof, so each of them silently picked up 60px of trailing space and a
+   hairline rule nothing in this file asked for. It is measurable: the icon
+   track computed to 70px around a 40px medallion at 1440 and 64px around a
+   34px one at 768 (40+30, 34+30), which is why every mark sat closer to the
+   previous item's caption than to its own figure, and the note measured 206px
+   inside a 236px item. Reset it here rather than in globals.css: nothing
+   outside .app renders this markup any more, but the legacy sheet is shared
+   and is not this change's to edit. */
+.app .proof span{padding-right:0;margin-right:0;border-right:0}
 .app .proof button{
   display:grid;grid-template-areas:"icon num" "icon label" "bar bar" "note note";
   grid-template-columns:auto 1fr;
@@ -940,6 +952,7 @@
    against and reads as minted rather than pasted.
    ============================================================ */
 .app .proof .stat-i{
+  --mark-knockout:#08131F;
   width:46px;height:46px;border-radius:14px;
   position:relative;isolation:isolate;
   /* Face is a cool, sunken well rather than a gold wash. The first pass
@@ -967,7 +980,7 @@
   mask-composite:exclude;pointer-events:none}
 
 .app .proof .stat-i svg{
-  width:21px;height:21px;stroke-width:2;
+  width:26px;height:26px;
   color:var(--spark-lift,#F7D98C);
   filter:drop-shadow(0 1px 2px rgb(0 0 0/.55))}
 
@@ -992,7 +1005,7 @@
     align-items:center;gap:0 var(--s-3);
     padding:var(--s-3)}
   .app .proof .stat-i{width:40px;height:40px;border-radius:12px}
-  .app .proof .stat-i svg{width:19px;height:19px}
+  .app .proof .stat-i svg{width:22px;height:22px}
   /* The figure already states the value; the meter is the first thing to go
      when the row has to earn its height. */
   .app .proof .stat-bar,.app .proof .stat-rule{display:none}
@@ -1248,6 +1261,86 @@
   margin:var(--s-3) 0 0;padding:10px 12px;border-radius:var(--r-2);
   background:var(--wash);color:var(--ink-2);font-size:var(--fs-200)}
 .app .lead-context svg{width:15px;height:15px;flex:none;color:var(--accent-text)}
+
+/* ---- resume step, and the fee the application commits to -------------------
+   Two globals in globals.css own every label and input inside .lead-modal —
+   block display, 46px height, full width. The resume step needs rows and a
+   drop target instead, so each rule below re-states what it is overriding
+   rather than relying on cascade order. */
+.app .lead-modal .field-legend{display:block;margin:var(--s-4) 0 var(--s-2);
+  font-size:var(--fs-050);font-weight:800;letter-spacing:var(--tr-caps);
+  text-transform:uppercase;color:var(--ink-4)}
+.app .lead-modal .resume-saved{margin:0}
+.app .lead-modal label.resume-option{display:flex;align-items:center;gap:var(--s-3);
+  margin:0 0 var(--s-2);padding:12px 14px;min-height:56px;
+  border:1px solid var(--line);border-radius:var(--r-2);background:var(--n-0);
+  font-weight:400;cursor:pointer;
+  transition:border-color var(--t-micro) var(--ease-std),background var(--t-micro) var(--ease-std)}
+.app .lead-modal label.resume-option:hover{border-color:var(--ink-4);background:var(--n-1)}
+/* Selection is stated by the border and the ink as well as the radio, so it
+   survives a monochrome screen and a colour-blind reader. */
+.app .lead-modal label.resume-option:has(input:checked){
+  border-color:var(--accent-ink,var(--accent));box-shadow:inset 0 0 0 1px var(--accent-ink,var(--accent));
+  background:color-mix(in srgb,var(--accent-ink,var(--accent)) 6%,var(--n-0))}
+.app .lead-modal label.resume-option input{width:20px;height:20px;min-height:0;
+  flex:none;margin:0;padding:0;accent-color:var(--accent-ink,var(--accent))}
+.app .lead-modal label.resume-option span{display:block;min-width:0}
+.app .lead-modal label.resume-option b{display:block;font-size:var(--fs-200);
+  color:var(--ink-1);overflow-wrap:anywhere}
+.app .lead-modal label.resume-option small{display:block;margin-top:2px;
+  font-size:var(--fs-050);color:var(--ink-4)}
+
+.app .lead-modal .resume-picked{display:flex;align-items:center;gap:var(--s-3);
+  margin-top:var(--s-4);padding:12px 8px 12px 14px;
+  border:1px solid var(--ok);border-radius:var(--r-2);background:var(--ok-wash)}
+.app .lead-modal .resume-picked>svg{width:20px;height:20px;flex:none;color:var(--ok)}
+.app .lead-modal .resume-picked>span{flex:1;min-width:0}
+.app .lead-modal .resume-picked b{display:block;font-size:var(--fs-200);
+  color:var(--ink-1);overflow-wrap:anywhere}
+.app .lead-modal .resume-picked small{display:block;margin-top:2px;
+  font-size:var(--fs-050);color:var(--ink-3)}
+.app .lead-modal .resume-picked .text-btn{flex:none;display:inline-flex;
+  align-items:center;gap:6px;padding:11px 10px;min-height:44px;font-size:var(--fs-050)}
+.app .lead-modal .resume-picked .text-btn svg{width:15px;height:15px}
+
+/* The dashed edge is the one place in this system that uses one: it says the
+   rectangle is a place to put something rather than a thing to read. */
+.app .lead-modal label.resume-drop{display:grid;place-items:center;gap:2px;
+  margin:var(--s-4) 0 0;padding:var(--s-5) var(--s-4);text-align:center;
+  border:1.5px dashed var(--ink-4);border-radius:var(--r-3);background:var(--n-1);
+  font-weight:400;cursor:pointer;position:relative;
+  transition:border-color var(--t-micro) var(--ease-std),background var(--t-micro) var(--ease-std)}
+.app .lead-modal label.resume-drop:hover{border-color:var(--accent-ink,var(--accent));
+  background:color-mix(in srgb,var(--accent-ink,var(--accent)) 5%,var(--n-0))}
+/* The input keeps its size and stays reachable by keyboard — it is only made
+   invisible, so the ring below is what the focused state shows. */
+.app .lead-modal label.resume-drop input{position:absolute;inset:0;width:100%;height:100%;
+  margin:0;padding:0;border:0;opacity:0;cursor:pointer}
+.app .lead-modal label.resume-drop:focus-within{outline:3px solid var(--accent-ink,var(--accent));
+  outline-offset:2px}
+.app .lead-modal label.resume-drop svg{width:26px;height:26px;color:var(--accent-ink,var(--accent))}
+.app .lead-modal label.resume-drop b{margin-top:var(--s-2);font-size:var(--fs-300);color:var(--ink-1)}
+.app .lead-modal label.resume-drop small{font-size:var(--fs-050);color:var(--ink-4)}
+
+/* The first instalment is a commitment, so it is stated on the confirmation
+   screen rather than arriving later as a surprise. Left-aligned inside a
+   centred panel on purpose: it is a record to read, not a headline. */
+.app .lead-modal .lead-fee{display:flex;align-items:flex-start;gap:var(--s-3);
+  margin:var(--s-4) 0 0;padding:var(--s-4);text-align:left;
+  border:1px solid var(--line);border-left:3px solid var(--accent-ink,var(--accent));
+  border-radius:var(--r-2);background:var(--n-1)}
+.app .lead-modal .lead-fee>svg{width:20px;height:20px;flex:none;
+  color:var(--accent-ink,var(--accent));margin-top:1px}
+.app .lead-modal .lead-fee b{display:block;font-size:var(--fs-300);color:var(--ink-1);
+  font-variant-numeric:tabular-nums}
+.app .lead-modal .lead-fee small{display:block;margin-top:3px;font-size:var(--fs-100);
+  line-height:1.5;color:var(--ink-3)}
+.app .lead-modal .success .muted-note{display:flex;align-items:center;
+  justify-content:center;gap:6px}
+.app .lead-modal .success .muted-note svg{width:14px;height:14px;flex:none}
+.app .lead-modal .success .bc-foot{display:flex;flex-direction:column;gap:var(--s-2);
+  margin-top:var(--s-5)}
+.app .lead-modal .success .bc-foot .btn{width:100%;justify-content:center}
 
 /* ===== Boards page (item 6) =============================================== */
 .app .tool-hero{position:relative;overflow:hidden;background:var(--ink-deep,#081528);
@@ -2226,20 +2319,76 @@
   background:none;border:0;border-top:1px solid rgb(255 255 255/.18);
   border-radius:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;
   width:auto;max-width:min(100%,760px);overflow:visible}
+/* The strip was laid out as medallion-beside-text with the note spanning both
+   columns underneath, and what it actually rendered was a mark stranded 42px
+   from the figure it belongs to — nearer the previous item's caption than its
+   own — with the note printed against a second left margin. The cause was the
+   legacy `.proof span` rule reset above: the medallion is a span, so it carried
+   30px of margin the icon track had to absorb, which is why an "auto" column
+   measured 70px around a 40px medallion.
+
+   That reset fixes the gap; this stack fixes the two margins. All four lines
+   share one left edge and the medallion sits directly above the figure it
+   argues for, and the note gets the item's full 236px instead of wrapping
+   inside 184px against a 189px longest line. Below 900px the note is hidden
+   and vertical space is the scarce thing, so that width keeps the side-by-side
+   arrangement. */
 .app .hero .proof button{
-  display:grid;grid-template-areas:"icon num" "icon label" "note note";
-  grid-template-columns:auto minmax(0,1fr);
-  gap:0 var(--s-3);align-items:center;align-content:start;
+  display:grid;grid-template-areas:"icon" "num" "label" "note";
+  grid-template-columns:minmax(0,1fr);
+  gap:0;justify-items:start;align-content:start;
   padding:0;border:0;background:none;text-align:left;min-width:0}
 .app .hero .proof button:hover{background:none}
+/* The hero tile was a 34px square of 12%-white with a hairline glyph dropped
+   in it — the same rectangle this page uses for decoration everywhere else, so
+   the three marks that carry the whole proof strip read as filler. It is now a
+   struck medallion: a near-opaque navy face so the marks' knock-outs have a
+   known colour to punch through, a gradient bezel that catches light at the
+   top-left and takes the brand gold at the foot, and a seated shadow so the
+   figure beside it has something to sit against.
+
+   --mark-knockout is the face colour. The check inside the seal and the door
+   and windows in the employer mark are cut out of the silhouette rather than
+   drawn over it, and they are only legible if they are painted the colour of
+   the thing behind them. */
 .app .hero .proof .stat-i{
-  width:34px;height:34px;border-radius:10px;
-  background:rgb(255 255 255/.12);box-shadow:inset 0 1px 0 rgb(255 255 255/.24);
+  --mark-knockout:#0A1A31;
+  /* On its own line the medallion is read as a figure rather than as a bullet,
+     so it takes the extra 4px it could not afford when it shared a row. */
+  width:44px;height:44px;border-radius:14px;margin-bottom:var(--s-3);
+  position:relative;isolation:isolate;display:grid;place-items:center;
+  background:
+    linear-gradient(155deg,rgb(255 255 255/.16),rgb(255 255 255/.03) 60%),
+    rgb(10 26 49/.92);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255/.26),
+    inset 0 -1px 0 rgb(0 0 0/.34),
+    0 5px 14px rgb(0 0 0/.36);
   filter:none}
-.app .hero .proof .stat-i::before{display:none}
-.app .hero .proof .stat-i svg{width:17px;height:17px;color:var(--spark-lift,#F7D98C);filter:none}
+.app .hero .proof .stat-i::before{
+  content:"";display:block;position:absolute;inset:0;border-radius:inherit;padding:1px;
+  background:linear-gradient(158deg,
+    rgb(255 255 255/.5),
+    rgb(255 255 255/.05) 54%,
+    color-mix(in srgb,var(--spark,#F5C93B) 72%,transparent) 128%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask-composite:exclude;pointer-events:none}
+.app .hero .proof .stat-i svg{width:25px;height:25px;color:var(--spark-lift,#F7D98C);filter:none}
 .app .hero .proof button:hover .stat-i{
-  transform:none;background:rgb(255 255 255/.18);box-shadow:inset 0 1px 0 rgb(255 255 255/.3)}
+  transform:translateY(-1px);
+  background:
+    linear-gradient(155deg,rgb(255 255 255/.22),rgb(255 255 255/.05) 60%),
+    color-mix(in srgb,var(--spark,#F5C93B) 10%,rgb(10 26 49/.92));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255/.38),
+    inset 0 -1px 0 rgb(0 0 0/.28),
+    0 8px 18px rgb(0 0 0/.36)}
+/* The medallion is the only thing in the strip that moves, so it needs the
+   transition the flat version had no use for. */
+.app .hero .proof .stat-i{
+  transition:transform var(--t-comp) var(--ease-out),
+    background var(--t-micro) var(--ease-out),box-shadow var(--t-micro) var(--ease-out)}
 .app .hero .proof b{font-size:var(--fs-500);line-height:1.1}
 .app .hero .proof small{font-size:var(--fs-100);color:rgb(255 255 255/.76);font-weight:600}
 /* The note sits one step below the label in the hierarchy, and it used to buy
@@ -2256,7 +2405,19 @@
   font-size:var(--fs-050);font-weight:600;color:rgb(255 255 255/.78);line-height:1.35}
 @media (max-width:900px){
   .app .hero .proof{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-4)}
-  .app .hero .proof .stat-note{display:none}}
+  .app .hero .proof .stat-note{display:none}
+  /* Back to medallion-beside-figure. With the legacy span margin reset the
+     icon track sizes to the icon (it measured 64px around a 34px medallion
+     before), so the mark sits one gap from its figure rather than 30px past
+     it, and the note is display:none here so nothing wants a second row. */
+  .app .hero .proof button{
+    grid-template-areas:"icon num" "icon label";
+    grid-template-columns:auto minmax(0,1fr);
+    gap:0 var(--s-3);align-items:center;justify-items:stretch}
+  /* Three tiles across a phone leaves the figure about 14ch; the medallion
+     gives back the width before the number is allowed to wrap. */
+  .app .hero .proof .stat-i{width:34px;height:34px;border-radius:11px;margin-bottom:0}
+  .app .hero .proof .stat-i svg{width:20px;height:20px}}
 @media (max-width:520px){
   .app .hero .proof{grid-template-columns:minmax(0,1fr);gap:var(--s-3)}}
 

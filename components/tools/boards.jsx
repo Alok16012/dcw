@@ -1,7 +1,7 @@
 'use client';
 import {useState} from 'react';
 import {useSearchParams} from 'next/navigation';
-import {ArrowRight,Check,ChevronDown,ShieldCheck,BookOpen,RotateCcw,Zap,IndianRupee,BadgeCheck,Landmark} from 'lucide-react';
+import {ArrowRight,Check,ChevronDown,ShieldCheck,BookOpen,RotateCcw,Zap,IndianRupee,BadgeCheck} from 'lucide-react';
 import {Plate} from '@/components/ui/plate.jsx';
 import {SectionTitle} from '@/components/ui/primitives.jsx';
 import {CatalogGrid} from '@/components/discovery/catalog-states.jsx';
@@ -10,21 +10,19 @@ import {EntityCard} from '@/components/discovery/entity-card.jsx';
 /* ---------- Board comparison ------------------------------------------------
    Was a bare table plus a quiz. Item 6 asked for a hero, real cards and the
    universities a certificate actually leads to. Order follows the decision, not
-   the data: see the four routes -> read the facts side by side -> answer four
+   the data: see the three routes -> read the facts side by side -> answer four
    questions -> see where it takes you -> apply. The table stays, because
    comparison is the one job a table does better than cards. */
 export const BOARDS=[
 {id:'nios',name:'NIOS',full:'National Institute of Open Schooling',kicker:'CENTRAL BOARD',icon:<BadgeCheck/>,result:'45–60 days',fee:'₹18,500',exam:'2×/yr + on-demand',accept:'88 / 100',best:'Widest acceptance — college admission and government jobs.'},
 {id:'bosse',name:'BOSSE',full:'Board of Open Schooling and Skill Education, Sikkim',kicker:'STATE BOARD',icon:<Zap/>,result:'45 days',fee:'₹17,000',exam:'On-demand',accept:'62 / 100',best:'Fastest legitimate route when a deadline is close.'},
-{id:'bbose',name:'BBOSE',full:'Bihar Board of Open Schooling and Examination',kicker:'STATE BOARD',icon:<IndianRupee/>,result:'60–90 days',fee:'₹9,500',exam:'On-demand',accept:'45 / 100',best:'Lowest fee for Bihar learners who can follow a schedule.'},
-{id:'cbse-patrachar',name:'CBSE',full:'CBSE Patrachar (correspondence)',kicker:'CENTRAL BOARD',icon:<Landmark/>,result:'55 days',fee:'₹22,000',exam:'Once a year',accept:'98 / 100',best:'When the certificate itself has to say CBSE.'}];
-/* The quiz's first question, hoisted so the /distance "Fast track" card can
-   arrive having already answered it. Three of the six path cards pointed here
-   and all three landed on the identical page; this is the one whose promise —
-   "the fastest legitimate path" — the quiz can actually act on, because
-   "Fastest result" is one of its own answers. "Complete 10th" and "Complete
-   12th" are left alone: the same four boards serve both, so sending them to the
-   same page is the honest answer rather than a missing feature. */
+{id:'bbose',name:'BBOSE',full:'Bihar Board of Open Schooling and Examination',kicker:'STATE BOARD',icon:<IndianRupee/>,result:'60–90 days',fee:'₹9,500',exam:'On-demand',accept:'45 / 100',best:'Lowest fee for Bihar learners who can follow a schedule.'}];
+/* The quiz's first question, hoisted so a link can arrive having already
+   answered it: /distance/boards?goal=Fastest%20result opens on question two.
+   Nothing in the app links that way today — the /distance path card that did
+   was removed at the client's request — but the parameter is part of the page's
+   contract with campaigns and counsellors who send a board-specific link, so it
+   stays supported and is validated against this list rather than trusted. */
 const GOALS=['Widest acceptance','Fastest result','Lowest fee'];
 
 export function Boards(ctx){const {setLead,go}=ctx;
@@ -48,11 +46,11 @@ export function Boards(ctx){const {setLead,go}=ctx;
       <div className="container tool-hero-copy">
         <span className="eyebrow"><BookOpen size={16}/>BOARD DECISION GUIDE</span>
         <h1>Finish 10th or 12th<br/><em>on a board that counts.</em></h1>
-        <p>Four recognised open-school routes, compared on the things that decide it — acceptance, exam cycle, result time and total fee. Then apply, with a counsellor checking your documents first.</p>
+        <p>Three recognised open-school routes, compared on the things that decide it — acceptance, exam cycle, result time and total fee. Then apply, with a counsellor checking your documents first.</p>
         <div className="hero-ctas">
           <button className="btn primary tactile" onClick={()=>applyTo(BOARDS[0])}>Apply for admission<ArrowRight/></button>
-          <a className="btn ghost" href="#compare">Compare all four<ChevronDown/></a>
-          {/* Only when the person arrived from a path card that already answered
+          <a className="btn ghost" href="#compare">Compare all three<ChevronDown/></a>
+          {/* Only when the person arrived on a link that already answered
               the first question. The quiz sits below the hero and the comparison
               table; without this they would have to scroll past both to find the
               thing their click was about. */}
@@ -62,7 +60,7 @@ export function Boards(ctx){const {setLead,go}=ctx;
     </section>
 
     <section className="section container">
-      <SectionTitle kicker="YOUR FOUR ROUTES" title="Pick the board that matches your deadline" action="Jump to comparison" onAction={()=>document.getElementById('compare')?.scrollIntoView({behavior:'smooth',block:'start'})}/>
+      <SectionTitle kicker="YOUR THREE ROUTES" title="Pick the board that matches your deadline" action="Jump to comparison" onAction={()=>document.getElementById('compare')?.scrollIntoView({behavior:'smooth',block:'start'})}/>
       <div className="path-grid board-grid">{BOARDS.map((b,i)=>
         <article className="path-card board-card" key={b.id}>
           <Plate seed={b.full} mark={b.name} tag={b.kicker} icon={b.icon}/>
@@ -87,7 +85,7 @@ export function Boards(ctx){const {setLead,go}=ctx;
 
     <section className="section wash" id="compare">
       <div className="container">
-        <SectionTitle kicker="SIDE BY SIDE" title="The same seven facts, for every board"/>
+        <SectionTitle kicker="SIDE BY SIDE" title="The same seven facts, for all three boards"/>
         <div className="board-table">
           <div className="board-row head"><b>What matters</b><b>NIOS</b><b>BOSSE</b><b>BBOSE</b></div>
           {[['Recognition','Central board','Sikkim state board','Bihar state board'],['Exam frequency','2× yearly + on-demand','On-demand','On-demand'],['Typical result','45–60 days','45 days','60–90 days'],['Acceptance score','88 / 100','62 / 100','45 / 100'],['Subject flexibility','High','High','Medium'],['Indicative fee','₹18,500','₹17,000','₹9,500'],['Best for','Widest acceptance','Fastest result','Bihar, on-demand exam']].map(r=>
