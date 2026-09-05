@@ -1726,6 +1726,154 @@ both navigation and a server restart. A tab that saw the pre-fix crash still
 lists it afterwards. Read a console in a tab opened after the fix, or the same
 bug appears to still be live.
 
+## Recomposed: the listing surfaces, mobile and desktop
+
+This pass was asked for as "optimise it for mobile and desktop view". It is not
+a reskin: the listing pages now have **three different compositions**, not one
+composition at three sizes. Every number below was measured in the browser
+before and after, at the seven required viewports.
+
+### What the audit found, and what it measured
+
+| Defect | Before | After |
+| --- | --- | --- |
+| Filter panel height, 390 px | 613 px | 94 px closed / 768 px open |
+| First result card, document Y, 390 px | 1516 px | 988 px |
+| First result card, 430 px / 360 px | — | 900 px / 1013 px |
+| Results column at 768 px | 361 px beside a 280 px rail | stacked, 689 px |
+| Third `.card-grid` card at 768 px | `display:none` (2 of 3 shown) | `display:flex` (3 of 3) |
+| Footer columns at 768 px | 287 px + 4 × 90 px | 2 × 332.5 px |
+| `.hero-copy` at 768 px | 64 % (436 px, 317 px empty) | 100 % (689 px) |
+| `position:sticky`, every width | inert — header top −860 at scrollY 900 | header top 0; filters stick at 84; side card at 147 |
+| Chat launcher over each card's Save button, 1024 px | 21 × 33 px overlap, `elementFromPoint` → `BUTTON.bot-launch` | 8 px clearance, occlusion sweep empty |
+| Scroll-top button over "Apply now", 1024 px | 40 × 36 px overlap | one 52 px column, 12 px gap |
+| Detail-page anchor jump | section top 131, nav bottom 179 → **−48 px**, heading hidden | **+16 px** clear at 1440 and 390 |
+| Jobs filter panel at 1024 px | 592 px tall, `.check-list` 271 px | 429 px, `.check-list` 108 px |
+| `--fs-050` on phones | 11 px | 12 px |
+
+### The sticky bug, because it explains most of the rest
+
+`globals.css` carries `html,body{overflow-x:hidden}`. Setting `overflow-x` on
+the **body** makes body a scrolling box, and a scrolling box is the scrollport
+its descendants stick inside. Body never scrolls — html does — so **every
+`position:sticky` in the app was inert at every width**: the sticky header, the
+filter rail, the detail-page anchor nav and the side card. Measured header top
+at scrollY 900 was −860 at 1440 px and −624 at 390 px. An ancestor walk found no
+`transform`, `filter` or `contain` to blame; `getComputedStyle(body).overflow`
+read `"hidden auto"`, `document.body.scrollTop` was 0 while
+`documentElement.scrollTop` was 664.
+
+The fix is one line in `design-system.css`: `body{overflow-x:visible;overflow-y:visible}`.
+Both axes are named on purpose — a lone `overflow-x:hidden` coerces `overflow-y`
+to `auto` and re-creates the scrolling box. Horizontal clipping is not lost: the
+rule on the **root** element propagates to the viewport and still clips.
+
+### Three compositions, not one
+
+- **≥ 1040 px — sidebar.** `280px 1fr`, filter rail sticky under the header.
+  Measured at 1440: `280px 897px`, rail `position:sticky`, panel 560 px.
+- **761–1039 px — horizontal filter row.** The rail stops being a rail. The
+  filter body becomes `repeat(auto-fit,minmax(200px,1fr))` above the results and
+  the must-have checkboxes wrap into a row instead of stacking one per line.
+  Measured at 1024 on `/jobs/search`: three 255.7 px control columns, panel
+  592 → 429 px, check-list 271 → 108 px, every checkbox label 44 px tall.
+- **≤ 760 px — disclosure.** The panel collapses behind a Show/Hide button that
+  carries the active-filter count, so a closed panel can never hide the fact
+  that something is narrowing the list. Measured at 390: 94 px closed, 768 px
+  open, toggle 83 × 44 px, text contrast 17.34:1, focus ring visible after a real
+  Tab. The header also stops being sticky below 760 px — the fixed bottom bar is
+  already the mobile navigation, and two persistent chromes on an 844 px screen
+  is one too many.
+
+The breakpoint is 1040 px rather than 940 px because the arithmetic requires it:
+with 144 px of total gutter, a 560 px minimum results column needs a 1032 px
+viewport. Pushing the disclosure up to 1040 px would have forced a landscape
+tablet into a collapsed panel, which is why the middle tier exists.
+
+### The floating controls
+
+The chat launcher sat on top of the Save button of **every** card at 1024 and
+1280, because all cards share that right edge. Arithmetic showed no `right:`
+value could clear it — it needed `right ≤ −7`. So it was fixed at the cause: the
+page gutter is now held at 72 px between 941 and 1384 px, and the float dock is
+derived from the gutter (`--float-dock: max(12px, calc(var(--gutter) - 60px))`)
+rather than hard-coded.
+
+Settled geometry of the floating stack, transitions forced to their end state
+(a hidden pane does not advance them):
+
+| Width | Scroll-top | Chat launcher | Gap | Clear of bottom nav |
+| --- | --- | --- | --- | --- |
+| 430 px | 740–784 | 796–844 | 12 px | 21 px |
+| 390 px | 652–696 | 708–756 | 12 px | 21 px |
+| 360 px | 608–652 | 664–712 | 12 px | 21 px |
+
+At maximum scroll on 430 px nothing interactive is left under the fixed bottom
+bar (`body{padding-bottom:70px}` covers the document end; last control bottom
+658 px against a nav top of 865 px).
+
+### Final sweep, all seven required viewports
+
+`/distance/universities`, each width measured after an explicit resize, mobile
+widths reloaded so device emulation applied at load:
+
+| Viewport | Overflow | Layout | Filters | First card Y | Over-wide elements | Float occlusions |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1440×1000 | −15 px | `280px 897px` | sticky, 560 px | 718 | 0 | 0 |
+| 1280×800 | −15 px | `280px 793px` | sticky, 560 px | 708 | 0 | 0 |
+| 1024×768 | −15 px | stacked | static, 334 px | 1046 | 0 | 0 |
+| 768×1024 | −15 px | stacked | static, 334 px | 1131 | 0 | 0 |
+| 430×932 | 0 px | stacked | disclosure, 94 px | 900 | 0 | 0 |
+| 390×844 | 0 px | stacked | disclosure, 94 px | 988 | 0 | 0 |
+| 360×800 | 0 px | stacked | disclosure, 94 px | 1013 | 0 | 0 |
+
+(−15 px is the scrollbar.) Console errors across the sweep: **none**.
+`npx next build` exits 0 with no errors or warnings.
+
+The `.check-list` wrap rule is scoped to `761–1039 px`; both neighbouring tiers
+were re-measured afterwards to prove it did not leak — at 1440 the check-list is
+still `display:block`, 271 px, inside a 280 px sticky rail; at 390 it is still
+`display:block`, 271 px, inside the disclosure, with all four labels 44 px tall
+and the panel closing again on a second press.
+
+### Two harness limits found while doing this, worth recording
+
+- **The pane's programmatic `window.scrollTo` dispatches no `scroll` event.** A
+  listener installed in the same evaluation fired **0** times while `scrollY`
+  went 900 → 1800. The scroll-progress bar therefore reads `width:0%` and the
+  scroll-to-top button never gains its `.show` class under measurement, which
+  looks exactly like a broken component and is not one: dispatching
+  `new Event('scroll')` immediately produced `class="scroll-top show"`,
+  `opacity:1`, `pointer-events:auto`, `tabIndex 0` and `width:52.879%`. Real
+  wheel scrolling could not be used to confirm it because the pane was hidden.
+- **CSS transitions do not advance in a hidden pane.** The scroll-top button
+  kept `matrix(0.9,0,0,0.9,0,18)` — its hidden transform — long after
+  `.show` was applied, reporting a false 4 px overlap with the launcher. Setting
+  `transition:none` and re-reading gave the true settled position and a 12 px
+  gap. Any geometry measured on a transitioning element in this pane must force
+  the end state first.
+
+### Not verified here
+
+- **Enter/Space activation of the new filter toggle.** Synthetic key injection
+  does not fire a button's default action in this pane; this was confirmed
+  against a **pre-existing** control (the Reset button) before concluding it was
+  a harness limit and not a defect — both reported 0 clicks. Tab focus movement
+  does work, and `:focus-visible` matched after a real Tab, producing a visible
+  3 px ring on the toggle.
+- **The signed-in `/profile` branch**, unchanged from the reason recorded in the
+  anonymous-student section: confirming it means typing a passcode into a login
+  form.
+
+### One thing deliberately not changed
+
+`--line` (`#DDE3EC`) measures **1.29:1** against the surfaces it borders, below
+the 3:1 that WCAG 1.4.11 asks of a control's visual boundary. The new filter
+toggle uses `--ink-4` (5.04:1) instead. `--line` is used as the border on many
+other controls across the app; re-styling all of them was not part of this
+request and was not done unasked. It is a pre-existing, site-wide issue and it
+is flagged here rather than silently patched.
+
 ## Still outstanding
 
 Recorded here so the gaps are not mistaken for passes:

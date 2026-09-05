@@ -2724,3 +2724,230 @@
    wraps instead. */
 .app .btn{min-width:fit-content}
 .app .human-cta{flex-wrap:wrap;gap:var(--s-5)}
+
+/* ============================================================
+   RESPONSIVE RECOMPOSITION — measured, not guessed
+   Every number below came from a running browser at 1440x1000,
+   1280x800, 1024x768, 768x1024, 430x932, 390x844 and 360x800.
+   The problems were all in the band between "desktop" and
+   "phone": the layout had a desktop tier and a 760px phone tier
+   and nothing in between, so an iPad in portrait got the desktop
+   grid at tablet width.
+   ============================================================ */
+
+/* --- 1. One header height, named once ------------------------
+   Three sticky elements each carried their own hand-written
+   guess at how tall the header is: .anchor-nav top:76px,
+   .filters top:100px, .side-card top:155px. The header is not
+   76px tall. Measured: 68px above 901px, 115px between 761 and
+   900 (the two-row brand/verticals layout), 109px below 761.
+   The worst case was the anchor nav on a phone — top:64px under
+   a 109px header put 45px of the nav permanently behind it, so
+   the section links you were meant to tap were the part that was
+   covered. A token means the offsets cannot drift apart again,
+   and scroll-margin-top makes in-page jumps land below the
+   header rather than under it. */
+/* Sticky was dead site-wide before this line, at every width.
+   globals.css carries `html,body{overflow-x:hidden}`. Setting overflow-x on
+   the BODY makes body a scrolling box, and a scrolling box is the scrollport
+   its descendants stick inside — body never scrolls (html does), so every
+   `position:sticky` in the app was inert. Verified in the browser at 1440
+   and at 390: at scrollY 900 the header's top was -860, i.e. it had scrolled
+   away exactly as a static element would.
+   The horizontal clip is still wanted, and it still applies: overflow on the
+   root element propagates to the viewport, so `html{overflow-x:hidden}` alone
+   does the clipping while leaving body a normal, non-scrolling block. Both
+   axes are returned to visible here because leaving overflow-y at `auto` —
+   which is what a lone `overflow-x:hidden` coerces it to — would recreate the
+   scrolling box and the bug with it. */
+body{overflow-x:visible;overflow-y:visible}
+
+/* Now that things actually stick, how much is stuck to the top matters.
+   Measured header heights: 68px at 901px and up, 115px between 761 and 900
+   (the brand row and the verticals row stack), 109px below 761.
+   Below 761 the header is deliberately not sticky. The bottom navigation bar
+   appears at exactly that width and is the primary navigation there, so a
+   sticky header would be a second, redundant nav costing 109px on top of the
+   40px ticker — 18% of an 844px phone screen permanently spent on chrome that
+   duplicates the bar under the thumb. It scrolls away, and --header-h is 0 so
+   nothing reserves space for a bar that is not there. */
+.app{--header-h:68px}
+@media(max-width:900px){.app{--header-h:115px}}
+@media(max-width:760px){
+  .app{--header-h:0px}
+  .app header{position:static}
+}
+
+.app .anchor-nav{top:var(--header-h)}
+.app .filters{top:calc(var(--header-h) + var(--s-4))}
+.app .side-card{top:calc(var(--header-h) + var(--s-6))}
+/* An in-page jump has to clear everything that is stuck above it,
+   not just the header. On a detail page the anchor nav is stuck
+   under the header — measured 64px at every width — so clicking
+   "Process" landed the section at y=131 with the nav's bottom at
+   y=179: 48px of the heading you asked for, hidden behind the
+   control you clicked. The stack is named once and the sections
+   inside a detail layout add the nav to it. */
+.app{--anchor-h:64px;--sticky-stack:var(--header-h)}
+.app .detail-layout{--sticky-stack:calc(var(--header-h) + var(--anchor-h))}
+.app #results,
+.app .detail-section{scroll-margin-top:calc(var(--sticky-stack) + var(--s-4))}
+
+/* --- 2. A gutter the page is allowed to keep -----------------
+   At 1440 the design gives itself a 100px gutter either side of
+   the 1240px column. Below 1336 that gutter collapses to the
+   32px floor, and at 1024 the content ran to within 32px of the
+   window edge — which is where the floating chat launcher lives.
+   Measured at 1024: the launcher's box was x943-995 and the
+   "Save" control on every result card was x926-964, so the
+   launcher sat on 21px of a 38px button, and elementFromPoint
+   returned the launcher. Not one card — every card, because they
+   all share that right edge, so scrolling dragged one save
+   button after another under a dead zone.
+   Holding the gutter at 72px between 941 and 1384 fixes it at
+   the cause: the floating column now has somewhere to stand that
+   is not on top of the page. It costs 40px a side at 1024 and
+   reads better for it — 32px of margin at that width was thin
+   for the design's own proportions. Above 1384 the original
+   centring formula already produces more than 72px and takes
+   over again. */
+@media screen{
+  .app{--gutter:max(32px,calc((100vw - 1240px)/2))}
+  @media(min-width:941px) and (max-width:1384px){.app{--gutter:72px}}
+  @media(max-width:760px){.app{--gutter:18px}}
+  .app .container{width:min(1240px,calc(100% - var(--gutter)*2))}
+  /* The anchor nav sizes to its own links and centres them; it is
+     not a page column and must not inherit the page column's width. */
+  .app .anchor-nav .container{width:max-content}
+  .app header{padding-inline:var(--gutter)}
+}
+
+/* --- 3. The listing gets three layouts, not two --------------
+   .listing-layout stayed a 280px + 1fr grid all the way down to
+   761px. At 768 that resolved to a 280px filter rail beside a
+   361px results column: the rail was taking 44% of the screen to
+   hold five controls, and the content it filtered had less room
+   than a phone gives it.
+   The stacking point is arithmetic. Results width is
+   viewport - 2*72 (gutter) - 280 (rail) - 48 (gap); for the
+   results column to hold the 560px its card interior needs
+   before the meta row wraps twice, the viewport must be at least
+   1032px. So the rail stops being a rail at 1040.
+   Below that the panel is not simply moved — it is rebuilt. A
+   761-1039px screen is wide and short: the controls go side by
+   side in an auto-fitting row, still fully visible, because a
+   landscape tablet has the width for them and hiding them there
+   would cost a click for nothing. Only below 761, where they
+   stack into a 613px tower, do they collapse behind a summary. */
+@media(max-width:1039px){
+  .app .listing-layout{display:block}
+  .app .filters{position:static;top:auto;width:auto;height:auto;
+    margin-bottom:var(--s-5)}
+
+  /* The hero headline was locked to 64% of the line at every
+     width below 1080. On a 753px-wide viewport that is a 436px
+     text column with 317px of nothing beside it: the panel it
+     was leaving room for is already stacked below by then. */
+  .app .hero-copy{width:100%}
+}
+
+/* Tier two: the controls become a row. */
+@media(min-width:761px) and (max-width:1039px){
+  .app .filters .filter-body{display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:var(--s-4) var(--s-5);align-items:end}
+  /* The must-have checkboxes are a stacked column in the sidebar.
+     Left stacked here they were 271px of a 592px panel — four
+     checkboxes in an 815px-wide box, one per line. Wrapped into a
+     row they take the width they were already given. */
+  .app .filters .check-list{grid-column:1/-1;display:flex;flex-wrap:wrap;
+    align-items:center;gap:var(--s-3) var(--s-5)}
+  .app .filters .check-list>b{flex-basis:100%}
+}
+
+@media(max-width:940px){
+  /* Five footer columns at 2fr+4x1fr resolved to 287px and four
+     90px columns at 768 — every link inside them wrapping twice.
+     Two columns of real width read better than five of none. */
+  .app .footer>.container:first-child{grid-template-columns:1fr 1fr;
+    gap:var(--s-6) var(--s-5)}
+}
+
+/* Tier three: below 761 the panel is a disclosure ------------
+   Measured at 390x844 on /distance/universities: the panel is
+   613px tall and sits above the results, so the first university
+   card began at document y=1516. Two full screens of controls
+   before one result, on the page whose entire job is showing
+   results.
+   The toggle exists only here; above 760 it is display:none and
+   .filter-body is never hidden, so no layout above this width
+   depends on JavaScript state to be visible. The active-filter
+   count rides on the summary line, so a closed panel is never a
+   hidden state — you can always see that something is filtering.
+   44px minimum height because this is the control standing
+   between a thumb and the results. */
+.app .filters .filter-toggle{display:none}
+@media(max-width:760px){
+  .app .filters .filter-title{display:flex;align-items:center;
+    gap:var(--s-3);flex-wrap:wrap}
+  .app .filters .filter-toggle{display:inline-flex;align-items:center;
+    justify-content:center;margin-left:auto;
+    min-height:44px;padding:0 var(--s-4);
+    /* --line is #DDE3EC: 1.29:1 against the panel it sits on, and
+       the --n-1 fill is 1.03:1. A control whose only boundary is
+       both of those is a control you have to already know is
+       there. --ink-4 measures 5.04:1 on white, comfortably past
+       the 3:1 that 1.4.11 asks of a control's visual boundary. */
+    border:1px solid var(--ink-4);border-radius:var(--r-2);
+    background:var(--n-1);color:var(--ink-1);
+    font-family:inherit;font-weight:600;font-size:var(--fs-100);
+    letter-spacing:.01em;cursor:pointer}
+  .app .filters .filter-toggle:hover{border-color:var(--accent)}
+  .app .filters[data-open="no"] .filter-body{display:none}
+  .app .filters[data-open="yes"] .filter-body{
+    padding-top:var(--s-4);margin-top:var(--s-4);
+    border-top:1px solid var(--line)}
+  .app .filters .filter-title>button:last-child{min-height:44px}
+}
+
+/* --- 4. Stop hiding a real result on tablet ------------------
+   `@media(max-width:1080px){.card-grid .entity-card:last-child
+   {display:none}}` removed the third university from the grid
+   between 761 and 1080px and put it back below 761. A tablet
+   user was shown fewer universities than a phone user, and no
+   part of the interface said so. Two columns of three cards
+   wraps; that is what wrapping is for. */
+@media(max-width:1080px){
+  .app .card-grid .entity-card:last-child{display:flex}
+}
+
+/* --- 5. Micro type on small screens --------------------------
+   --fs-050 is 11px. It carries .stat-note, .pc-badge and
+   .plate-tag — the fee footnote, the card badge and the mode
+   tag, all of which are read at arm's length on a phone rather
+   than a foot away on a desk. 12px is the floor. */
+@media(max-width:760px){
+  .app{--fs-050:12px}
+}
+
+/* --- 6. The two floating controls become one column ----------
+   The chat launcher docks into the page gutter, but only while
+   the gutter exists — above roughly 1348px. Below that it clamps
+   to right:14px and lands on the content: measured at 1024 it
+   covered "Save Amity University Online" by 21x33 and
+   elementFromPoint returned BUTTON.bot-launch, so the click went
+   to the launcher rather than the save button.
+   The scroll-top button never got the docking treatment at all —
+   right:88px, fixed — and at 1024 scrolled it covered "Apply
+   now" by 40x36. The two of them sat side by side across a
+   ~115px band of the right edge.
+   Now both share one dock offset and stack vertically, so the
+   floating pair occupies a single 52px column instead of a
+   115px band, and each is a full launcher-height clear of the
+   other. Same corner, a third of the footprint. */
+.app{--float-dock:max(12px,calc(var(--gutter) - 60px))}
+.app .bot-wrap:not(.open){right:var(--float-dock)}
+.app .scroll-top{right:var(--float-dock);bottom:calc(21px + 52px + 12px)}
+@media(max-width:760px){
+  .app .scroll-top{bottom:calc(88px + 48px + 12px)}
+}

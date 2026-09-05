@@ -367,6 +367,16 @@ function Listing(ctx){
   const MUSTS=isJobs?['Verified salary','Freshers welcome','Work from home','Posted this week']
                     :['Verified data','Clear fees / salary','Student support','Latest intake'];
   const [type,setType]=useState('All'),[sort,setSort]=useState('Recommended'),[max,setMax]=useState(limit);
+  /* Measured on a 390x844 phone: the filter panel is 613px tall and sits above
+     the results, so the first university card began at document y=1516 — nearly
+     two full screens of controls before a single result. The panel is worth the
+     space it takes on a desktop sidebar and is worth none of it on a phone, so
+     below the width where the sidebar stops being a sidebar it collapses to a
+     summary line the person opens on purpose. Closed is the default because the
+     job of the page is results, not filters. Desktop ignores this state
+     entirely — the media query keeps `.filter-body` displayed above 940px, so
+     the sidebar never depends on a click to exist. */
+  const [filtersOpen,setFiltersOpen]=useState(false);
   const [must,setMust]=useState(isJobs?[]:['Verified data']);
   /* Which of the six /distance path cards the person arrived from, carried in
      the URL so it survives a reload, a share and the back button. Before this
@@ -490,6 +500,11 @@ function Listing(ctx){
   const allSectors=useMemo(()=>isJobs?jobSectors(initial):[],[isJobs,initial]);
   const cityChips=useMemo(()=>['All',...(isJobs?topJobCities(initial).slice(0,6):[])],[isJobs,initial]);
   const activeFilters=[type!=='All'&&type,city!=='All'&&city,sector!=='All'&&sector,...must].filter(Boolean);
+  /* What the collapsed filter summary reports. `activeFilters` is the jobs
+     chip row and deliberately omits the cost ceiling because there is no chip
+     for it; the summary must not, or a closed panel could be filtering on a
+     slider nobody can see. */
+  const activeCount=activeFilters.length+(max<limit?1:0);
 
   return <main id="main" tabIndex={-1} className={isJobs?'listing-page jobs-listing':'listing-page'}>
 
@@ -571,8 +586,20 @@ function Listing(ctx){
     </div>}
 
     <div className="container listing-layout" id="results">
-      <aside className="filters">
-        <div className="filter-title"><b><Filter/>Filters</b><button onClick={reset}>Reset</button></div>
+      <aside className="filters" data-open={filtersOpen?'yes':'no'}>
+        <div className="filter-title">
+          <b><Filter/>Filters</b>
+          {/* Only rendered as a control below 940px; above it the label is the
+              panel's own heading and this button is display:none. The count
+              travels with the summary so a closed panel never hides the fact
+              that something is filtering the list. */}
+          <button type="button" className="filter-toggle" aria-expanded={filtersOpen} aria-controls="filter-body"
+            onClick={()=>setFiltersOpen(o=>!o)}>
+            {filtersOpen?'Hide':'Show'}{activeCount>0?` · ${activeCount}`:''}
+          </button>
+          <button onClick={reset}>Reset</button>
+        </div>
+        <div className="filter-body" id="filter-body">
         {isJobs&&<label>City<select value={city} onChange={e=>setCity(e.target.value)}>
           <option>All</option>{allCities.map(c=><option key={c}>{c}</option>)}
         </select></label>}
@@ -591,6 +618,7 @@ function Listing(ctx){
         <div className="check-list"><b>Must have</b>
           {MUSTS.map(x=><label key={x}><input type="checkbox" checked={must.includes(x)}
             onChange={()=>setMust(s=>s.includes(x)?s.filter(y=>y!==x):[...s,x])}/>{x}</label>)}
+        </div>
         </div>
       </aside>
 
