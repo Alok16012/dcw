@@ -8,7 +8,12 @@ export async function POST(request) {
   const rank = Number(body.rank);
   if (!Number.isFinite(rank) || rank <= 0) return fail(422, 'INVALID_RANK', 'Provide a positive NEET rank.');
 
-  const buckets = predictColleges({ rank, category: body.category ?? 'Gen', budget: body.budget ?? null });
+  const budget = body.budget == null ? null : Number(body.budget);
+  if (budget != null && !Number.isFinite(budget)) return fail(422, 'INVALID_BUDGET', 'Budget must be a number of rupees.');
+  const buckets = predictColleges({
+    rank, category: body.category ?? 'Gen', budget,
+    exam: body.exam ?? 'NEET-UG'
+  });
   const total = buckets.strong.length + buckets.possible.length + buckets.backup.length;
 
   // PRD §6.4: show the first 3 free, gate the rest behind a verified phone
@@ -16,9 +21,16 @@ export async function POST(request) {
   // anything.
   if (!isPhoneVerified(body.phone)) {
     const preview = [...buckets.strong, ...buckets.possible, ...buckets.backup].slice(0, 3);
-    return ok({ gated: true, shown: preview.length, total,
-      results: { strong: preview.filter(r => buckets.strong.includes(r)), possible: [], backup: [] },
-      preview, message: 'Verify your number to see all matches.' });
+    // The preview keeps each college in the bucket it actually landed in.
+    // Re-labelling the first three as "strong" would be a prediction the data
+    // does not support.
+    const results = {
+      strong: preview.filter(r => buckets.strong.includes(r)),
+      possible: preview.filter(r => buckets.possible.includes(r)),
+      backup: preview.filter(r => buckets.backup.includes(r))
+    };
+    return ok({ gated: true, shown: preview.length, total, results, preview,
+      message: 'Verify your number to see all matches.' });
   }
   return ok({ gated: false, shown: total, total, results: buckets });
 }

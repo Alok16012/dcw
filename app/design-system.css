@@ -13,18 +13,20 @@
 
 /* Lato carries the headings and Open Sans the running text — the pairing the
    Allen coaching material uses: humanist, high x-height, authoritative at
-   weight without turning literary. Devanagari is loaded for the Hindi strings
-   in the ticker and job copy, which were falling back to a system face. */
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Open+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
+   weight without turning literary. Both are self-hosted by next/font from
+   app/layout.jsx; the families are read here through --f-display and --f-body
+   so the fingerprinted family names never have to be repeated. Open Sans is
+   the variable face, so any weight from 300 to 800 is real rather than
+   rounded to the nearest declared one. */
 
 :root{
   /* ── TYPE ────────────────────────────────────────────────────────────────
      One scale, ratio ~1.2 off a 16px base. 12px is the floor: the audit found
      live text at 7px (mobile nav), 10.5px and 11.5px, none of it legible on a
      phone held at arm's length. */
-  --font-display:Lato,'Segoe UI',system-ui,sans-serif;
-  --font-body:'Open Sans','Noto Sans Devanagari',system-ui,sans-serif;
-  --font-num:'Open Sans',ui-monospace,system-ui,sans-serif;
+  --font-display:var(--f-display),'Segoe UI',system-ui,sans-serif;
+  --font-body:var(--f-body),system-ui,sans-serif;
+  --font-num:var(--f-body),ui-monospace,system-ui,sans-serif;
 
   --fs-050:11px;    /* micro label: caps eyebrows, badge counts — hard floor */
   --fs-100:12px;    /* legal, timestamps, table meta */
@@ -521,7 +523,14 @@
 .app .text-btn,
 .app .entity-mark,
 .app .stepper .active,
+.app .steps li>span,
 .app .mobile-nav button.active{color:var(--accent-text)}
+/* The numbered discs in the entity detail "what happens next" list were the
+   one place this list had missed: globals.css puts raw --accent on --wash in
+   a 34px disc, which the distance and colleges navies carry easily but the
+   jobs orange does not — 11px "01" at 2.78:1 against the 4.5 a label that
+   small needs. It is the same failure mode as the eight selectors above and
+   takes the same token, so it joins them rather than earning its own rule. */
 
 /* 6. The footer is a dark band, but `.brand small` was written for the light
       masthead — the same rule put --ink-4 grey on near-black at 3.66:1. */
@@ -692,8 +701,10 @@
 }
 @media(max-width:900px){
   /* Below this the headline and three doors start fighting. The doors win —
-     a live line is nice to have, a way in is not. */
-  .app .util-live b{display:none}
+     a live line is nice to have, a way in is not. Hiding only the line left the
+     LIVE pill behind announcing nothing: the pill is a mark ON the line, not a
+     thing in its own right, so when the line goes the mark goes with it. */
+  .app .util-live{display:none}
   .app .ticker.utility .util-row{width:calc(100% - 32px)}
 }
 @media(max-width:640px){
@@ -870,9 +881,12 @@
 --------------------------------------------------------------------------- */
 .app .app-timeline article>div>small{font-size:var(--fs-100)}
 .app .filters label>span{font-size:var(--fs-100)}
-@media(max-width:430px){
-  .app .verticals span{font-size:var(--fs-100)}
-}
+/* A `@media(max-width:430px){.app .verticals span{font-size:var(--fs-100)}}`
+   used to sit here and had never once applied: `.app .verticals button span`
+   above scores (0,2,2) against its (0,2,1), so source order never got a say.
+   It is deleted rather than rescued — the switcher fits at 430, 390 and 360
+   with the label at 14px, and shrinking type that has room to breathe is not
+   a fix. What the strip actually needed is below. */
 
 /* ---------------------------------------------------------------------------
    POINTER TARGETS
@@ -1188,8 +1202,11 @@
 .app .entity-foot .btn.small{min-height:38px}
 
 /* Listing rows are full-width, where a 16/7 banner would swamp the text.
-   Recompose to a row: plate on the left at a fixed column, body beside it. */
-@media(min-width:761px){
+   Recompose to a row: plate on the left at a fixed column, body beside it.
+   The threshold is 1000px, not 761px: measured at 768 the row form left a
+   470px body that wrapped every line, and a "row" 631px tall is not a row.
+   Below 1000 the stacked card reads better and stays predictable in height. */
+@media(min-width:1000px){
   .app .results>.entity-card{display:grid;
     grid-template-columns:224px minmax(0,1fr);
     grid-template-areas:"plate body" "plate foot"}
@@ -1312,9 +1329,18 @@
 
 /* Proof pills sit under the hero CTAs: counts, not adjectives. */
 .app .hero-pills{display:flex;flex-wrap:wrap;gap:var(--s-2);margin-top:var(--s-5)}
+/* The chip carries white text over a photograph, so its own film has to be the
+   thing that makes that text legible — not the hero scrim behind it. A film of
+   plain white at .13 does the opposite: it lightens whatever is underneath, so
+   over a bright crop it pushed white-on-white. The film is now an ink base with
+   a light sheen on top, which inverts against its ground the way glass should —
+   it reads darker than a bright photograph and slightly lighter than the deep
+   scrim — and gives the label a floor that does not depend on the crop. */
 .app .hero-pills span{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;
   font-size:var(--fs-200);font-weight:600;letter-spacing:.01em;color:#fff;
-  background:rgb(255 255 255/.13);border:1px solid rgb(255 255 255/.2);
+  background:linear-gradient(rgb(255 255 255/.15),rgb(255 255 255/.15)),
+    color-mix(in srgb,var(--ink-deep) 52%,transparent);
+  border:1px solid rgb(255 255 255/.2);
   backdrop-filter:blur(10px) saturate(140%)}
 .app .hero-pills svg{width:15px;height:15px;stroke-width:2.2;color:var(--spark)}
 
@@ -1322,7 +1348,7 @@
 .app .locator{margin-top:calc(var(--s-6) * -1);position:relative;z-index:3;
   padding:var(--s-5) var(--s-5) var(--s-4);border-radius:var(--r-4);
   background:var(--n-0);box-shadow:var(--e-3);border:1px solid var(--line)}
-.app .locator-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s-2) var(--s-4);margin-bottom:var(--s-4)}
+.app .locator-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s-2) var(--s-4);margin-bottom:var(--s-4)}.locator-msg{display:flex;align-items:baseline}
 .app .locator .kicker{display:inline-flex;align-items:center;gap:7px;margin:0}
 .app .locator .kicker svg{width:14px;height:14px;stroke-width:2.4}
 .app .locator-note{margin:0;font-size:var(--fs-200);color:var(--ink-3);max-width:56ch}
@@ -1362,6 +1388,12 @@
 .app .active-filters{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-bottom:var(--s-3)}
 .app .active-filters span{padding:5px 11px;border-radius:999px;background:var(--wash);
   color:var(--accent-ink);font-size:var(--fs-100);font-weight:650}
+/* The line that tells someone the quiz already holds one of their answers.
+   Sits between the progress bar and question two, so it is read before the
+   question it explains. */
+.app .quiz-carried{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:var(--s-3) 0 0;
+  font-size:var(--fs-100);color:var(--muted)}
+.app .quiz-carried b{color:var(--ink);font-weight:700}
 .app .linkish{background:none;border:0;padding:0 4px;color:var(--accent-ink);font-weight:650;
   font-size:var(--fs-100);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .app .filter-title b{display:inline-flex;align-items:center;gap:7px}
@@ -1414,7 +1446,7 @@
 .app .db-kicker{display:inline-block;margin-bottom:10px;padding:5px 12px;border-radius:999px;
   font-size:var(--fs-050);font-weight:800;letter-spacing:.11em;text-transform:uppercase;
   color:var(--spark-ink);background:var(--spark)}
-.app .detail-banner h2{margin:0;color:#fff;   /* the global heading rule paints ink-1; this band is dark */
+.app .db-name{display:block;margin:0;color:#fff;   /* the global heading rule paints ink-1; this band is dark */
   font-size:clamp(1.6rem,3.4vw,2.5rem);line-height:1.12;letter-spacing:-.02em}
 .app .db-copy p{display:flex;align-items:center;gap:7px;margin:10px 0 0;
   font-size:var(--fs-200);color:rgb(255 255 255/.82)}
@@ -1422,6 +1454,14 @@
 @media (max-width:760px){
   .app .detail-banner{min-height:170px}
   .app .db-copy{padding-block:var(--s-5) var(--s-4)}
+  /* Same reason the atlas hero turns its wash vertical at this width (see the
+     rule at the end of this file): the 96deg gradient above thins to .28 on the
+     right because the desktop banner keeps its copy in the left third. Once the
+     band is 360px wide the copy crosses the whole width, and "Koramangala,
+     Bengaluru · Technology" ran out over rgb(113 114 119) of photograph at
+     3.85:1 against the 4.5 that 13px needs. */
+  .app .detail-banner .hero-shade{background:linear-gradient(180deg,
+    rgb(11 21 38/.80) 0%,rgb(11 21 38/.92) 55%,rgb(11 21 38/.94) 100%)}
 }
 /* When the chip row wraps, the locate button must stay on the right edge
    rather than snapping to the start of a new line. */
@@ -1572,7 +1612,7 @@
 /* ----- the page itself ----- */
 .app .resume-doc{--rc:#16233B;width:min(100%,640px);min-height:905px;background:#fff;
   box-shadow:0 24px 70px #0b172018;color:#22303F;
-  font-family:Manrope,system-ui,sans-serif;font-size:var(--fs-200);line-height:1.55}
+  font-family:var(--f-manrope),system-ui,sans-serif;font-size:var(--fs-200);line-height:1.55}
 .app .resume-doc.a-ink{--rc:#16233B}
 .app .resume-doc.a-blue{--rc:#0B4DA8}
 .app .resume-doc.a-teal{--rc:#0E7C5A}
@@ -1840,7 +1880,7 @@
 .app .rv-check{display:inline-flex;align-items:center;gap:4px;margin-left:auto;padding:4px 8px;
   border-radius:99px;background:#E8F4EC;color:#146B3E;font-size:var(--fs-050);font-weight:800;white-space:nowrap}
 .app .rv-check svg{width:12px;height:12px}
-.app .rv-subject{margin:0;font-size:var(--fs-100);font-weight:800;color:var(--accent-ink)}
+.app .rv-subject{margin:0;font-size:var(--fs-100);line-height:1.4;font-weight:800;color:var(--accent-ink)}
 .app .rv-text{margin:0;font-size:var(--fs-300);line-height:1.65;color:var(--ink-1);flex:1}
 .app .review-card footer{display:flex;align-items:center;justify-content:space-between;gap:10px;
   padding-top:12px;border-top:1px solid var(--line)}
@@ -2050,3 +2090,637 @@
   /* colour is never the only signal, but make sure the fallbacks are visible */
   .app .verified svg,.app .hero-pills svg{forced-color-adjust:auto}
 }
+
+/* ============================================================================
+   CARD SYSTEM v2 — "one surface, not a wall of rectangles"
+   ----------------------------------------------------------------------------
+   The previous pass answered "these all look the same" with six loud tonal
+   keys per grid. That fixed sameness and bought repetition of a different
+   kind: a picture rectangle stacked on a text rectangle, with a pill button
+   nested inside the card. This pass keeps the variety in the *artwork and the
+   layout* and puts the colour back under one accent per vertical.
+   ========================================================================== */
+
+/* --- grid ----------------------------------------------------------------- */
+.app .path-grid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:var(--s-4);grid-auto-flow:dense}
+@media (max-width:1080px){
+  .app .path-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){
+  .app .path-grid{grid-template-columns:minmax(0,1fr);gap:var(--s-3)}}
+
+/* --- the card ------------------------------------------------------------- */
+.app .path-card{
+  position:relative;isolation:isolate;overflow:hidden;
+  display:flex;flex-direction:column;text-align:left;
+  min-height:186px;padding:0;
+  border:1px solid var(--line);border-radius:18px;
+  background:var(--n-0);box-shadow:none;
+  /* the wash inherits the vertical accent — never a per-card hue */
+  --plate-line:color-mix(in srgb,var(--accent) 58%,var(--spark,#F5C93B));
+  --plate-node:var(--accent);
+  transition:transform 180ms var(--ease-out),
+             box-shadow  180ms var(--ease-out),
+             border-color 140ms var(--ease-std)}
+.app .path-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 4px 10px rgb(11 21 38/.06),0 14px 32px rgb(11 21 38/.08);
+  border-color:color-mix(in srgb,var(--accent) 34%,var(--line))}
+.app .path-card:active{transform:translateY(-1px)}
+
+/* Artwork as a corner wash: no second rectangle, no hard edge to read as a
+   separate panel. Masked so it dissolves before it reaches the copy. */
+.app .card-wash{
+  position:absolute;top:0;right:0;width:54%;height:76%;z-index:0;
+  pointer-events:none;opacity:.5;
+  -webkit-mask-image:radial-gradient(125% 115% at 100% 0,#000 22%,transparent 74%);
+          mask-image:radial-gradient(125% 115% at 100% 0,#000 22%,transparent 74%);
+  transition:opacity 180ms var(--ease-out)}
+.app .path-card:hover .card-wash{opacity:.66}
+
+/* --- body ----------------------------------------------------------------- */
+.app .pc-body{
+  position:relative;z-index:1;flex:1;
+  display:flex;flex-direction:column;gap:var(--s-3);
+  padding:22px}
+.app .pc-head{display:flex;align-items:center;gap:var(--s-3);min-height:38px}
+.app .pc-icon{
+  width:38px;height:38px;flex:none;border-radius:11px;display:grid;place-items:center;
+  background:var(--wash);color:var(--accent-ink,var(--accent));
+  border:1px solid color-mix(in srgb,var(--accent) 20%,transparent)}
+.app .pc-icon svg{width:19px;height:19px;stroke-width:2}
+.app .pc-badge{
+  font-size:var(--fs-050);font-weight:800;letter-spacing:var(--tr-caps);
+  text-transform:uppercase;color:var(--ink-3);
+  background:var(--n-1);border:1px solid var(--line);
+  padding:4px 9px;border-radius:var(--r-pill);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.app .path-card h3{
+  margin:0;font-size:var(--fs-500);line-height:1.22;
+  letter-spacing:-.015em;color:var(--ink-1)}
+.app .path-card p{
+  margin:0;font-size:var(--fs-200);line-height:1.55;color:var(--ink-3);
+  max-width:44ch;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* The pill is gone. A text action, because the card itself is the target. */
+.app .path-card .pc-go{
+  margin-top:auto;padding:0;width:auto;min-height:0;
+  display:inline-flex;align-items:center;justify-content:flex-start;gap:6px;
+  border:0;background:none;border-radius:0;
+  color:var(--accent-ink,var(--accent));
+  font-size:var(--fs-200);font-weight:800;letter-spacing:0}
+.app .path-card .pc-go svg{
+  width:15px;height:15px;transition:transform 160ms var(--ease-std)}
+.app .path-card:hover .pc-go{background:none;border:0;color:var(--accent-ink,var(--accent))}
+.app .path-card:hover .pc-go svg{transform:translateX(3px)}
+
+/* --- the one rhythm break: a wide featured card per section --------------- */
+@media (min-width:1081px){
+  .app .path-grid .pc-featured{grid-column:span 2;min-height:210px;
+    background:linear-gradient(102deg,var(--wash) 0%,var(--n-0) 62%)}
+  .app .pc-featured .pc-body{padding:26px 28px;max-width:64%}
+  .app .pc-featured h3{font-size:var(--fs-600)}
+  .app .pc-featured p{-webkit-line-clamp:3;max-width:48ch}
+  .app .pc-featured .card-wash{
+    width:46%;height:100%;opacity:.6;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 42%);
+            mask-image:linear-gradient(90deg,transparent 0,#000 42%)}}
+
+@media (prefers-reduced-motion:reduce){
+  .app .path-card,.app .card-wash,.app .path-card .pc-go svg{transition:none}
+  .app .path-card:hover{transform:none}
+  .app .path-card:hover .pc-go svg{transform:none}}
+
+/* --- plates: one family again --------------------------------------------
+   Kept as a band only where the card is genuinely an *entity* (a board, a
+   university, an article) and the mark or photograph is the point. The six
+   keys survive as a barely-there drift so a row is not six identical blues,
+   but nothing in a grid now shouts a colour of its own.                     */
+.app .plate.g0{--plate-key:var(--accent)}
+.app .plate.g1{--plate-key:color-mix(in oklab,var(--accent) 88%,#0E7C5A)}
+.app .plate.g2{--plate-key:color-mix(in oklab,var(--accent) 88%,#4A2F87)}
+.app .plate.g3{--plate-key:color-mix(in oklab,var(--accent) 88%,#C2570B)}
+.app .plate.g4{--plate-key:color-mix(in oklab,var(--accent) 88%,#2F6B1E)}
+.app .plate.g5{--plate-key:color-mix(in oklab,var(--accent) 88%,#9E1F4B)}
+.app .plate{border-radius:17px 17px 0 0}
+.app .board-card .plate{aspect-ratio:16/6}
+.app .entity-card .plate{aspect-ratio:16/6}
+.app .post-card .plate{aspect-ratio:16/7}
+
+/* Badge, not a neon capsule. */
+.app .plate-tag{
+  color:#fff;background:rgb(255 255 255/.17);
+  border:1px solid rgb(255 255 255/.3);
+  -webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px);
+  box-shadow:none;padding:4px 9px;font-size:var(--fs-050)}
+.app .plate-chip{width:34px;height:34px;border-radius:10px;box-shadow:inset 0 1px 0 rgb(255 255 255/.3)}
+.app .plate-chip svg{width:17px;height:17px}
+
+/* --- hero: trust indicators, not a slab ----------------------------------- */
+.app .hero .proof{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  align-items:start;gap:var(--s-5);
+  margin-top:var(--s-6);padding:var(--s-5) 0 0;
+  background:none;border:0;border-top:1px solid rgb(255 255 255/.18);
+  border-radius:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;
+  width:auto;max-width:min(100%,760px);overflow:visible}
+.app .hero .proof button{
+  display:grid;grid-template-areas:"icon num" "icon label" "note note";
+  grid-template-columns:auto minmax(0,1fr);
+  gap:0 var(--s-3);align-items:center;align-content:start;
+  padding:0;border:0;background:none;text-align:left;min-width:0}
+.app .hero .proof button:hover{background:none}
+.app .hero .proof .stat-i{
+  width:34px;height:34px;border-radius:10px;
+  background:rgb(255 255 255/.12);box-shadow:inset 0 1px 0 rgb(255 255 255/.24);
+  filter:none}
+.app .hero .proof .stat-i::before{display:none}
+.app .hero .proof .stat-i svg{width:17px;height:17px;color:var(--spark-lift,#F7D98C);filter:none}
+.app .hero .proof button:hover .stat-i{
+  transform:none;background:rgb(255 255 255/.18);box-shadow:inset 0 1px 0 rgb(255 255 255/.3)}
+.app .hero .proof b{font-size:var(--fs-500);line-height:1.1}
+.app .hero .proof small{font-size:var(--fs-100);color:rgb(255 255 255/.76);font-weight:600}
+/* The note sits one step below the label in the hierarchy, and it used to buy
+   that step with alpha: white at .6, at 11px, over a photograph. The desktop
+   sweep had it at 4.58:1 against the 4.5 that size needs — passing, but with
+   nothing in hand, and it tipped to 4.14 the moment a note grew long enough to
+   reach the thin end of the hero wash. Alpha is the wrong currency here: the
+   label directly above already reads .76 and holds, so the note takes .78 and
+   keeps its step down through size and weight instead, which is where the
+   difference was legible anyway. Measured after: 5.75:1 on that note, and the hero's worst sample overall
+   moves from 4.58 to 5.25. */
+.app .hero .proof .stat-note{
+  grid-area:note;display:block;margin-top:6px;
+  font-size:var(--fs-050);font-weight:600;color:rgb(255 255 255/.78);line-height:1.35}
+@media (max-width:900px){
+  .app .hero .proof{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-4)}
+  .app .hero .proof .stat-note{display:none}}
+@media (max-width:520px){
+  .app .hero .proof{grid-template-columns:minmax(0,1fr);gap:var(--s-3)}}
+
+/* --- section rhythm + chrome density -------------------------------------- */
+.app .section{padding-block:var(--s-8)}
+@media (max-width:760px){.app .section{padding-block:var(--s-7)}}
+@media (min-width:901px){.app header{height:68px}}
+
+/* Nothing floating may sit on top of a card or a button. */
+@media (min-width:761px){
+  .app .compare-tray{max-width:min(760px,calc(100% - 210px))}}
+
+/* The section motif was reading as busy behind the lighter cards; halved so it
+   stays a texture in the gutters rather than a pattern competing with them. */
+.app{--motif-opacity:.035}
+
+/* The board grid is a set of four peers meant to be compared side by side, so
+   it keeps its own four-across rhythm rather than inheriting the 3-col path
+   grid above (which would orphan the fourth board on its own row). */
+.app .path-grid.board-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s-4)}
+@media (max-width:1120px){.app .path-grid.board-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.app .path-grid.board-grid{grid-template-columns:minmax(0,1fr)}}
+/* Board and entity cards carry their own dense body; they must not inherit the
+   compact path-card body metrics. */
+.app .board-card,.app .entity-card{min-height:0;padding:0}
+.app .board-card p,.app .entity-card p{-webkit-line-clamp:none;display:block;max-width:none}
+
+/* --- floating assistant: docks into the page gutter -----------------------
+   A fixed launcher inevitably sits over the content column on narrow screens.
+   Where the viewport is wide enough it is pushed fully outside the 1240px
+   container so it covers nothing; below that it clamps to the corner and is
+   made smaller so it clears card text and controls rather than sitting on
+   them. */
+.app .bot-wrap:not(.open){
+  right:max(14px,calc((100vw - min(1240px,100vw - 48px))/2 - 68px))}
+.app .bot-launch{width:52px;height:52px}
+.app .bot-launch svg{width:21px;height:21px}
+@media (max-width:760px){
+  .app .bot-wrap:not(.open){right:12px;bottom:88px}
+  .app .bot-launch{width:48px;height:48px}}
+/* A supplied photograph takes the same corner slot as the generated wash, so a
+   card with real artwork stays the same single surface. */
+.app .card-photo{position:absolute;top:0;right:0;width:54%;height:76%;z-index:0;
+  object-fit:cover;pointer-events:none;
+  -webkit-mask-image:radial-gradient(125% 115% at 100% 0,#000 22%,transparent 74%);
+          mask-image:radial-gradient(125% 115% at 100% 0,#000 22%,transparent 74%)}
+@media (min-width:1081px){
+  .app .pc-featured .card-photo{width:46%;height:100%;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 42%);
+            mask-image:linear-gradient(90deg,transparent 0,#000 42%)}}
+
+/* ===========================================================================
+   LOADING · ERROR · EMPTY
+   The catalogue now arrives over the network, so three states that a hardcoded
+   array never had must be designed rather than left to chance.
+
+   The skeleton deliberately reproduces the entity card's box — same radius,
+   same border, same plate aspect ratio, same body rhythm — so the switch to
+   real content shifts nothing. That is a CLS decision, not a decorative one.
+   =========================================================================== */
+.app .skeleton-card{border:1px solid var(--line);border-radius:var(--r-4);
+  background:var(--n-0);box-shadow:var(--e-1);overflow:hidden;
+  display:flex;flex-direction:column;gap:var(--s-2);
+  padding:0 var(--s-4) var(--s-4)}
+.app .results>.skeleton-card{margin-bottom:var(--s-3)}
+.app .skeleton-card .sk-line{border-radius:var(--r-1);
+  background:linear-gradient(90deg,var(--n-2) 0%,var(--n-1) 40%,var(--n-2) 80%);
+  background-size:280% 100%;animation:sk-sweep 1.35s var(--ease-std) infinite}
+/* Matches .entity-card .plate — same 16:7 ratio, bled to the card edges. */
+.app .skeleton-card .sk-plate{height:0;padding-top:43.75%;margin:0 calc(var(--s-4) * -1);
+  border-radius:0}
+.app .skeleton-card .sk-title{height:20px;width:72%;margin-top:var(--s-4)}
+.app .skeleton-card .sk-meta{height:12px;width:56%}
+.app .skeleton-card .sk-metrics{display:grid;grid-template-columns:repeat(3,1fr);
+  gap:var(--s-2);margin-top:var(--s-2);padding:var(--s-3) 0;
+  border-block:1px solid var(--line)}
+.app .skeleton-card .sk-metrics span{height:30px;display:block}
+.app .skeleton-card .sk-tags{display:flex;gap:var(--s-1)}
+.app .skeleton-card .sk-tags span{height:24px;width:84px;display:block;
+  border-radius:var(--r-2)}
+.app .skeleton-card .sk-foot{height:40px;width:100%;margin-top:auto;
+  border-radius:var(--r-2)}
+@keyframes sk-sweep{from{background-position:180% 0}to{background-position:-80% 0}}
+@media(prefers-reduced-motion:reduce){
+  .app .skeleton-card .sk-line{animation:none;background:var(--n-2)}
+}
+
+/* Error and empty share one panel: both are "there is nothing to show and here
+   is what to do about it", and giving them different shapes only made the page
+   feel inconsistent. The icon and the action distinguish them. */
+.app .state-panel{grid-column:1/-1;text-align:center;
+  border:1px dashed var(--line);border-radius:var(--r-4);
+  background:var(--n-0);padding:var(--s-6) var(--s-4);
+  display:flex;flex-direction:column;align-items:center;gap:var(--s-2)}
+.app .state-panel .state-icon{width:52px;height:52px;border-radius:var(--r-3);
+  display:grid;place-items:center;background:var(--wash);color:var(--accent-ink,var(--accent))}
+.app .state-panel .state-icon svg{width:24px;height:24px}
+.app .state-panel[role=alert] .state-icon{background:var(--danger-wash,#fdecea);color:var(--danger,#a5271f)}
+.app .state-panel h2{font-size:var(--fs-600);letter-spacing:-.02em;margin:var(--s-1) 0 0}
+.app .state-panel p{color:var(--ink-3);font-size:var(--fs-200);line-height:1.6;
+  max-width:46ch;margin:0}
+.app .state-panel .btn{margin-top:var(--s-2)}
+/* A whole page that is only a state — a detail URL still loading, or a 404. */
+.app .state-main{min-height:60vh;padding:var(--s-7) 0}
+.app .state-main .container{display:flex;flex-direction:column;
+  align-items:center;gap:var(--s-3);max-width:640px}
+.app .state-main .skeleton-card{width:min(100%,520px)}
+
+/* The listing column recomposes the card into a row at 1000px (see the
+   .results>.entity-card block above). The skeleton has to recompose with it,
+   or the placeholder is twice the height of the card it stands in for and the
+   switch to real content drags the whole page up. Same columns, same areas. */
+@media(min-width:1000px){
+  /* min-height is the measured height of a real listing row at this width:
+     257px for an institution, 294px for a job, which carries one extra signal
+     line. The five rows are explicit so the plate can span 1/-1 — with
+     implicit rows, -1 resolves to the end of row one and the plate collapses. */
+  .app .results>.skeleton-card{display:grid;min-height:257px;
+    grid-template-columns:224px minmax(0,1fr);
+    grid-template-rows:auto auto auto auto 1fr;
+    padding:0;gap:0}
+  .app .results>.skeleton-card .sk-plate{grid-column:1;grid-row:1/-1;
+    height:auto;padding-top:0;margin:0;border-radius:var(--r-4) 0 0 var(--r-4)}
+  .app .results>.skeleton-card .sk-title,
+  .app .results>.skeleton-card .sk-meta,
+  .app .results>.skeleton-card .sk-metrics,
+  .app .results>.skeleton-card .sk-tags,
+  .app .results>.skeleton-card .sk-foot{grid-column:2;margin-inline:var(--s-5)}
+  .app .results>.skeleton-card .sk-title{height:22px;margin-top:var(--s-4)}
+  .app .results>.skeleton-card .sk-meta{height:14px;margin-top:var(--s-2)}
+  .app .results>.skeleton-card .sk-metrics{margin-top:var(--s-3);padding:var(--s-3) 0}
+  .app .results>.skeleton-card .sk-metrics span{height:34px}
+  .app .results>.skeleton-card .sk-tags{margin-top:var(--s-3)}
+  .app .results>.skeleton-card .sk-foot{height:38px;width:220px;align-self:end;
+    margin-block:var(--s-3) var(--s-4);justify-self:end}
+  .app-jobs .results>.skeleton-card{min-height:294px}
+}
+
+/* Stacked cards below 1000px: an institution card lands within ~15px of the
+   skeleton's natural height, so it is left alone. A job card carries an extra
+   signals line and measures ~470px at every width from 360 to 900, so the job
+   skeleton is pinned there rather than left 100px short. */
+@media(max-width:999px){
+  .app-jobs .skeleton-card{min-height:470px}
+}
+
+/* ---- consent block in the lead modal --------------------------------------
+   Checkboxes, not toggles: a toggle implies a setting that persists, and this
+   is a one-time permission attached to one submission. Unchecked by default,
+   full-size targets, and the wording sits beside the box rather than in a
+   tooltip, because the wording is the thing being agreed to. */
+.app .consent-block{display:flex;flex-direction:column;gap:var(--s-2);
+  margin-top:var(--s-2);padding:var(--s-3);border:1px solid var(--line);
+  border-radius:var(--r-3);background:var(--n-1)}
+.app .consent-block .check{display:grid;grid-template-columns:auto 1fr;
+  gap:var(--s-2);align-items:start;margin:0;font-weight:400;
+  font-size:var(--fs-200);line-height:1.5;color:var(--ink-2);cursor:pointer}
+.app .consent-block .check input[type=checkbox]{width:20px;height:20px;
+  min-height:20px;flex:none;align-self:start;
+  margin:1px 0 0;accent-color:var(--accent-solid,var(--accent));cursor:pointer}
+.app .consent-block .check input:focus-visible{outline:2px solid var(--accent);
+  outline-offset:2px}
+.app .consent-why{margin:0;font-size:var(--fs-100);line-height:1.5;
+  color:var(--ink-3)}
+
+/* ---- skip link -------------------------------------------------------------
+   Off-screen until focused, then it lands above the sticky header rather than
+   under it — a skip link the header covers is not a skip link. */
+.app .skip-link{position:fixed;top:0;left:var(--s-4);z-index:1200;
+  transform:translateY(-120%);
+  padding:12px var(--s-4);border-radius:0 0 var(--r-2) var(--r-2);
+  background:var(--accent-solid,var(--accent));color:#fff;font-weight:700;
+  font-size:var(--fs-300);text-decoration:none;
+  transition:transform var(--t-comp) var(--ease-out)}
+/* :focus, not only :focus-visible — a skip link that stays hidden for any
+   route into focus is useless, and it can only be reached by keyboard anyway. */
+.app .skip-link:focus{transform:translateY(0);
+  outline:3px solid var(--ink-1,#0F1B2D);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.app .skip-link{transition:none}}
+/* The target is focusable only as a skip destination; it must not draw a ring
+   of its own when clicked. */
+.app main:focus{outline:none}
+
+/* ---- sample rows ------------------------------------------------------------
+   Two rows on /applications illustrate the stages an application moves through.
+   They are not records of anything, and they sit in the same list as the
+   visitor's real enquiries, so they say so — in the row, not in a footnote. */
+.app .app-timeline .is-sample{border-style:dashed;background:var(--n-1)}
+.app .sample-tag{display:inline-block;margin-left:6px;padding:1px 6px;
+  border:1px solid var(--line);border-radius:var(--r-1);
+  background:var(--n-0);color:var(--ink-3);
+  font-size:var(--fs-050);font-weight:800;letter-spacing:.06em}
+
+/* ---- predictor results ------------------------------------------------------
+   Submitting the form used to append the shortlist below the fold and leave
+   focus on the button, so a keyboard or screen-reader user was told nothing.
+   The section now takes focus; it needs the sticky masthead's height of
+   clearance so it does not land underneath it. */
+.app .prediction-results{scroll-margin-top:110px}
+.app .prediction-results:focus{outline:none}
+.app .prediction-results:focus-visible{outline:2px solid var(--accent);outline-offset:8px;border-radius:var(--r-3)}
+
+/* ---- path-card hit area -----------------------------------------------------
+   `.pc-link::after{position:absolute;inset:0}` further up turns the whole card
+   into the target, and the comment there says exactly that. It had stopped
+   being true: hit-testing four points across a 284x203 path card returned
+   `.pc-body` every time, so the only clickable region left was the 122x22
+   title — under the 24x24 that WCAG 2.2 AA (2.5.8) asks of a target, on a card
+   that lifts on hover and draws a card-wide focus ring, i.e. one that looks
+   clickable everywhere and is not.
+
+   The cause was not paint order. `globals.css` carries an old 3D flourish —
+   `.path-card{transform-style:preserve-3d}` with `.path-card h3{transform:
+   translateZ(12px)}` so the title floats a little when the card tilts on
+   hover. A transform makes an element the containing block for absolutely
+   positioned descendants, so `inset:0` had quietly stopped meaning "the card"
+   and started meaning "the h3": the overlay measured 238 x 21.95px, one line
+   of text. `.ec-link` on entity cards uses the same pattern and works,
+   because no entity-card heading is transformed.
+
+   The 12px lift is dropped. It is only perceptible during a hover tilt on a
+   pointer device, it never applied on touch, and it was costing the card its
+   entire hit area. The card's own `:hover` transform is untouched, so the
+   tilt itself stays.
+
+   With the h3 no longer a containing block the overlay resolves against
+   `.pc-body` (`position:relative` from the card-wash work) — 282x201 of the
+   284x203 card, everything inside the border. `z-index:2` lifts it over
+   `.pc-body`'s own contents (the paragraph and the `pc-go` row) as well as the
+   artwork beneath. A path card holds exactly one control, so the overlay
+   covers nothing that needed its own clicks. */
+.app .path-card h3{transform:none}
+.app .pc-link::after{z-index:2}
+
+/* ---- masthead switcher below 360px ------------------------------------------
+   The switcher is allowed to scroll on a phone, and the bleed-and-pad above
+   is meant to clip a tab at the gutter so the cut reads as "there is more
+   this way". At 320px — the reflow floor — that stopped being true: the three
+   tabs need 333px against 308px of track, and the 12px bleed is not enough to
+   carry the extra 25px, so "Berojgar Bharat" was cut through the middle of a
+   word. A tab clipped mid-glyph reads as broken, which is the exact failure
+   the bleed exists to prevent.
+
+   The tabs fit unchanged at 360, 390, 430 and above, so nothing there moves.
+   Below 360 the second line goes instead: it repeats the brand name printed
+   in full one row above it, and at that width the switcher's only job is to
+   say which of three products you are looking at. "Distance / Colleges /
+   Jobs" says that, fits without a scroller, and keeps the accessible name
+   unambiguous. */
+@media(max-width:359px){
+  .app>header>.verticals button small{display:none}
+  .app>header>.verticals button{padding-block:var(--s-2)}
+}
+
+/* ---- predictor results ------------------------------------------------------
+   Three groups, not one flat grid: the point of a rank predictor is the
+   distance between a rank and a cutoff, so each college carries the two
+   numbers side by side and the group heading says what that distance means.
+   Bucket colour is semantic — reachable, borderline, fallback — and is never
+   the only signal, because the heading says the same thing in words. */
+.app .predict-status{color:var(--ink-2);font-size:var(--fs-300);margin:0}
+.app .bucket-group{margin-bottom:var(--s-6)}
+.app .bucket-group:last-of-type{margin-bottom:0}
+.app .bucket-group>.bucket{display:inline-block;margin:0;padding:6px 12px;border-radius:999px;
+  font-size:var(--fs-200);font-weight:800;letter-spacing:.04em;text-transform:uppercase;line-height:1.3}
+.app .bucket.b-strong{background:var(--ok-wash);color:var(--ok)}
+.app .bucket.b-possible{background:var(--warn-wash);color:var(--warn)}
+.app .bucket.b-backup{background:var(--n-1);color:var(--ink-2);border:1px solid var(--line)}
+.app .bucket-note{margin:var(--s-2) 0 var(--s-4);color:var(--ink-2);font-size:var(--fs-300);max-width:62ch}
+.app .bucket-grid article h4{margin:0 0 2px;font-size:var(--fs-400);line-height:1.3}
+/* Column count follows the card, not the viewport: these cards are three
+   across on a desktop and one across on a phone, so a viewport breakpoint
+   would give the narrowest card the widest columns. */
+.app .cutoff-line{display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:var(--s-3);
+  margin:var(--s-4) 0 0;padding-top:var(--s-3);border-top:1px solid var(--line)}
+.app .cutoff-line div{min-width:0}
+.app .cutoff-line dt{margin:0;color:var(--ink-3);font-size:var(--fs-200);font-weight:600}
+.app .cutoff-line dd{margin:2px 0 0;font-size:var(--fs-300);font-weight:800;
+  font-variant-numeric:tabular-nums;color:var(--ink-1)}
+.app .cutoff-caveat{display:block;margin-top:var(--s-3);color:var(--ink-3);
+  font-size:var(--fs-200);line-height:1.45}
+/* Three across only while three cards still have room to hold a name, a place
+   and three figures. Below that the count drops rather than the legibility.
+   Fixed track counts rather than auto-fit: a bucket often holds one or two
+   colleges, and auto-fit would stretch those to the full width of the row. */
+.app .bucket-grid{grid-template-columns:repeat(3,1fr)}
+@media(max-width:1000px){.app .bucket-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.app .bucket-grid{grid-template-columns:1fr}}
+
+/* ---- headings on the automation aside ---------------------------------------
+   `.app h1,.app h2,.app h3,.app h4{color:var(--ink-1)}` paints every heading
+   near-black, and a companion rule lists the surfaces where that is wrong —
+   `.hero-copy`, `.glass-dark`, `.footer`, `.decision`, `.band-dark` — and turns
+   their headings white. `/automations` has such a surface and was never added
+   to the list: `.automation-grid>aside` sets `color:#fff` over a
+   `#07356F -> #0B4DA8` gradient, and its `<h2>` came back out at `--ink-1`.
+   Measured against both gradient stops that is **1.52:1 and 2.30:1** — a 32px
+   heading needs 3.0 — i.e. near-black on dark navy, the page's own title
+   effectively unreadable. The paragraph beneath it (9.02 / 5.97) and the tag
+   (8.8) were always fine, which is why it read as a rendering oddity rather
+   than a missing rule.
+
+   `inherit` rather than `#fff`, matching the `.path-card` rule above: the aside
+   owns its foreground colour, and a heading on it should follow whatever that
+   becomes. */
+.app .automation-grid>aside h1,.app .automation-grid>aside h2,
+.app .automation-grid>aside h3,.app .automation-grid>aside h4{color:inherit}
+
+
+/* ---- the atlas hero's scrim on a narrow screen -------------------------------
+   globals.css already answers this: the base `.hero-shade` is a 90deg wash that
+   is nearly opaque on the left, where the desktop copy column sits, and thins to
+   .08 on the right so the photograph survives beside it — and inside
+   `@media(max-width:760px)` globals re-declares `.hero-shade` as a 180deg wash,
+   because once the hero stacks the copy is no longer in a left column, it is the
+   whole width.
+
+   That mobile rule stopped applying. `.app .atlas-hero .hero-shade` further up
+   this file re-states the horizontal gradient in `--ink-deep` so each vertical
+   tints its own black, and at 0-3-0 it outranks the 0-1-0 mobile rule — media
+   queries carry no specificity of their own. So the desktop wash was still in
+   force at 390px, with the copy running across the thin end of it.
+
+   Measured at 390x844 over `career-editorial-full.webp`: the jobs eyebrow 2.05,
+   the `<em>` in the 34px headline 1.94 (against 3.0), the standfirst 2.27; on
+   `/colleges` the eyebrow 3.01 and the standfirst 3.48. Backdrops around
+   rgb(154 157 150) — the bright part of the photograph, straight behind white
+   text. At 1440 all of these pass, which is why a desktop-only sweep missed it.
+
+   The vertical wash returns, in the same token and following `.tool-hero`'s
+   mobile rule directly above. It reaches full strength earlier (62% rather than
+   66%) because the atlas hero's copy runs from 11% to 82% of an 821px box, not
+   the shorter tool hero's. */
+@media(max-width:760px){
+  .app .atlas-hero .hero-shade{background:linear-gradient(180deg,
+    color-mix(in srgb,var(--ink-deep) 78%,transparent) 0%,
+    color-mix(in srgb,var(--ink-deep) 92%,transparent) 34%,
+    color-mix(in srgb,var(--ink-deep) 96%,transparent) 62%)}
+}
+
+/* The other side of that breakpoint -----------------------------------------
+   The rule above returns the vertical wash below 760px, where the hero stacks.
+   Above 760px the horizontal wash stays, and in principle that is right: the
+   copy is in a left column and the photograph deserves the right. What was
+   wrong was where the wash decided the column ended.
+
+   `.hero-shade`'s stops are percentages of the hero. The copy column is 61.8%
+   of a container that is `min(1280px, 100% - 48px)`, so its right edge lands at
+   about 61% of the hero at every width from 761px up — and the proof rail under
+   the headline is the widest thing in that column, running the full 61%. The
+   wash held .92 only to 42% and was down to .38 by 72%; interpolated at 61%
+   that is roughly .55 alpha under a 12px label that needs the scrim opaque.
+
+   Measured on /jobs, worst sample on the third proof label ("hiring employers",
+   12px, white at .76), against the 4.5:1 that size requires:
+
+     768   3.54      1101  4.20      1440  5.20
+     1024  3.96      1280  4.67
+
+   Three widths fail outright and the two that pass do so on the photograph's
+   good behaviour, not the scrim's — the number tracks how bright the crop
+   happens to be behind the rail at that width, which is why the desktop sweep
+   read this as a near miss rather than a defect. It is one defect at every
+   width above the stacking breakpoint.
+
+   So the shoulder moves out to where the copy actually ends, and the ramp to
+   the photograph is compressed into the remaining third rather than removed:
+   the image still opens up on the right, it just stops reclaiming the scrim
+   from underneath the text. Measured after, same label, same samples:
+
+     768   8.98      1101  9.08      1440  9.18
+     1024  9.08      1280  9.17
+
+   and no other text in the hero falls below its threshold on /, /distance,
+   /colleges or /jobs at 768, 1024, 1280 or 1440. */
+@media(min-width:761px){
+  .app .atlas-hero .hero-shade{background:linear-gradient(90deg,
+    color-mix(in srgb,var(--ink-deep) 97%,transparent) 0%,
+    color-mix(in srgb,var(--ink-deep) 93%,transparent) 64%,
+    color-mix(in srgb,var(--ink-deep) 40%,transparent) 84%,
+    color-mix(in srgb,var(--ink-deep) 12%,transparent))}
+}
+
+/* The same question asked of the tool hero -----------------------------------
+   The atlas hero has a copy column that holds a near-constant share of the
+   hero, so one shoulder serves every desktop width. The tool hero does not:
+   `.tool-hero-copy` is the plain container, the standfirst wraps at 58ch and
+   the proof pills wrap onto fewer lines as the viewport widens, so the text
+   keeps shrinking away from the right edge as the screen grows. Measured as a
+   percentage of hero width, worst route at each width:
+
+     1728  57      1280  56      768  91
+     1440  58      1101  66      761  94
+     1024  71
+
+   Above ~1200 that leaves a third of the hero with nothing in it, and the
+   96deg wash — down to .40 by 76% — is doing the right thing there: the
+   photograph opens up on the right and no text is standing in it. Nothing at
+   1201 and above needed the shoulder moved, so the scrim there is untouched.
+
+   Below it the copy runs most of the way across and the wash is releasing the
+   scrim underneath live text. Worst sample on each affected route, against the
+   4.5:1 that 13px and 16px require, measured before and after:
+
+     761   /jobs/search            2.27 -> 5.51
+     761   /distance/universities  4.43 -> 7.95
+     761   /colleges/search        5.29 -> 5.84
+     768   /jobs/search            3.22 -> 5.51
+     768   /about                  3.24 -> 7.66
+     900   /jobs/search            4.00 -> 5.51
+     1024  /jobs/search            5.26 -> 5.51
+
+   so the shoulder moves out to 78% for that band and the release is compressed
+   into the last fifth. The image is still lit on the right — this is not the
+   flat vertical wash the stacked layout uses below 761 — it just stops handing
+   the scrim back where the text still is.
+
+   After: the worst small text anywhere in the seven tool heroes is 5.51, and
+   that is a solid-filled button label rather than anything sitting on the
+   photograph. Swept at 360, 390, 430, 761, 768, 900, 1024, 1200, 1201, 1280
+   and 1440; both sides of the 1200/1201 boundary read the same. The four
+   vertical homepages re-checked at 390, 768 and 1440 are unchanged. */
+@media(min-width:761px) and (max-width:1200px){
+  .app .tool-hero .hero-shade{background:linear-gradient(96deg,
+    color-mix(in srgb,var(--ink-deep) 93%,transparent) 0%,
+    color-mix(in srgb,var(--ink-deep) 82%,transparent) 78%,
+    color-mix(in srgb,var(--ink-deep) 42%,transparent) 100%)}
+}
+
+
+/* Reflow (WCAG 1.4.10) at 320 CSS px ------------------------------------------
+   The card foot is a nowrap flex row: compare label, "Details", "Apply now".
+   A <button> carries `overflow:hidden` from the UA sheet, so as a flex item its
+   automatic minimum size collapses to zero and it shrinks *past* its own label
+   instead of refusing to. Measured at 320: the row needs 282px of content box
+   and gets 250, so "Details" was cut at 56 of the 66 it needs and "Apply now"
+   at 81 of 103 — the label was clipped, silently, with no scrollbar. It fits
+   from about 350 up, which is why every device width in the sweep passed and
+   only the 320px reflow target failed.
+
+   Wrapping is the fix rather than a smaller font: the line breaks before the
+   labels do, so the two buttons drop to their own row and keep full width. */
+.app .entity-foot{flex-wrap:wrap;row-gap:var(--s-2)}
+
+/* Same requirement, opposite mechanism. Below 761 the trust strip turns its
+   container into a horizontal scroller with `white-space:nowrap`, so at 320 the
+   third item ("Updated every admission cycle") sat off-screen behind a
+   sideways scroll inside a vertically-scrolling page. Three short factual
+   statements are not content that needs a two-dimensional layout, so they wrap
+   instead. The strip grows taller on a phone; nothing is hidden. */
+@media(max-width:760px){
+  .app .trust-strip .container{overflow:visible;height:auto;flex-wrap:wrap;
+    justify-content:flex-start;gap:var(--s-2) var(--s-5);
+    padding-block:var(--s-4)}
+  .app .trust-strip span{white-space:normal}
+}
+
+/* The same UA quirk, found again at 768 on the closing CTA: "Book a free call"
+   needed 154px and was given 130. It is not worth hunting button by button, so
+   the floor goes on the control itself. `min-width:auto` on a flex item whose
+   overflow is not visible resolves to 0, and a <button> always has
+   `overflow:hidden` from the UA sheet — naming the floor explicitly restores
+   the behaviour every other flex item already has. A button may still shrink;
+   it may no longer shrink past its own label. Where a row then cannot fit, it
+   wraps instead. */
+.app .btn{min-width:fit-content}
+.app .human-cta{flex-wrap:wrap;gap:var(--s-5)}

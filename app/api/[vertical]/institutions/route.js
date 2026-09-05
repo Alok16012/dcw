@@ -11,6 +11,8 @@ export async function GET(request, { params }) {
     mode: p.get('mode') ?? undefined,
     approval: p.get('approval') ?? undefined,
     qualification: p.get('qualification') ?? undefined,
+    city: p.get('city') ?? undefined,
+    sector: p.get('sector') ?? undefined,
     wfh: bool(p.get('wfh')),
     feeMin: num(p.get('feeMin')),
     feeMax: num(p.get('feeMax')),
