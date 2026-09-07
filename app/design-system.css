@@ -3615,6 +3615,18 @@ body{overflow-x:visible;overflow-y:visible}
     border-radius:var(--r-3);padding:var(--s-4) var(--s-2);
     display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
     text-align:center;gap:var(--s-2);border-right:1px solid var(--line)}
+  /* The strip's end-cap rules survive into here and break the symmetry, and
+     they are 0-4-1 so the shared rule above cannot reach them. On the desktop
+     strip `:first-child{padding-left:0}` and `:last-child{padding-right:0}`
+     are right — they pull the outer cells flush to the panel's edge so the
+     row reads as one instrument. Once the cells are three separate tiles they
+     do the opposite: tile 1's contents sit 4px left of its centre, tile 3's
+     4.5px right of its, and tile 3 loses the right border the other two have,
+     so it reads as open on that side. Each is answered at its own
+     specificity. */
+  .app .hero .proof button:first-child{padding-left:var(--s-2)}
+  .app .hero .proof button:last-child{padding-right:var(--s-2);
+    border-right:1px solid var(--line)}
   .app .hero .proof .stat-note{display:none}
   .app .hero .proof .stat-i{width:38px;height:38px;margin:0}
   .app .hero .proof b{font-size:var(--fs-600);line-height:1.15}
@@ -3640,8 +3652,17 @@ body{overflow-x:visible;overflow-y:visible}
   .app .path-card{min-height:0;padding:0;
     display:flex;flex-direction:column;text-align:center;position:relative;
     overflow:hidden}
+  /* 40px of head room, not 24. The chip is out of flow, so it takes no space
+     and the body's padding has to clear it deliberately: 24 put the icon
+     3.4px under the chip's bottom edge, which reads as a collision rather
+     than as a corner label. 40 leaves ~11px, which matches the 12px gap the
+     rest of the stack runs on — the icon then sits in a band of air, not
+     against the chip. Written as 32+8 because there is no 40 step; inventing
+     one for a single use would put a value in the scale that nothing else
+     needs. The 12px gap replaces an 8, so icon→title and title→bar are the
+     same beat and the block reads as optically centred above the bar. */
   .app .path-card .pc-body{position:static;
-    padding:var(--s-5) var(--s-4) 0;gap:var(--s-2)}
+    padding:calc(var(--s-6) + var(--s-2)) var(--s-4) 0;gap:var(--s-3)}
   .app .path-card>p,.app .path-card .pc-body>p{display:none}
   /* The chip leaves the header row and goes to the corner, with only its
      inward corner rounded — the reference's detail, and the reason its cards
@@ -3650,11 +3671,22 @@ body{overflow-x:visible;overflow-y:visible}
      mitre against its own radius.
      .pc-body going position:static is what makes this work: it was the
      nearest positioned ancestor, so top/right resolved to its padding box —
-     the chip landed a padding's width in from the corner it was aimed at. */
+     the chip landed a padding's width in from the corner it was aimed at.
+
+     Slimmer here than on desktop: on a 161px card the chip was running to
+     107px, two thirds of the card's width, which turns a label into a banner.
+     It cannot come down by type size — 11px is the floor and it is already
+     there — so it comes down by padding and by giving back the tracking,
+     which the fill has been doing the separating work for since the chip
+     stopped being a bare word. */
   .app .path-card .pc-head{display:block}
   .app .path-card .pc-badge{position:absolute;top:0;right:0;
-    border-radius:0 0 0 var(--r-3);padding:5px 9px}
-  .app .path-card .pc-icon{margin:var(--s-2) auto var(--s-3)}
+    border-radius:0 0 0 var(--r-3);padding:4px 8px;letter-spacing:0}
+  /* Zero, so the 40px above and the 12px gap below are the whole story. A
+     margin here would collapse through .pc-head and add to the flex gap
+     rather than replace it, which is how the spacing drifted in the first
+     place. */
+  .app .path-card .pc-icon{margin:0 auto}
   .app .path-card h3{font-size:var(--fs-300);margin:0}
   /* The action becomes the card's base: full width, flush to all three of the
      bottom edges, solid accent. The negative margins are the card's own
