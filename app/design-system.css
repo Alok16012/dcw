@@ -3745,3 +3745,77 @@ body{overflow-x:visible;overflow-y:visible}
   .app .mobile-nav .mobile-main svg{width:22px;height:22px;background:none;
     color:inherit;padding:0;border-radius:0;margin-top:0;box-shadow:none}
 }
+
+/* ── 10. THE VERTICAL SWITCHER, AS A SWITCH ─────────────────────────────────
+   Three properties share this shell, and this control is how you move
+   between them. On the phone it did not look like a control at all: three
+   words in body ink at weight 600, butted edge to edge with no separator, no
+   fill and no rule — a caption that happened to be clickable.
+
+   Worse, it had no working selected state. The indicator is a 2px :after
+   pinned `bottom:-16px`, which is exact for the 76px single-row desktop
+   header, where it lands on the header's own bottom border. Below 900 the
+   header becomes two rows and the switcher moves to the second one, so the
+   same -16px puts the bar *past* the header's bottom edge and into the hero.
+   Measured at 440: buttons end at y=144, header ends at 153, indicator draws
+   at 160. Nothing marked the vertical you were actually in.
+
+   The geometry was off in three more ways, all of which a segmented control
+   answers at once. The buttons sized to their labels (102.7 / 105.3 / 115.1
+   at 440), so the row ended at x=341 inside a content box ending at 422 —
+   81px of dead space, and a right edge that lined up with nothing else on
+   the page. The scroll bleed added `margin-inline:-16px` against a 15px
+   padding, which pushed the box 12px past the header's padding box. And the
+   whole row sat at weight 600 in --ink-3, the same treatment as a paragraph.
+
+   So: a real segmented control wherever the switcher owns its own row.
+   Equal thirds on a --wash track, the active third filled with
+   --accent-ink and set in white at 800. Filled rather than the calmer
+   white-segment-on-tint, because the complaint was that it carried no
+   weight, and filled is unambiguous at a glance. --accent-ink rather than
+   --accent because the fill has to work in all three themes and white on
+   the raw accent fails in one: jobs' #E2760F measures 3.05:1. The ink
+   variants measure 7.33:1 (distance #1250B8), 5.84:1 (colleges #C1272D) and
+   5.51:1 (jobs #A5520A) — all clear of AA at this size. Inactive text stays
+   --ink-3, which is 7.92:1 on the lightest of the three washes.
+
+   The sub-brand line goes here, for the reason already written at the 359px
+   breakpoint below which it was being dropped anyway: it reprints the name
+   the masthead lockup is showing in full one row above, and a segmented
+   control needs one short word per segment to hold equal thirds. The
+   accessible name is unaffected — the label is the visible text either way.
+
+   Scoped to 900 rather than 760 because 900 is where the header splits into
+   two rows and hands the switcher a full-width row of its own. That is the
+   condition this treatment is designed for, and it is also the range where
+   the broken indicator was invisible, so both go together. */
+@media(max-width:900px){
+  .app>header>.verticals{
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;
+    /* the bleed-and-pad belonged to a scrolling row; three equal segments
+       never scroll, so the track sits inside the gutter like everything
+       else on the page. */
+    margin-inline:auto;padding:4px;overflow:visible;
+    /* and it stops growing once the segments are comfortably wide. Left
+       uncapped it reaches 821px at the 900 breakpoint — three 268px
+       segments, which reads as a banner band, not as a switch. */
+    width:100%;max-width:520px;
+    height:auto;background:var(--wash);border-radius:var(--r-3)}
+  .app>header>.verticals button{
+    min-width:0;padding:0;min-height:44px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:calc(var(--r-3) - 4px);color:var(--ink-3);
+    transition:background .16s ease,color .16s ease}
+  .app>header>.verticals button small{display:none}
+  /* the misplaced indicator is redundant once the segment itself is filled */
+  .app>header>.verticals button:after{display:none}
+  .app>header>.verticals button span{
+    font-size:var(--fs-300);font-weight:700;letter-spacing:-.01em;
+    line-height:1;white-space:nowrap}
+  .app>header>.verticals button.active{
+    background:var(--accent-ink);box-shadow:0 1px 3px rgb(11 43 94/.18)}
+  .app>header>.verticals button.active span{color:#fff;font-weight:800}
+}
+@media(max-width:900px) and (prefers-reduced-motion:reduce){
+  .app>header>.verticals button{transition:none}
+}
