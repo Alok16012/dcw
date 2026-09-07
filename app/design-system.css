@@ -2348,9 +2348,20 @@
 .app .plate-chip svg{width:17px;height:17px}
 
 /* --- hero: trust indicators, not a slab ----------------------------------- */
+/* `align-items` is stretch, not start. start looks like it is protecting the
+   numerals' common baseline, and it is not: each cell is its own grid with
+   its own rows, so the numeral and the label sit at the same y either way —
+   swapping start for stretch moves neither by a pixel. What start actually
+   does is size every cell to its own content, and since one label wraps to
+   two lines where the others take one, the cells came out 122.8 / 137.7 /
+   122.8. On the phone, where each cell is a bordered tile, that is one short
+   tile in a row of three. On desktop, where the cells are divided by 1px
+   rules rather than gaps, it is two dividers of different lengths — which
+   undoes the one thing the divided strip is for, reading as a single
+   instrument instead of three separate figures. */
 .app .hero .proof{
   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-  align-items:start;gap:var(--s-5);
+  align-items:stretch;gap:var(--s-5);
   margin-top:var(--s-6);padding:var(--s-5) 0 0;
   background:none;border:0;border-top:1px solid rgb(255 255 255/.18);
   border-radius:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;
@@ -3337,6 +3348,17 @@ body{overflow-x:visible;overflow-y:visible}
 /* Both hero CTAs become pills, and the secondary one becomes an outline
    rather than the translucent ghost it was — a ghost button needs something
    behind it to be a ghost of. */
+/* The row is allowed to wrap. It was `nowrap`, and the buttons carry
+   `white-space:nowrap` and `min-width:fit-content`, so they cannot shrink
+   below their own text plus 48px of padding — 387px for this pair. globals
+   stacks them at max-width:430, which was picked to look right rather than
+   measured: the row needs ~471px of viewport before it actually fits inside
+   the hero card, so every width from 431 to 470 put the second button past
+   the card's right edge while the search field and the stat tiles above and
+   below it stopped at the padding. A 440px phone landed squarely in that
+   gap. Wrapping is the fix that does not need a number: the break happens
+   when the items stop fitting, whatever the labels later say. */
+.app .hero-ctas{flex-wrap:wrap}
 .app .hero-ctas .btn{border-radius:var(--r-pill)}
 .app .hero-ctas .btn.primary{background:var(--accent);box-shadow:0 2px 8px rgb(18 99 224/.28)}
 .app .hero-ctas .btn.primary:hover:not(:disabled){
@@ -3595,6 +3617,14 @@ body{overflow-x:visible;overflow-y:visible}
 
   /* The ghost button was an outlined blue pill sized for a white page. On the
      card its border is 1.4:1 and its label barely more. */
+  /* `1 1 0` rather than a `flex-direction:column` at some new breakpoint.
+     A zero basis makes the two buttons exactly equal when they share a line
+     — grow-from-natural-width would leave them 3px apart, because their
+     labels differ — and when the wrap above sends one to its own line, the
+     same rule fills that line edge to edge. One declaration covers both
+     arrangements, so the row lines up with the search field and the tiles at
+     every width instead of at the widths someone thought to check. */
+  .app .hero-ctas .btn{flex:1 1 0}
   .app .hero-ctas .btn.ghost{border-color:rgb(255 255 255/.55);color:#fff;
     background:rgb(255 255 255/.08)}
   .app .hero-ctas .btn.ghost:hover{background:rgb(255 255 255/.16);
@@ -3714,4 +3744,78 @@ body{overflow-x:visible;overflow-y:visible}
      radius out of the way of a disc that used to hang above it. */
   .app .mobile-nav .mobile-main svg{width:22px;height:22px;background:none;
     color:inherit;padding:0;border-radius:0;margin-top:0;box-shadow:none}
+}
+
+/* ── 10. THE VERTICAL SWITCHER, AS A SWITCH ─────────────────────────────────
+   Three properties share this shell, and this control is how you move
+   between them. On the phone it did not look like a control at all: three
+   words in body ink at weight 600, butted edge to edge with no separator, no
+   fill and no rule — a caption that happened to be clickable.
+
+   Worse, it had no working selected state. The indicator is a 2px :after
+   pinned `bottom:-16px`, which is exact for the 76px single-row desktop
+   header, where it lands on the header's own bottom border. Below 900 the
+   header becomes two rows and the switcher moves to the second one, so the
+   same -16px puts the bar *past* the header's bottom edge and into the hero.
+   Measured at 440: buttons end at y=144, header ends at 153, indicator draws
+   at 160. Nothing marked the vertical you were actually in.
+
+   The geometry was off in three more ways, all of which a segmented control
+   answers at once. The buttons sized to their labels (102.7 / 105.3 / 115.1
+   at 440), so the row ended at x=341 inside a content box ending at 422 —
+   81px of dead space, and a right edge that lined up with nothing else on
+   the page. The scroll bleed added `margin-inline:-16px` against a 15px
+   padding, which pushed the box 12px past the header's padding box. And the
+   whole row sat at weight 600 in --ink-3, the same treatment as a paragraph.
+
+   So: a real segmented control wherever the switcher owns its own row.
+   Equal thirds on a --wash track, the active third filled with
+   --accent-ink and set in white at 800. Filled rather than the calmer
+   white-segment-on-tint, because the complaint was that it carried no
+   weight, and filled is unambiguous at a glance. --accent-ink rather than
+   --accent because the fill has to work in all three themes and white on
+   the raw accent fails in one: jobs' #E2760F measures 3.05:1. The ink
+   variants measure 7.33:1 (distance #1250B8), 5.84:1 (colleges #C1272D) and
+   5.51:1 (jobs #A5520A) — all clear of AA at this size. Inactive text stays
+   --ink-3, which is 7.92:1 on the lightest of the three washes.
+
+   The sub-brand line goes here, for the reason already written at the 359px
+   breakpoint below which it was being dropped anyway: it reprints the name
+   the masthead lockup is showing in full one row above, and a segmented
+   control needs one short word per segment to hold equal thirds. The
+   accessible name is unaffected — the label is the visible text either way.
+
+   Scoped to 900 rather than 760 because 900 is where the header splits into
+   two rows and hands the switcher a full-width row of its own. That is the
+   condition this treatment is designed for, and it is also the range where
+   the broken indicator was invisible, so both go together. */
+@media(max-width:900px){
+  .app>header>.verticals{
+    display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;
+    /* the bleed-and-pad belonged to a scrolling row; three equal segments
+       never scroll, so the track sits inside the gutter like everything
+       else on the page. */
+    margin-inline:auto;padding:4px;overflow:visible;
+    /* and it stops growing once the segments are comfortably wide. Left
+       uncapped it reaches 821px at the 900 breakpoint — three 268px
+       segments, which reads as a banner band, not as a switch. */
+    width:100%;max-width:520px;
+    height:auto;background:var(--wash);border-radius:var(--r-3)}
+  .app>header>.verticals button{
+    min-width:0;padding:0;min-height:44px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:calc(var(--r-3) - 4px);color:var(--ink-3);
+    transition:background .16s ease,color .16s ease}
+  .app>header>.verticals button small{display:none}
+  /* the misplaced indicator is redundant once the segment itself is filled */
+  .app>header>.verticals button:after{display:none}
+  .app>header>.verticals button span{
+    font-size:var(--fs-300);font-weight:700;letter-spacing:-.01em;
+    line-height:1;white-space:nowrap}
+  .app>header>.verticals button.active{
+    background:var(--accent-ink);box-shadow:0 1px 3px rgb(11 43 94/.18)}
+  .app>header>.verticals button.active span{color:#fff;font-weight:800}
+}
+@media(max-width:900px) and (prefers-reduced-motion:reduce){
+  .app>header>.verticals button{transition:none}
 }
