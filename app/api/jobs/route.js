@@ -7,6 +7,8 @@ export async function GET(request) {
     q: p.get('q') ?? undefined,
     type: p.get('jobType') ?? undefined,
     qualification: p.get('qualification') ?? undefined,
+    city: p.get('city') ?? undefined,
+    sector: p.get('sector') ?? undefined,
     wfh: bool(p.get('wfh')),
     feeMin: num(p.get('salaryMin')),
     feeMax: num(p.get('salaryMax')),

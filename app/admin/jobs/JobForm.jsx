@@ -17,10 +17,18 @@ function Field({ error, label, children, hint }) {
   );
 }
 
+/** The optional fields that live behind the disclosure below. */
+const MORE_FIELDS = ['city', 'area', 'lat', 'lng', 'eligibility', 'roleType', 'tags', 'deadlineLabel'];
+
 const blank = {
   title: '', companyId: '', companyName: '', location: '', wfh: false,
   salaryMin: '', salaryMax: '', qualification: 'Any', experienceMin: 0,
-  jobType: 'Full-time', industry: '', openings: 1, jd: '', expiresOn: '', featured: false
+  jobType: 'Full-time', industry: '', openings: 1, jd: '', expiresOn: '', featured: false,
+  // Optional. Each one is derived on the public listing when it is left empty,
+  // which is why none of them is required and why the hints say what the
+  // fallback will be rather than just describing the field.
+  city: '', area: '', lat: '', lng: '', eligibility: '', roleType: '',
+  tags: '', deadlineLabel: ''
 };
 
 /** Create/edit drawer. The same form serves both so the field rules, the
@@ -28,12 +36,24 @@ const blank = {
 export default function JobForm({ job, companies, enums, canPickCompany, onClose, onSaved }) {
   const editing = Boolean(job);
   const [v, setV] = useState(() => (job
-    ? { ...blank, ...job, expiresOn: job.expiresOn ? String(job.expiresOn).slice(0, 10) : '', companyName: '' }
+    ? {
+        ...blank, ...job,
+        expiresOn: job.expiresOn ? String(job.expiresOn).slice(0, 10) : '',
+        companyName: '',
+        // Absent optional keys must become '' rather than undefined, or the
+        // inputs they feed switch from controlled to uncontrolled mid-edit.
+        city: job.city ?? '', area: job.area ?? '',
+        lat: job.lat ?? '', lng: job.lng ?? '',
+        eligibility: job.eligibility ?? '', roleType: job.roleType ?? '',
+        deadlineLabel: job.deadlineLabel ?? '',
+        tags: Array.isArray(job.tags) ? job.tags.join(', ') : (job.tags ?? '')
+      }
     : blank));
   const [errors, setErrors] = useState({});
   const [failure, setFailure] = useState(null);
   const [busy, setBusy] = useState(false);
   const [newCompany, setNewCompany] = useState(false);
+  const [showMore, setShowMore] = useState(false);
 
   const set = (k, val) => {
     setV(p => ({ ...p, [k]: val }));
@@ -56,7 +76,14 @@ export default function JobForm({ job, companies, enums, canPickCompany, onClose
       openings: Number(v.openings) || 1,
       jd: v.jd.trim() || undefined,
       expiresOn: v.expiresOn || undefined,
-      featured: v.featured
+      featured: v.featured,
+      // Sent as '' rather than undefined when cleared: on a PATCH an empty
+      // value removes the stored field, while undefined would leave it as it
+      // was and make the field look un-clearable.
+      city: v.city.trim(), area: v.area.trim(),
+      lat: String(v.lat).trim(), lng: String(v.lng).trim(),
+      eligibility: v.eligibility.trim(), roleType: v.roleType.trim(),
+      deadlineLabel: v.deadlineLabel.trim(), tags: v.tags.trim()
     };
     if (canPickCompany) {
       if (newCompany) payload.companyName = v.companyName.trim();
@@ -70,6 +97,10 @@ export default function JobForm({ job, companies, enums, canPickCompany, onClose
     } catch (err) {
       if (err instanceof ApiError && err.errors) {
         setErrors(err.errors);
+        // A validation error inside a collapsed disclosure is an error nobody
+        // can see: the banner says something needs attention and every visible
+        // field looks fine. Open it when the problem is in there.
+        if (MORE_FIELDS.some(k => err.errors[k])) setShowMore(true);
         setFailure('Some fields need attention before this can be saved.');
       } else {
         setFailure(err.message);
@@ -172,6 +203,61 @@ export default function JobForm({ job, companies, enums, canPickCompany, onClose
               <textarea value={v.jd} onChange={e => set('jd', e.target.value)}
                 placeholder="What the person will actually do, day to day." />
             </Field>
+
+            <details className="adm-more" open={showMore}
+              onToggle={e => setShowMore(e.currentTarget.open)}>
+              <summary>Listing detail — city filter, map position, badges</summary>
+              <p className="adm-more-note">
+                All optional. The public listing derives a reasonable value for
+                every one of these when it is left blank; fill one in only to
+                override what it would work out on its own.
+              </p>
+
+              <div className="adm-row">
+                <Field error={errors.city} label="City"
+                  hint="The filter facet. Use “Remote” for work-from-home roles.">
+                  <input value={v.city} onChange={e => set('city', e.target.value)} placeholder="e.g. Pune" />
+                </Field>
+                <Field error={errors.area} label="Locality" hint="Shown after the city.">
+                  <input value={v.area} onChange={e => set('area', e.target.value)} placeholder="e.g. Hinjewadi" />
+                </Field>
+              </div>
+
+              <div className="adm-row">
+                <Field error={errors.lat} label="Latitude"
+                  hint="Both coordinates or neither. Used by “jobs near me”.">
+                  <input type="number" step="any" min="-90" max="90" value={v.lat}
+                    onChange={e => set('lat', e.target.value)} placeholder="18.5204" />
+                </Field>
+                <Field error={errors.lng} label="Longitude">
+                  <input type="number" step="any" min="-180" max="180" value={v.lng}
+                    onChange={e => set('lng', e.target.value)} placeholder="73.8567" />
+                </Field>
+              </div>
+
+              <Field error={errors.eligibility} label="Eligibility, in words"
+                hint={`Read by candidates. Derived from “${v.qualification}” when blank.`}>
+                <input value={v.eligibility} onChange={e => set('eligibility', e.target.value)}
+                  placeholder="e.g. 12th pass, freshers welcome" />
+              </Field>
+
+              <div className="adm-row">
+                <Field error={errors.roleType} label="Role label" hint="Short function label.">
+                  <input value={v.roleType} onChange={e => set('roleType', e.target.value)}
+                    placeholder="e.g. Night shift" />
+                </Field>
+                <Field error={errors.deadlineLabel} label="Deadline text"
+                  hint="Overrides the close date for walk-ins and rolling hiring.">
+                  <input value={v.deadlineLabel} onChange={e => set('deadlineLabel', e.target.value)}
+                    placeholder="e.g. Walk-in, Mon–Fri" />
+                </Field>
+              </div>
+
+              <Field error={errors.tags} label="Badges" hint="Comma separated. Derived from the posting when blank.">
+                <input value={v.tags} onChange={e => set('tags', e.target.value)}
+                  placeholder="Freshers welcome, Immediate joining" />
+              </Field>
+            </details>
 
             <div className="adm-check">
               <input type="checkbox" id="feat" checked={!!v.featured} onChange={e => set('featured', e.target.checked)} />

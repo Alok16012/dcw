@@ -103,8 +103,8 @@ export default function LeadsPage() {
                     </td>
                     <td style={{ textTransform: 'capitalize' }}>{l.vertical}</td>
                     <td>
-                      {l.interestId || '—'}
-                      <span className="adm-sub">{l.interestType}</span>
+                      {l.course || l.interestId || '—'}
+                      <span className="adm-sub">{l.course ? `${l.interestType} · ${l.interestId}` : l.interestType}</span>
                     </td>
                     <td style={{ whiteSpace: 'nowrap' }}>
                       <a href={`tel:${l.phone}`}>{l.phone}</a>

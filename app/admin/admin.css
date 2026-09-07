@@ -140,6 +140,17 @@
 .adm-field .err{display:block;color:var(--bad);font-size:11.5px;font-weight:650;margin-top:5px}
 .adm-field.bad .adm-input,.adm-field.bad select,.adm-field.bad input,.adm-field.bad textarea{border-color:var(--bad);background:#FFFCFC}
 .adm-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+/* Optional listing fields. The drawer is long enough already, and every field
+   inside here has a working fallback, so it opens on request rather than by
+   default. <details> keeps that keyboard-operable and announced without JS. */
+.adm-more{border:1px solid var(--line);border-radius:var(--r-2);padding:0 12px;margin:0 0 14px}
+.adm-more[open]{padding-bottom:2px;background:var(--bg)}
+.adm-more>summary{cursor:pointer;font-size:12.5px;font-weight:700;padding:11px 0;list-style:none;display:flex;align-items:center;gap:8px}
+.adm-more>summary::-webkit-details-marker{display:none}
+.adm-more>summary::before{content:'';width:7px;height:7px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(-45deg);transition:var(--t)}
+.adm-more[open]>summary::before{transform:rotate(45deg)}
+.adm-more>summary:focus-visible{outline:2px solid var(--a);outline-offset:2px;border-radius:var(--r-1)}
+.adm-more-note{font-size:12px;line-height:1.55;color:var(--ink-3);margin:0 0 14px}
 .adm-check{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:650;margin-bottom:14px}
 .adm-check input{width:16px;height:16px;min-height:0;accent-color:var(--a);margin:0}
 

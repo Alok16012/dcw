@@ -11,22 +11,34 @@
    are scoped to .app to keep the console (app/admin) out of scope.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Lato carries the headings and Open Sans the running text — the pairing the
-   Allen coaching material uses: humanist, high x-height, authoritative at
-   weight without turning literary. Devanagari is loaded for the Hindi strings
-   in the ticker and job copy, which were falling back to a system face. */
-@import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Open+Sans:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap');
+/* Mulish carries both the headings and the running text — geometric-humanist,
+   high x-height, double-storey `a`, near-circular `o`. It is self-hosted by
+   next/font from app/layout.jsx, which emits --f-display only; --f-body is
+   aliased to it below rather than loading the same woff2 twice. Because it is
+   a variable face spanning 200–1000, every weight this sheet asks for is real
+   rather than rounded to the nearest declared one.
+
+   The pairing it replaced (Lato display + Open Sans body) was humanist, which
+   is a different genus: warmer stroke modulation, flared terminals, a
+   calligraphic `g`. The reference this sheet now matches is geometric, and the
+   difference is visible at 60px even to someone who cannot name it. See
+   docs/reference-analysis.md for the letterform evidence. */
 
 :root{
   /* ── TYPE ────────────────────────────────────────────────────────────────
      One scale, ratio ~1.2 off a 16px base. 12px is the floor: the audit found
      live text at 7px (mobile nav), 10.5px and 11.5px, none of it legible on a
      phone held at arm's length. */
-  --font-display:Lato,'Segoe UI',system-ui,sans-serif;
-  --font-body:'Open Sans','Noto Sans Devanagari',system-ui,sans-serif;
-  --font-num:'Open Sans',ui-monospace,system-ui,sans-serif;
+  /* One face, two roles. --f-body is an alias, not a second download; see the
+     note in app/layout.jsx. Anything reading --font-body keeps working if the
+     roles are split back onto two families later. */
+  --f-body:var(--f-display);
+  --font-display:var(--f-display),'Segoe UI',system-ui,sans-serif;
+  --font-body:var(--f-body),system-ui,sans-serif;
+  --font-num:var(--f-body),ui-monospace,system-ui,sans-serif;
 
-  --fs-100:12px;    /* legal, timestamps, table meta — hard floor */
+  --fs-050:11px;    /* micro label: caps eyebrows, badge counts — hard floor */
+  --fs-100:12px;    /* legal, timestamps, table meta */
   --fs-200:13px;    /* dense UI: chips, tags, captions */
   --fs-300:14px;    /* controls, nav, buttons */
   --fs-400:16px;    /* body */
@@ -35,14 +47,19 @@
   --fs-700:26px;    /* h3 */
   --fs-800:32px;    /* h2 */
   --fs-900:40px;    /* h1 on interior pages */
-  --fs-display:clamp(38px,4.4vw,60px);
+  --fs-1000:52px;   /* interior page display */
+  --fs-display:clamp(38px,4.6vw,64px);   /* reference measures ~62px at 1586 */
 
-  --lh-tight:1.12;  /* display */
-  --lh-snug:1.28;   /* headings */
-  --lh-body:1.6;    /* running text */
+  /* The reference sets its display far tighter than this sheet did — 1.06
+     against 1.12 — and that single number is most of why its hero reads as one
+     object rather than three stacked lines. Body loosens the other way: 1.55
+     rather than 1.6, because Mulish's high x-height already fills the line. */
+  --lh-tight:1.06;  /* display */
+  --lh-snug:1.22;   /* headings */
+  --lh-body:1.55;   /* running text */
   --lh-ui:1.35;
 
-  --tr-display:-.022em;  /* Lato needs a little negative tracking at size */
+  --tr-display:-.022em;  /* negative only at 32px and up; UI sizes sit at 0 */
   --tr-body:0;
   --tr-caps:.07em;       /* eyebrows/kickers only */
 
@@ -59,24 +76,33 @@
   --band-tight:clamp(32px,4vw,52px);
 
   /* ── RADIUS ──────────────────────────────────────────────────────────────
-     A hierarchy, so nesting reads as nesting. Replaces 26 ad-hoc values. */
+     A hierarchy, so nesting reads as nesting. Replaces 26 ad-hoc values.
+     Flattened one notch toward the reference, which is squarer than this sheet
+     was: cards 12, panels 18. --r-1 stays 6 so a chip inside a 12px card still
+     reads as nested. */
   --r-1:6px;    /* chips, tags, swatches */
   --r-2:10px;   /* controls: inputs, buttons */
-  --r-3:14px;   /* cards */
-  --r-4:20px;   /* panels, drawers */
-  --r-5:28px;   /* hero surfaces */
+  --r-3:12px;   /* cards */
+  --r-4:18px;   /* panels, drawers */
+  --r-5:24px;   /* hero surfaces */
   --r-pill:999px;
 
   /* ── ELEVATION ───────────────────────────────────────────────────────────
      Two shadows per step, always: a tight contact shadow that anchors the
-     object to the surface, and a wide ambient one that gives it mass. The
-     old sheet used single 100px blurs, which read as fog rather than height. */
+     object to the surface, and a wide ambient one that gives it mass.
+
+     Every step is roughly 40% lighter than it was. The reference carries depth
+     almost entirely on 1px hairlines and tinted washes — its programme cards
+     have a shadow you have to look for. Keeping the old ramp under the new
+     palette produced cards that floated off a page that is trying to read as
+     flat, which is the single most common way a reskin like this goes wrong.
+     The steps still exist and still separate; they just stopped shouting. */
   --e-0:none;
-  --e-1:0 1px 2px rgb(11 21 38/.06), 0 1px 1px rgb(11 21 38/.04);
-  --e-2:0 2px 4px rgb(11 21 38/.06), 0 4px 10px rgb(11 21 38/.06);
-  --e-3:0 4px 8px rgb(11 21 38/.07), 0 10px 24px rgb(11 21 38/.08);
-  --e-4:0 8px 16px rgb(11 21 38/.08), 0 20px 44px rgb(11 21 38/.10);
-  --e-5:0 14px 28px rgb(11 21 38/.10), 0 34px 76px rgb(11 21 38/.14);
+  --e-1:0 1px 2px rgb(10 43 94/.04);
+  --e-2:0 1px 2px rgb(10 43 94/.05), 0 2px 6px rgb(10 43 94/.04);
+  --e-3:0 2px 4px rgb(10 43 94/.05), 0 6px 16px rgb(10 43 94/.06);
+  --e-4:0 4px 10px rgb(10 43 94/.06), 0 14px 32px rgb(10 43 94/.08);
+  --e-5:0 10px 20px rgb(10 43 94/.08), 0 26px 60px rgb(10 43 94/.12);
 
   /* Light comes from above, so a raised surface catches it on its top edge.
      This one line does more for perceived depth than any blur radius. */
@@ -94,25 +120,39 @@
   --ease-spring:cubic-bezier(.34,1.42,.44,1);
 
   /* ── NEUTRALS ────────────────────────────────────────────────────────────
-     A single ramp. --ink-1 through --ink-4 are text; --n-* are surfaces. */
-  --ink-1:#0B1526;  /* headings */
-  --ink-2:#243449;  /* body */
-  --ink-3:#4E6076;  /* secondary — 7.0:1 on white */
-  --ink-4:#627084;  /* metadata — measured 5.04:1 on white, 4.53:1 on --n-2;
-                       the lightest text the system allows anywhere */
+     A single ramp. --ink-1 through --ink-4 are text; --n-* are surfaces.
+
+     The whole ramp is rotated toward blue. The old one was a true neutral grey
+     with a hint of slate; the reference's darks are unmistakably navy, and a
+     neutral grey sitting next to a saturated blue reads as dirty rather than
+     as restraint. Contrast is held or improved at every step — the hue moved,
+     the luminance did not. Ratios below are computed, not estimated. */
+  --ink-1:#0A2B5E;  /* headings — 13.8:1 on white */
+  --ink-2:#3D4A5C;  /* body — 9.0:1 on white */
+  --ink-3:#4B5E78;  /* secondary — 6.6:1 on white */
+  --ink-4:#63718A;  /* metadata — 4.93:1 on white, 4.55:1 on --n-2;
+                       the lightest text the system allows anywhere.
+
+                       The reference's own muted ink (#6B7A8D) measures 4.38:1
+                       on its hero wash and fails AA. This is that colour pulled
+                       down until it passes: same role, same read, legal. */
   --n-0:#FFFFFF;
-  --n-1:#F8F9FB;    /* page canvas */
-  --n-2:#F1F3F7;    /* recessed wells */
-  --n-3:#E4E8EF;    /* hairlines on tinted ground */
-  --line:#DDE3EC;
+  --n-1:#F7FAFF;    /* page canvas */
+  --n-2:#EFF4FB;    /* recessed wells */
+  --n-3:#E1E9F4;    /* hairlines on tinted ground */
+  --line:#E6EBF2;
 
   /* ── SEMANTIC ────────────────────────────────────────────────────────────
      Each pairs an AA-safe ink with a wash, and every use carries an icon or
-     a word as well — colour never states anything on its own. */
-  --ok:#0F6B52;      --ok-wash:#E4F4EE;
-  --warn:#8A5300;    --warn-wash:#FDF3E2;
+     a word as well — colour never states anything on its own.
+
+     --ok is the reference's chip green darkened: its own pair (#14804A on
+     #E7F7EC) measures 4.47:1, which misses AA by a hair. At #12703F it is
+     5.5:1 and indistinguishable at chip size. */
+  --ok:#12703F;      --ok-wash:#E7F7EC;   /* 5.5:1 */
+  --warn:#8A5300;    --warn-wash:#FDF2E1; /* 5.9:1 */
   --danger:#A0201A;  --danger-wash:#FCEBEA;
-  --info:#1B4B8F;    --info-wash:#EAF1FB;
+  --info:#1250B8;    --info-wash:#E9F1FE;  /* 6.4:1 */
 }
 
 /* ── DEPTH: glass has to earn it ─────────────────────────────────────────────
@@ -193,7 +233,7 @@
 .app .tags span,.app .entity-card small{font-size:var(--fs-200)}
 
 /* 16px on fields — anything smaller makes iOS Safari zoom the page on focus. */
-.app input,.app select,.app textarea{font-size:16px;font-family:var(--font-body)}
+.app input,.app select,.app textarea{font-size:var(--fs-400);font-family:var(--font-body)}
 
 /* ═══ BUTTONS ═════════════════════════════════════════════════════════════
    The old system had five loosely-related variants at 11px/weight-800 with a
@@ -348,6 +388,18 @@
 .app .proof{
   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;
   border-radius:var(--r-4);padding:var(--s-2);overflow:hidden}
+/* app/globals.css still carries the pre-redesign strip, and one of its rules is
+   `.proof span{padding-right:30px;margin-right:30px;border-right:1px solid #ffffff25}`.
+   That sheet is unscoped, and .stat-i and .stat-note are both spans inside
+   .proof, so each of them silently picked up 60px of trailing space and a
+   hairline rule nothing in this file asked for. It is measurable: the icon
+   track computed to 70px around a 40px medallion at 1440 and 64px around a
+   34px one at 768 (40+30, 34+30), which is why every mark sat closer to the
+   previous item's caption than to its own figure, and the note measured 206px
+   inside a 236px item. Reset it here rather than in globals.css: nothing
+   outside .app renders this markup any more, but the legacy sheet is shared
+   and is not this change's to edit. */
+.app .proof span{padding-right:0;margin-right:0;border-right:0}
 .app .proof button{
   display:grid;grid-template-areas:"icon num" "icon label" "bar bar" "note note";
   grid-template-columns:auto 1fr;
@@ -490,8 +542,6 @@
       an invisible heading, not a low-contrast one. The card already declares
       the right colour for its surface, so let the heading take it. */
 .app .path-card h1,.app .path-card h2,.app .path-card h3,.app .path-card h4{color:inherit}
-.app .path-card.p1 p,.app .path-card.p3 p{color:rgb(255 255 255/.86)}
-.app .path-card.p1>small,.app .path-card.p3>small{color:var(--spark-lift,#F7D98C)}
 
 /* 2. The hero search sits on 72%-white glass over the dark hero, so its label
       composites onto ~#BABEC3 rather than white: --ink-3 measured 2.9:1. */
@@ -521,9 +571,14 @@
 .app .text-btn,
 .app .entity-mark,
 .app .stepper .active,
+.app .steps li>span,
 .app .mobile-nav button.active{color:var(--accent-text)}
-.app .path-card.p1>small,.app .path-card.p3>small{color:var(--spark-lift,#F7D98C)}
-.app .path-card.p1 p,.app .path-card.p3 p{color:rgb(255 255 255/.94)}
+/* The numbered discs in the entity detail "what happens next" list were the
+   one place this list had missed: globals.css puts raw --accent on --wash in
+   a 34px disc, which the distance and colleges navies carry easily but the
+   jobs orange does not — 11px "01" at 2.78:1 against the 4.5 a label that
+   small needs. It is the same failure mode as the eight selectors above and
+   takes the same token, so it joins them rather than earning its own rule. */
 
 /* 6. The footer is a dark band, but `.brand small` was written for the light
       masthead — the same rule put --ink-4 grey on near-black at 3.66:1. */
@@ -562,7 +617,6 @@
       clears AA for pure white (4.9:1) but not for tinted or faded white —
       pale green measured 3.78:1 and 94% white 4.44:1. Carry the hierarchy on
       that surface with weight and size, not with opacity. */
-.app .path-card.p3>small,.app .path-card.p3 p{color:#fff}
 
 /* ── TOUCH TARGETS ────────────────────────────────────────────────────────
    A sweep of every interactive element found two below the floor: the
@@ -693,13 +747,15 @@
   .app .util-live small{display:none}
   .app .ticker span.util-label{display:none}
 }
-@media(max-width:860px){
+@media(max-width:900px){
   /* Below this the headline and three doors start fighting. The doors win —
-     a live line is nice to have, a way in is not. */
-  .app .util-live b{display:none}
+     a live line is nice to have, a way in is not. Hiding only the line left the
+     LIVE pill behind announcing nothing: the pill is a mark ON the line, not a
+     thing in its own right, so when the line goes the mark goes with it. */
+  .app .util-live{display:none}
   .app .ticker.utility .util-row{width:calc(100% - 32px)}
 }
-@media(max-width:620px){
+@media(max-width:640px){
   .app .util-role{display:none}
   .app .util-compact{display:inline-flex}
   .app .util-who{display:none}
@@ -873,9 +929,12 @@
 --------------------------------------------------------------------------- */
 .app .app-timeline article>div>small{font-size:var(--fs-100)}
 .app .filters label>span{font-size:var(--fs-100)}
-@media(max-width:430px){
-  .app .verticals span{font-size:var(--fs-100)}
-}
+/* A `@media(max-width:430px){.app .verticals span{font-size:var(--fs-100)}}`
+   used to sit here and had never once applied: `.app .verticals button span`
+   above scores (0,2,2) against its (0,2,1), so source order never got a say.
+   It is deleted rather than rescued — the switcher fits at 430, 390 and 360
+   with the label at 14px, and shrinking type that has room to breathe is not
+   a fix. What the strip actually needed is below. */
 
 /* ---------------------------------------------------------------------------
    POINTER TARGETS
@@ -919,3 +978,2708 @@
   background:color-mix(in srgb,var(--accent-ink,var(--accent)) 88%,var(--ink-1))}
 .app .header-actions button.talk:active{
   background:color-mix(in srgb,var(--accent-ink,var(--accent)) 80%,var(--ink-1))}
+
+/* ============================================================
+   HERO PROOF STRIP — stat medallions
+   The old .stat-i was a flat 13%-white square with a line icon dropped in
+   it: the same shape the rest of the page uses for decoration, so it read
+   as filler rather than as a credential. It is now a struck medallion —
+   ring, top light, seated shadow — which gives the figure something to sit
+   against and reads as minted rather than pasted.
+   ============================================================ */
+.app .proof .stat-i{
+  --mark-knockout:#08131F;
+  width:46px;height:46px;border-radius:14px;
+  position:relative;isolation:isolate;
+  /* Face is a cool, sunken well rather than a gold wash. The first pass
+     tinted the face with --spark and then put a --spark-lift glyph on it,
+     so symbol and background were the same hue and the icon muddied out.
+     The gold now belongs to the glyph and the bezel only. */
+  background:
+    linear-gradient(155deg,rgb(255 255 255/.17),rgb(255 255 255/.03) 58%),
+    rgb(6 14 28/.62);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255/.30),
+    inset 0 -1px 0 rgb(0 0 0/.30),
+    0 6px 16px rgb(0 0 0/.34)}
+
+/* Hairline ring, drawn as a masked border so it can carry a gradient the
+   way a real bezel catches light — brightest top-left, accent at the foot. */
+.app .proof .stat-i::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;
+  background:linear-gradient(160deg,
+    rgb(255 255 255/.52),
+    rgb(255 255 255/.06) 55%,
+    color-mix(in srgb,var(--spark,#F5C93B) 70%,transparent) 130%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask-composite:exclude;pointer-events:none}
+
+.app .proof .stat-i svg{
+  width:26px;height:26px;
+  color:var(--spark-lift,#F7D98C);
+  filter:drop-shadow(0 1px 2px rgb(0 0 0/.55))}
+
+.app .proof button:hover .stat-i{
+  transform:translateY(-2px) scale(1.03);
+  background:
+    linear-gradient(155deg,rgb(255 255 255/.24),rgb(255 255 255/.06) 58%),
+    color-mix(in srgb,var(--spark,#F5C93B) 12%,rgb(6 14 28/.62));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255/.42),
+    inset 0 -1px 0 rgb(0 0 0/.24),
+    0 10px 22px rgb(0 0 0/.34)}
+
+/* The strip goes single-column at 900px, where it was stacking three full
+   tiles at ~133px each and eating 401px — 43% of the hero. Same information,
+   laid out along the row instead of down it, costs about a third of that.
+   Breakpoint matches the single-column switch above deliberately. */
+@media(max-width:900px){
+  .app .proof button{
+    grid-template-areas:"icon num note" "icon label note";
+    grid-template-columns:auto minmax(0,1fr) auto;
+    align-items:center;gap:0 var(--s-3);
+    padding:var(--s-3)}
+  .app .proof .stat-i{width:40px;height:40px;border-radius:12px}
+  .app .proof .stat-i svg{width:22px;height:22px}
+  /* The figure already states the value; the meter is the first thing to go
+     when the row has to earn its height. */
+  .app .proof .stat-bar,.app .proof .stat-rule{display:none}
+  .app .proof .stat-note{
+    grid-area:note;margin-top:0;max-width:15ch;align-self:center;
+    justify-content:flex-end;text-align:right;line-height:1.28}
+}
+
+/* Below 430px the note cannot hold its line without wrapping to three rows,
+   which made the tiles different heights and cost more than the note is
+   worth. The figure and its label carry the point on their own here. */
+@media(max-width:430px){
+  .app .proof .stat-note{display:none}
+  .app .proof button{grid-template-areas:"icon num" "icon label";
+    grid-template-columns:auto minmax(0,1fr)}
+}
+
+/* ============================================================
+   CARD PLATES + PATH CARDS
+   The path cards were a flat panel with an icon chip, a kicker and a title —
+   six of them in a row, distinguishable only by a background tint. They now
+   carry a drawn header (see Plate in the page component), which gives the
+   grid a picture plane and lets the body do one job: name the thing and say
+   what it is. The p0..p5 background lottery is retired; variety now comes
+   from the plate, which is seeded per card and therefore stable.
+   ============================================================ */
+.app .plate{
+  position:relative;display:block;overflow:hidden;isolation:isolate;
+  aspect-ratio:16/10;border-radius:var(--r-3) var(--r-3) 0 0;
+  /* Every plate derives from one key colour. g0 is the vertical's own accent;
+     g1..g5 bend it toward a fixed anchor, far enough apart to read as six
+     different cards, near enough that the grid still looks like one family. */
+  --plate-key:var(--accent);
+  --plate-a:color-mix(in oklab,var(--plate-key) var(--plate-mix,72%),var(--ink-1));
+  --plate-b:color-mix(in oklab,var(--plate-key) 22%,var(--ink-1));
+  --plate-line:color-mix(in srgb,var(--spark,#F5C93B) 80%,var(--plate-key) 20%);
+  --plate-node:#fff;
+  background:var(--ink-1)}
+.app .plate.g0{--plate-key:var(--accent)}
+.app .plate.g1{--plate-key:color-mix(in oklab,var(--accent) 36%,#0E7C5A)}  /* teal */
+.app .plate.g2{--plate-key:color-mix(in oklab,var(--accent) 36%,#4A2F87)}  /* indigo */
+.app .plate.g3{--plate-key:color-mix(in oklab,var(--accent) 36%,#C2570B)}  /* amber */
+.app .plate.g4{--plate-key:color-mix(in oklab,var(--accent) 36%,#2F6B1E)}  /* forest */
+.app .plate.g5{--plate-key:color-mix(in oklab,var(--accent) 36%,#9E1F4B)}  /* plum  */
+
+.app .plate-art,.app .plate-photo{position:absolute;inset:0;width:100%;height:100%;display:block}
+.app .plate-photo{object-fit:cover}
+
+/* Seats the artwork under the body: darker toward the bottom edge so the
+   card does not read as two unrelated halves stacked on each other. */
+.app .plate::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(130% 100% at 78% 6%,transparent 38%,rgb(6 14 28/.34)),
+    linear-gradient(to bottom,transparent 62%,rgb(6 14 28/.40));
+  box-shadow:inset 0 1px 0 rgb(255 255 255/.16)}
+
+.app .plate-chip{
+  position:absolute;left:var(--s-3);bottom:var(--s-3);z-index:2;
+  width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+  background:rgb(255 255 255/.15);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  box-shadow:inset 0 1px 0 rgb(255 255 255/.36),0 6px 15px rgb(0 0 0/.32)}
+.app .plate-chip svg{width:20px;height:20px;color:#fff;stroke-width:2}
+
+.app .plate-tag{
+  position:absolute;right:var(--s-3);top:var(--s-3);z-index:2;
+  font-size:var(--fs-050);font-weight:800;letter-spacing:var(--tr-caps);
+  text-transform:uppercase;color:var(--spark-ink,var(--ink-1));
+  background:color-mix(in srgb,var(--spark,#F5C93B) 92%,#fff);
+  padding:5px 9px;border-radius:var(--r-pill);
+  box-shadow:0 4px 12px rgb(0 0 0/.26),inset 0 1px 0 rgb(255 255 255/.5)}
+
+/* --- the card itself --- */
+.app .path-card{
+  position:relative;display:flex;flex-direction:column;text-align:left;
+  min-height:0;padding:0;overflow:hidden;
+  border:1px solid var(--line);border-radius:var(--r-4);
+  background:var(--n-0);box-shadow:var(--e-1);
+  transition:transform var(--t-comp) var(--ease-out),
+             box-shadow var(--t-comp) var(--ease-out),
+             border-color var(--t-micro) var(--ease-std)}
+.app .path-card:hover{
+  transform:translateY(-4px);box-shadow:var(--e-4);
+  border-color:color-mix(in srgb,var(--accent) 30%,var(--line))}
+/* Every tinted variant is now a plain surface; the plate carries the colour. */
+.app .path-card.p0,.app .path-card.p1,.app .path-card.p2,
+.app .path-card.p3,.app .path-card.p4,.app .path-card.p5{
+  background:var(--n-0);color:var(--ink-1);border-color:var(--line)}
+
+.app .pc-body{
+  display:flex;flex-direction:column;gap:var(--s-2);
+  padding:var(--s-4) var(--s-4) var(--s-5);flex:1}
+.app .path-card h3{
+  font-size:var(--fs-600);line-height:var(--lh-snug);letter-spacing:-.012em;
+  margin:0;color:var(--ink-1)}
+.app .path-card p{
+  margin:0;font-size:var(--fs-200);line-height:var(--lh-body);
+  color:var(--ink-3);max-width:38ch}
+
+/* Stretched link: the visible control is the title, the hit area is the card. */
+.app .pc-link{
+  background:none;border:0;padding:0;font:inherit;color:inherit;
+  text-align:left;cursor:pointer}
+.app .pc-link::after{content:"";position:absolute;inset:0;border-radius:inherit}
+.app .path-card:has(.pc-link:focus-visible){
+  outline:2px solid var(--accent);outline-offset:3px}
+.app .pc-link:focus-visible{outline:none}
+
+.app .pc-go{
+  margin-top:auto;padding-top:var(--s-3);
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:var(--fs-200);font-weight:700;color:var(--accent-text,var(--accent))}
+.app .pc-go svg{width:16px;height:16px;transition:transform var(--t-comp) var(--ease-out)}
+.app .path-card:hover .pc-go svg{transform:translateX(4px)}
+
+@media(prefers-reduced-motion:reduce){
+  .app .path-card,.app .pc-go svg{transition:none}
+  .app .path-card:hover{transform:none}
+  .app .path-card:hover .pc-go svg{transform:none}
+}
+
+/* ===========================================================================
+   ITEMS 3 (rest of the boxes), 5 (apply) and 6 (boards + universities)
+   ---------------------------------------------------------------------------
+   The entity card gets the same anatomy the path cards got: a plate on top,
+   a body, a footer. The monogram moves ONTO the plate as a glass tile — an
+   honest typographic mark, because DCW holds no licensed university logo and
+   drawing one would be a lie told in pixels. `item.image` swaps the drawn
+   plate for real photography with no other change.
+   =========================================================================== */
+
+.app .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* ---- monogram tile on the plate ---- */
+.app .plate-mark{position:absolute;left:var(--s-3);bottom:var(--s-3);z-index:2;
+  min-width:54px;height:44px;padding-inline:12px;border-radius:13px;
+  display:grid;place-items:center;
+  font-family:var(--font-display);font-weight:800;font-size:var(--fs-400);
+  line-height:1;letter-spacing:.01em;color:#fff;
+  background:rgb(255 255 255/.16);
+  -webkit-backdrop-filter:blur(12px) saturate(140%);backdrop-filter:blur(12px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255/.44),
+    inset 0 -1px 0 rgb(0 0 0/.26),
+    0 8px 18px rgb(0 0 0/.32)}
+/* a card carrying both keeps them from stacking on the same corner */
+.app .plate:has(.plate-mark) .plate-chip{left:auto;right:var(--s-3)}
+
+/* ---- entity card ---- */
+.app .entity-card{position:relative;display:flex;flex-direction:column;
+  padding:0;overflow:hidden;
+  border:1px solid var(--line);border-radius:var(--r-4);
+  background:var(--n-0);box-shadow:var(--e-1);
+  transition:transform var(--t-comp) var(--ease-out),
+             box-shadow var(--t-comp) var(--ease-out),
+             border-color var(--t-micro) var(--ease-std)}
+.app .entity-card:hover{transform:translateY(-4px);box-shadow:var(--e-4);
+  border-color:color-mix(in srgb,var(--accent) 30%,var(--line))}
+.app .entity-card .plate{aspect-ratio:16/7}
+
+.app .ec-body{display:flex;flex-direction:column;gap:var(--s-2);
+  padding:var(--s-4) var(--s-4) 0;flex:1}
+.app .ec-body h3{margin:0;font-family:var(--font-display);
+  font-size:var(--fs-500);line-height:var(--lh-snug);letter-spacing:-.012em;
+  color:var(--ink-1)}
+/* Stretched link: the whole card opens the detail page, but the footer
+   controls sit above it so Apply and Compare stay independently clickable. */
+.app .ec-link{background:none;border:0;padding:0;margin:0;font:inherit;
+  color:inherit;text-align:left;cursor:pointer}
+.app .ec-link::after{content:"";position:absolute;inset:0;z-index:1}
+.app .ec-link:focus-visible{outline:none}
+.app .entity-card:has(.ec-link:focus-visible){outline:2px solid var(--accent);outline-offset:3px}
+.app .ec-body>p{display:flex;align-items:center;gap:6px;margin:0;
+  font-size:var(--fs-200);line-height:var(--lh-body);color:var(--ink-3)}
+.app .ec-body>p svg{width:14px;height:14px;flex:none;color:var(--ink-4)}
+
+.app .ec-save{position:absolute;left:var(--s-3);top:var(--s-3);z-index:3;
+  width:38px;height:38px;border:0;border-radius:12px;cursor:pointer;
+  display:grid;place-items:center;color:#fff;
+  background:rgb(6 14 28/.44);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  box-shadow:inset 0 1px 0 rgb(255 255 255/.30),0 4px 12px rgb(0 0 0/.28);
+  transition:background var(--t-micro) var(--ease-std),transform var(--t-micro) var(--ease-out)}
+.app .ec-save:hover{background:rgb(6 14 28/.68);transform:scale(1.06)}
+.app .ec-save svg{width:18px;height:18px;stroke-width:2}
+.app .ec-save.active{background:color-mix(in srgb,var(--spark) 94%,#fff);color:var(--ink-1)}
+.app .ec-save.active svg{fill:currentColor}
+
+.app .ec-body .metrics{margin:var(--s-1) 0 0;padding:var(--s-3) 0;
+  border-block:1px solid var(--line);gap:0}
+.app .ec-body .metrics small{font-size:var(--fs-100);letter-spacing:var(--tr-caps);
+  text-transform:uppercase;color:var(--ink-4);margin-bottom:5px}
+.app .ec-body .metrics b{display:flex;align-items:center;gap:4px;
+  font-size:var(--fs-300);line-height:1.35;color:var(--ink-1)}
+.app .ec-body .metrics b svg{width:14px;height:14px;flex:none;
+  color:var(--spark);fill:var(--spark);stroke-width:1.5}
+.app .ec-body .tags{margin-top:auto;padding-bottom:var(--s-1)}
+.app .tag-more{background:var(--wash)!important;color:var(--accent-text)!important;font-weight:700}
+
+.app .entity-foot{position:relative;z-index:2;display:flex;align-items:center;
+  gap:var(--s-2);margin-top:auto;padding:var(--s-3) var(--s-4) var(--s-4)}
+.app .ec-compare{margin-right:auto;display:flex;align-items:center;gap:7px;
+  min-height:36px;font-size:var(--fs-200);font-weight:600;color:var(--ink-3);cursor:pointer}
+.app .ec-compare input{accent-color:var(--accent);width:16px;height:16px}
+.app .entity-foot .btn.small{min-height:38px}
+
+/* Listing rows are full-width, where a 16/7 banner would swamp the text.
+   Recompose to a row: plate on the left at a fixed column, body beside it.
+   The threshold is 1000px, not 761px: measured at 768 the row form left a
+   470px body that wrapped every line, and a "row" 631px tall is not a row.
+   Below 1000 the stacked card reads better and stays predictable in height. */
+@media(min-width:1000px){
+  .app .results>.entity-card{display:grid;
+    grid-template-columns:224px minmax(0,1fr);
+    grid-template-areas:"plate body" "plate foot"}
+  .app .results>.entity-card .plate{grid-area:plate;aspect-ratio:auto;height:100%;
+    border-radius:var(--r-4) 0 0 var(--r-4)}
+  .app .results>.entity-card .ec-body{grid-area:body;padding:var(--s-4) var(--s-5) 0}
+  .app .results>.entity-card .entity-foot{grid-area:foot;padding:var(--s-3) var(--s-5) var(--s-4)}
+  .app .results>.entity-card .ec-save{left:auto;right:var(--s-3)}
+}
+
+/* ---- course table: the actual apply surface (item 5) ---- */
+.app .course-table{border:1px solid var(--line);border-radius:var(--r-3);
+  background:var(--n-0);overflow:hidden}
+.app .ct-head,.app .ct-row{display:grid;
+  grid-template-columns:minmax(0,1.6fr) .8fr .9fr auto;
+  align-items:center;gap:var(--s-3);padding:var(--s-3) var(--s-4)}
+.app .ct-head{background:var(--n-1);border-bottom:1px solid var(--line);
+  font-size:var(--fs-100);font-weight:700;letter-spacing:var(--tr-caps);
+  text-transform:uppercase;color:var(--ink-4)}
+.app .ct-row+.ct-row{border-top:1px solid var(--line)}
+.app .ct-row{transition:background var(--t-micro) var(--ease-std)}
+.app .ct-row:hover{background:var(--wash)}
+.app .ct-row b{display:block;font-size:var(--fs-300);color:var(--ink-1)}
+.app .ct-row small{display:block;margin-top:3px;font-size:var(--fs-100);color:var(--ink-4)}
+.app .ct-row span{font-size:var(--fs-200);color:var(--ink-2);font-variant-numeric:tabular-nums}
+@media(max-width:760px){
+  .app .ct-head{display:none}
+  .app .ct-row{grid-template-columns:1fr auto;gap:var(--s-2) var(--s-3);
+    padding:var(--s-4);align-items:start}
+  .app .ct-row>span:first-child{grid-column:1/-1}
+  .app .ct-row>span[data-lbl]:before{content:attr(data-lbl) " · ";color:var(--ink-4)}
+  .app .ct-row>span:nth-child(2){grid-column:1}
+  .app .ct-row>span:nth-child(3){grid-column:1}
+  .app .ct-row>span:last-child{grid-column:2;grid-row:2/4;align-self:center}
+}
+
+/* ---- application context strip in the lead modal ---- */
+.app .lead-context{display:flex;align-items:center;gap:8px;
+  margin:var(--s-3) 0 0;padding:10px 12px;border-radius:var(--r-2);
+  background:var(--wash);color:var(--ink-2);font-size:var(--fs-200)}
+.app .lead-context svg{width:15px;height:15px;flex:none;color:var(--accent-text)}
+
+/* ---- resume step, and the fee the application commits to -------------------
+   Two globals in globals.css own every label and input inside .lead-modal —
+   block display, 46px height, full width. The resume step needs rows and a
+   drop target instead, so each rule below re-states what it is overriding
+   rather than relying on cascade order. */
+.app .lead-modal .field-legend{display:block;margin:var(--s-4) 0 var(--s-2);
+  font-size:var(--fs-050);font-weight:800;letter-spacing:var(--tr-caps);
+  text-transform:uppercase;color:var(--ink-4)}
+.app .lead-modal .resume-saved{margin:0}
+.app .lead-modal label.resume-option{display:flex;align-items:center;gap:var(--s-3);
+  margin:0 0 var(--s-2);padding:12px 14px;min-height:56px;
+  border:1px solid var(--line);border-radius:var(--r-2);background:var(--n-0);
+  font-weight:400;cursor:pointer;
+  transition:border-color var(--t-micro) var(--ease-std),background var(--t-micro) var(--ease-std)}
+.app .lead-modal label.resume-option:hover{border-color:var(--ink-4);background:var(--n-1)}
+/* Selection is stated by the border and the ink as well as the radio, so it
+   survives a monochrome screen and a colour-blind reader. */
+.app .lead-modal label.resume-option:has(input:checked){
+  border-color:var(--accent-ink,var(--accent));box-shadow:inset 0 0 0 1px var(--accent-ink,var(--accent));
+  background:color-mix(in srgb,var(--accent-ink,var(--accent)) 6%,var(--n-0))}
+.app .lead-modal label.resume-option input{width:20px;height:20px;min-height:0;
+  flex:none;margin:0;padding:0;accent-color:var(--accent-ink,var(--accent))}
+.app .lead-modal label.resume-option span{display:block;min-width:0}
+.app .lead-modal label.resume-option b{display:block;font-size:var(--fs-200);
+  color:var(--ink-1);overflow-wrap:anywhere}
+.app .lead-modal label.resume-option small{display:block;margin-top:2px;
+  font-size:var(--fs-050);color:var(--ink-4)}
+
+.app .lead-modal .resume-picked{display:flex;align-items:center;gap:var(--s-3);
+  margin-top:var(--s-4);padding:12px 8px 12px 14px;
+  border:1px solid var(--ok);border-radius:var(--r-2);background:var(--ok-wash)}
+.app .lead-modal .resume-picked>svg{width:20px;height:20px;flex:none;color:var(--ok)}
+.app .lead-modal .resume-picked>span{flex:1;min-width:0}
+.app .lead-modal .resume-picked b{display:block;font-size:var(--fs-200);
+  color:var(--ink-1);overflow-wrap:anywhere}
+.app .lead-modal .resume-picked small{display:block;margin-top:2px;
+  font-size:var(--fs-050);color:var(--ink-3)}
+.app .lead-modal .resume-picked .text-btn{flex:none;display:inline-flex;
+  align-items:center;gap:6px;padding:11px 10px;min-height:44px;font-size:var(--fs-050)}
+.app .lead-modal .resume-picked .text-btn svg{width:15px;height:15px}
+
+/* The dashed edge is the one place in this system that uses one: it says the
+   rectangle is a place to put something rather than a thing to read. */
+.app .lead-modal label.resume-drop{display:grid;place-items:center;gap:2px;
+  margin:var(--s-4) 0 0;padding:var(--s-5) var(--s-4);text-align:center;
+  border:1.5px dashed var(--ink-4);border-radius:var(--r-3);background:var(--n-1);
+  font-weight:400;cursor:pointer;position:relative;
+  transition:border-color var(--t-micro) var(--ease-std),background var(--t-micro) var(--ease-std)}
+.app .lead-modal label.resume-drop:hover{border-color:var(--accent-ink,var(--accent));
+  background:color-mix(in srgb,var(--accent-ink,var(--accent)) 5%,var(--n-0))}
+/* The input keeps its size and stays reachable by keyboard — it is only made
+   invisible, so the ring below is what the focused state shows. */
+.app .lead-modal label.resume-drop input{position:absolute;inset:0;width:100%;height:100%;
+  margin:0;padding:0;border:0;opacity:0;cursor:pointer}
+.app .lead-modal label.resume-drop:focus-within{outline:3px solid var(--accent-ink,var(--accent));
+  outline-offset:2px}
+.app .lead-modal label.resume-drop svg{width:26px;height:26px;color:var(--accent-ink,var(--accent))}
+.app .lead-modal label.resume-drop b{margin-top:var(--s-2);font-size:var(--fs-300);color:var(--ink-1)}
+.app .lead-modal label.resume-drop small{font-size:var(--fs-050);color:var(--ink-4)}
+
+/* The first instalment is a commitment, so it is stated on the confirmation
+   screen rather than arriving later as a surprise. Left-aligned inside a
+   centred panel on purpose: it is a record to read, not a headline. */
+.app .lead-modal .lead-fee{display:flex;align-items:flex-start;gap:var(--s-3);
+  margin:var(--s-4) 0 0;padding:var(--s-4);text-align:left;
+  border:1px solid var(--line);border-left:3px solid var(--accent-ink,var(--accent));
+  border-radius:var(--r-2);background:var(--n-1)}
+.app .lead-modal .lead-fee>svg{width:20px;height:20px;flex:none;
+  color:var(--accent-ink,var(--accent));margin-top:1px}
+.app .lead-modal .lead-fee b{display:block;font-size:var(--fs-300);color:var(--ink-1);
+  font-variant-numeric:tabular-nums}
+.app .lead-modal .lead-fee small{display:block;margin-top:3px;font-size:var(--fs-100);
+  line-height:1.5;color:var(--ink-3)}
+.app .lead-modal .success .muted-note{display:flex;align-items:center;
+  justify-content:center;gap:6px}
+.app .lead-modal .success .muted-note svg{width:14px;height:14px;flex:none}
+.app .lead-modal .success .bc-foot{display:flex;flex-direction:column;gap:var(--s-2);
+  margin-top:var(--s-5)}
+.app .lead-modal .success .bc-foot .btn{width:100%;justify-content:center}
+
+/* ===== Boards page (item 6) =============================================== */
+.app .tool-hero{position:relative;overflow:hidden;background:var(--ink-deep,#081528);
+  min-height:430px;display:flex;flex-direction:column;justify-content:center;
+  padding-block:var(--s-8) var(--s-8)}
+.app .tool-hero>picture{position:absolute;inset:0;display:block}
+.app .tool-hero>picture>img{width:100%;height:100%;object-fit:cover;
+  object-position:64% 34%;display:block}
+.app .tool-hero .hero-shade{background:linear-gradient(96deg,
+  color-mix(in srgb,var(--ink-deep) 97%,transparent) 0%,
+  color-mix(in srgb,var(--ink-deep) 90%,transparent) 46%,
+  color-mix(in srgb,var(--ink-deep) 40%,transparent) 76%,
+  color-mix(in srgb,var(--ink-deep) 14%,transparent) 100%)}
+.app .tool-hero-copy{position:relative;color:#fff;max-width:none}
+.app .tool-hero-copy>*+*{margin-top:var(--s-4)}
+.app .tool-hero-copy .eyebrow{color:var(--spark-lift,#F7D98C)}
+.app .tool-hero-copy h1{font-family:var(--font-display);font-weight:900;
+  font-size:clamp(34px,3.7vw,52px);line-height:1.07;letter-spacing:-.028em;margin:0;
+  color:#fff}   /* the global heading rule paints ink-1; this band is dark */
+.app .tool-hero-copy h1 em{font-style:normal;font-weight:400;
+  color:var(--spark-lift,#F7D98C);letter-spacing:-.02em}
+.app .tool-hero-copy>p{margin:0;max-width:58ch;font-size:var(--fs-400);
+  line-height:1.62;color:rgb(255 255 255/.84)}
+.app .tool-hero-copy .hero-ctas{display:flex;flex-wrap:wrap;gap:var(--s-3)}
+.app .tool-hero-copy .btn.ghost{text-decoration:none}
+@media(max-width:760px){
+  .app .tool-hero{min-height:360px;padding-block:var(--s-7)}
+  .app .tool-hero .hero-shade{background:linear-gradient(180deg,
+    color-mix(in srgb,var(--ink-deep) 78%,transparent),
+    color-mix(in srgb,var(--ink-deep) 96%,transparent) 66%)}
+  .app .tool-hero-copy .hero-ctas{flex-direction:column;align-items:stretch}
+}
+
+.app .section-lede{margin:calc(var(--s-4) * -1) 0 var(--s-5);
+  max-width:66ch;font-size:var(--fs-300);line-height:var(--lh-body);color:var(--ink-3)}
+
+.app .board-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:1120px){.app .board-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.app .board-grid{grid-template-columns:minmax(0,1fr)}}
+.app .board-card .plate{aspect-ratio:16/9}
+.app .board-card .pc-body{gap:var(--s-2)}
+ /* Cards in a row have to read as one row, so the variable-length strings get
+    a floor: two lines for the full name and the best-for note, two lines for
+    every fact value. Without it a board whose name wraps drags its whole
+    column out of step with the others. */
+.app .bc-full{font-size:var(--fs-100)!important;color:var(--ink-4)!important;
+  line-height:1.45;margin:0!important;min-height:2.9em}
+.app .bc-facts{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-2) var(--s-3);
+  margin:var(--s-2) 0 0;padding:var(--s-3) 0;border-block:1px solid var(--line)}
+.app .bc-facts dt{font-size:var(--fs-100);letter-spacing:var(--tr-caps);
+  text-transform:uppercase;color:var(--ink-4);margin-bottom:3px}
+.app .bc-facts dd{margin:0;font-size:var(--fs-200);font-weight:700;color:var(--ink-1);
+  line-height:1.4;min-height:2.8em;font-variant-numeric:tabular-nums}
+.app .bc-best{display:flex;gap:7px;align-items:flex-start;margin:0!important;
+  font-size:var(--fs-200)!important;line-height:1.5;color:var(--ink-2)!important;
+  min-height:3em}
+.app .bc-best svg{width:15px;height:15px;flex:none;margin-top:2px;
+  color:var(--ok,#158467);stroke-width:2.5}
+.app .bc-foot{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-2);
+  margin-top:auto;padding-top:var(--s-3)}
+.app .bc-foot .text-btn{display:inline-flex;align-items:center;gap:6px}
+.app .bc-foot .text-btn svg{width:15px;height:15px}
+
+/* The quiz used to float on its own; it now closes the page's argument, so it
+   reads as the last step rather than a stray widget. */
+.app .quiz{margin-top:var(--s-7);border-radius:var(--r-4);box-shadow:var(--e-1)}
+.app .recommend .bc-foot{margin-top:var(--s-4)}
+
+/* ===========================================================================
+   JOBS: LOCATION-FIRST DISCOVERY
+   A course is chosen by money; a job is chosen by PLACE. So the jobs listing
+   leads with an editorial band and a locator strip, and every card carries the
+   three signals that decide whether somebody bothers to apply: how far it is,
+   whether it can be done from home, and how fresh the posting is.
+   =========================================================================== */
+
+.app .jobs-hero{min-height:470px}
+.app .jobs-hero img{object-position:58% 38%}
+
+/* Proof pills sit under the hero CTAs: counts, not adjectives. */
+.app .hero-pills{display:flex;flex-wrap:wrap;gap:var(--s-2);margin-top:var(--s-5)}
+/* The chip carries white text over a photograph, so its own film has to be the
+   thing that makes that text legible — not the hero scrim behind it. A film of
+   plain white at .13 does the opposite: it lightens whatever is underneath, so
+   over a bright crop it pushed white-on-white. The film is now an ink base with
+   a light sheen on top, which inverts against its ground the way glass should —
+   it reads darker than a bright photograph and slightly lighter than the deep
+   scrim — and gives the label a floor that does not depend on the crop. */
+.app .hero-pills span{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;
+  font-size:var(--fs-200);font-weight:600;letter-spacing:.01em;color:#fff;
+  background:linear-gradient(rgb(255 255 255/.15),rgb(255 255 255/.15)),
+    color-mix(in srgb,var(--ink-deep) 52%,transparent);
+  border:1px solid rgb(255 255 255/.2);
+  backdrop-filter:blur(10px) saturate(140%)}
+.app .hero-pills svg{width:15px;height:15px;stroke-width:2.2;color:var(--spark)}
+
+/* ---- Locator band -------------------------------------------------------- */
+.app .locator{margin-top:calc(var(--s-6) * -1);position:relative;z-index:3;
+  padding:var(--s-5) var(--s-5) var(--s-4);border-radius:var(--r-4);
+  background:var(--n-0);box-shadow:var(--e-3);border:1px solid var(--line)}
+.app .locator-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s-2) var(--s-4);margin-bottom:var(--s-4)}.locator-msg{display:flex;align-items:baseline}
+.app .locator .kicker{display:inline-flex;align-items:center;gap:7px;margin:0}
+.app .locator .kicker svg{width:14px;height:14px;stroke-width:2.4}
+.app .locator-note{margin:0;font-size:var(--fs-200);color:var(--ink-3);max-width:56ch}
+.app .locator-live{margin:0;display:inline-flex;align-items:center;gap:8px;font-size:var(--fs-200);color:var(--ink-2)}
+.app .locator-live b{color:var(--accent-ink)}
+/* A live dot earns its motion: it marks state the user just granted. */
+.app .pulse{width:8px;height:8px;border-radius:50%;background:var(--ok,#1E9E5A);
+  box-shadow:0 0 0 0 rgb(30 158 90/.55);animation:pulse-ring 2s ease-out infinite}
+@keyframes pulse-ring{70%{box-shadow:0 0 0 9px rgb(30 158 90/0)}100%{box-shadow:0 0 0 0 rgb(30 158 90/0)}}
+@media (prefers-reduced-motion:reduce){.app .pulse{animation:none}}
+
+.app .locator-row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-3);justify-content:space-between}
+.app .city-chips{display:flex;flex-wrap:wrap;gap:8px}
+.app .city-chips .chip{display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:999px;
+  border:1px solid var(--line);background:var(--n-0);color:var(--ink-2);
+  font-family:var(--font-ui,inherit);font-size:var(--fs-200);font-weight:600;cursor:pointer;
+  transition:background .16s ease,border-color .16s ease,color .16s ease,transform .16s ease}
+.app .city-chips .chip svg{width:14px;height:14px;stroke-width:2.2}
+.app .city-chips .chip small{font-size:var(--fs-050);font-weight:700;padding:2px 6px;border-radius:999px;
+  background:var(--wash);color:var(--accent-ink);font-variant-numeric:tabular-nums}
+.app .city-chips .chip:hover{border-color:var(--accent);color:var(--accent-ink);transform:translateY(-1px)}
+.app .city-chips .chip.on{background:var(--accent-solid,var(--accent));border-color:var(--accent-solid,var(--accent));color:#fff;box-shadow:var(--e-2)}
+.app .city-chips .chip.on small{background:rgb(255 255 255/.92);color:var(--accent-solid,var(--accent))}
+.app .btn.locate svg{width:16px;height:16px}
+.app .btn.locate.on{border-color:var(--ok,#1E9E5A);color:var(--ok,#1E9E5A)}
+
+/* ---- Card signals -------------------------------------------------------- */
+.app .ec-signals{display:flex;flex-wrap:wrap;gap:6px;margin:calc(var(--s-2) * -1) 0 var(--s-3)}
+.app .ec-signals .sig{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:8px;
+  font-size:var(--fs-100);font-weight:700;letter-spacing:.01em;line-height:1.4}
+.app .ec-signals .sig svg{width:13px;height:13px;stroke-width:2.4}
+.app .ec-signals .near{background:var(--wash);color:var(--accent-ink)}
+.app .ec-signals .wfh{background:#E8F4EC;color:#146B3E}
+.app .ec-signals .fresh{background:#FEF1DC;color:#8A5300}
+
+/* ---- Active filter summary ---------------------------------------------- */
+.app .active-filters{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-bottom:var(--s-3)}
+.app .active-filters span{padding:5px 11px;border-radius:999px;background:var(--wash);
+  color:var(--accent-ink);font-size:var(--fs-100);font-weight:650}
+/* The line that tells someone the quiz already holds one of their answers.
+   Sits between the progress bar and question two, so it is read before the
+   question it explains. */
+.app .quiz-carried{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:var(--s-3) 0 0;
+  font-size:var(--fs-100);color:var(--muted)}
+.app .quiz-carried b{color:var(--ink);font-weight:700}
+.app .linkish{background:none;border:0;padding:0 4px;color:var(--accent-ink);font-weight:650;
+  font-size:var(--fs-100);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.app .filter-title b{display:inline-flex;align-items:center;gap:7px}
+.app .filter-title b svg{width:15px;height:15px;stroke-width:2.2}
+
+/* ---- Nearby pop-up ------------------------------------------------------
+   The recommendation the location prompt earns. It floats rather than pushing
+   the results down, and it is dismissible — a permission grant must never
+   cost somebody their place on the page. */
+.app .nearby-pop{position:fixed;right:var(--s-5);bottom:calc(var(--s-5) + 76px);z-index:60;width:min(370px,calc(100vw - 32px));
+  padding:var(--s-4);border-radius:var(--r-4);background:var(--n-0);border:1px solid var(--line);
+  box-shadow:0 24px 60px rgb(11 21 38/.24),0 2px 6px rgb(11 21 38/.08);
+  animation:np-in .32s cubic-bezier(.2,.8,.3,1) both}
+@keyframes np-in{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.app .nearby-pop{animation:none}}
+.app .np-head{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3)}
+.app .np-head .kicker{display:inline-flex;align-items:center;gap:6px;margin:0}
+.app .np-head .kicker svg{width:14px;height:14px;stroke-width:2.4;color:var(--accent)}
+.app .np-head button{width:30px;height:30px;display:grid;place-items:center;border:0;border-radius:9px;
+  background:var(--n-1);color:var(--ink-3);cursor:pointer}
+.app .np-head button:hover{background:var(--wash);color:var(--accent-ink)}
+.app .np-head button svg{width:15px;height:15px}
+.app .nearby-pop>p{margin:var(--s-2) 0 var(--s-3);font-size:var(--fs-200);color:var(--ink-3);line-height:1.5}
+.app .np-list{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.app .np-list li{display:flex;align-items:center;gap:var(--s-3);padding:9px 8px;border-radius:11px}
+.app .np-list li:hover{background:var(--n-1)}
+.app .np-mark{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border-radius:10px;
+  background:var(--accent-solid,var(--accent));color:#fff;font-family:var(--font-display);font-weight:800;font-size:var(--fs-200)}
+.app .np-copy{flex:1;min-width:0;display:grid}
+.app .np-copy b{font-size:var(--fs-200);color:var(--ink-1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app .np-copy small{font-size:var(--fs-100);color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app .np-km{flex:0 0 auto;display:grid;justify-items:center;font-family:var(--font-display);font-weight:800;
+  font-size:var(--fs-300);color:var(--accent-ink);font-variant-numeric:tabular-nums;line-height:1}
+.app .np-km small{font-size:var(--fs-050);font-weight:700;letter-spacing:.08em;color:var(--ink-3)}
+.app .np-foot{display:flex;gap:var(--s-2);margin-top:var(--s-3);padding-top:var(--s-3);border-top:1px solid var(--line)}
+.app .np-foot .btn{flex:1;justify-content:center}
+@media (max-width:640px){
+  .app .nearby-pop{left:var(--s-3);right:var(--s-3);bottom:calc(var(--s-3) + 68px);width:auto}
+}
+
+/* ---- Detail banner ------------------------------------------------------
+   Every detail page opened onto a bare monogram. A photographic band gives
+   the page a subject before it gives it data. */
+.app .detail-banner{position:relative;min-height:230px;display:flex;align-items:flex-end;overflow:hidden}
+.app .detail-banner>picture{position:absolute;inset:0}
+.app .detail-banner img{width:100%;height:100%;object-fit:cover;object-position:60% 36%}
+.app .detail-banner .hero-shade{position:absolute;inset:0;
+  background:linear-gradient(96deg,rgb(11 21 38/.86) 0%,rgb(11 21 38/.68) 46%,rgb(11 21 38/.28) 100%)}
+.app .db-copy{position:relative;z-index:2;padding-block:var(--s-6) var(--s-5)}
+.app .db-kicker{display:inline-block;margin-bottom:10px;padding:5px 12px;border-radius:999px;
+  font-size:var(--fs-050);font-weight:800;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--spark-ink);background:var(--spark)}
+.app .db-name{display:block;margin:0;color:#fff;   /* the global heading rule paints ink-1; this band is dark */
+  font-size:clamp(1.6rem,3.4vw,2.5rem);line-height:1.12;letter-spacing:-.02em}
+.app .db-copy p{display:flex;align-items:center;gap:7px;margin:10px 0 0;
+  font-size:var(--fs-200);color:rgb(255 255 255/.82)}
+.app .db-copy p svg{width:15px;height:15px;stroke-width:2.2;color:var(--spark)}
+@media (max-width:760px){
+  .app .detail-banner{min-height:170px}
+  .app .db-copy{padding-block:var(--s-5) var(--s-4)}
+  /* Same reason the atlas hero turns its wash vertical at this width (see the
+     rule at the end of this file): the 96deg gradient above thins to .28 on the
+     right because the desktop banner keeps its copy in the left third. Once the
+     band is 360px wide the copy crosses the whole width, and "Koramangala,
+     Bengaluru · Technology" ran out over rgb(113 114 119) of photograph at
+     3.85:1 against the 4.5 that 13px needs. */
+  .app .detail-banner .hero-shade{background:linear-gradient(180deg,
+    rgb(11 21 38/.80) 0%,rgb(11 21 38/.92) 55%,rgb(11 21 38/.94) 100%)}
+}
+/* When the chip row wraps, the locate button must stay on the right edge
+   rather than snapping to the start of a new line. */
+.app .btn.locate{margin-left:auto}
+
+/* ---- Role panel: the job detail page's substance ------------------------
+   A job page that shows only a salary and a deadline tells somebody nothing
+   about the work. Duties on the left, the checkable facts on the right. */
+.app .role-panel{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:var(--s-5);align-items:start}
+.app .rp-main{padding:var(--s-5);border-radius:var(--r-4);background:var(--n-0);
+  border:1px solid var(--line);box-shadow:var(--e-1)}
+.app .rp-main h3{margin:0 0 var(--s-4);font-size:var(--fs-400)}
+.app .rp-main ul{list-style:none;margin:0;padding:0;display:grid;gap:var(--s-3)}
+.app .rp-main li{display:flex;gap:10px;font-size:var(--fs-200);line-height:1.55;color:var(--ink-2)}
+.app .rp-main li svg{flex:0 0 18px;width:18px;height:18px;margin-top:2px;stroke-width:2.6;color:var(--ok,#1E9E5A)}
+.app .rp-pay{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-3);
+  margin-top:var(--s-5);padding-top:var(--s-4);border-top:1px solid var(--line)}
+.app .rp-pay span{display:grid;gap:4px;min-width:0}
+.app .rp-pay small{font-size:var(--fs-050);font-weight:800;letter-spacing:.1em;color:var(--ink-3)}
+.app .rp-pay b{font-family:var(--font-display);font-size:var(--fs-300);color:var(--ink-1);
+  font-variant-numeric:tabular-nums;line-height:1.25}
+.app .rp-facts{margin:0;padding:var(--s-4) var(--s-5);border-radius:var(--r-4);
+  background:var(--wash);border:1px solid var(--tint);display:grid;gap:0}
+.app .rp-facts>div{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--s-3);
+  align-items:baseline;padding:11px 0;border-bottom:1px solid rgb(11 21 38/.07)}
+.app .rp-facts>div:last-child{border-bottom:0}
+.app .rp-facts dt{font-size:var(--fs-100);font-weight:700;letter-spacing:.03em;
+  text-transform:uppercase;color:var(--ink-3)}
+.app .rp-facts dd{margin:0;text-align:right;font-size:var(--fs-200);font-weight:650;color:var(--ink-1)}
+@media (max-width:900px){.app .role-panel{grid-template-columns:1fr}}
+@media (max-width:480px){.app .rp-pay{grid-template-columns:1fr;gap:var(--s-2)}
+  .app .rp-pay span{grid-template-columns:auto auto;justify-content:space-between;align-items:baseline}}
+
+/* ===== Resume builder =======================================================
+   Two columns: a form that stays scrollable, and a live A4 page. The page is
+   rendered at real proportions (210 x 297) so what somebody sees is what the
+   printer produces — the export is the browser's own Save as PDF, not an
+   image, so the text stays selectable and screening software can read it. */
+.app .resume-layout{grid-template-columns:minmax(0,460px) minmax(0,1fr);gap:var(--s-7);align-items:start}
+.app .resume-form{position:sticky;top:96px;max-height:calc(100vh - 128px);overflow:auto;
+  display:flex;flex-direction:column;gap:var(--s-4);scrollbar-width:thin}
+.app .resume-form h3{font-size:var(--fs-400);margin:var(--s-2) 0 0}
+.app .resume-form .two-up{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-3)}
+.app .resume-form label{display:block}
+.app .resume-form label small{display:block;margin-top:6px;color:var(--ink-3);font-size:var(--fs-100);font-weight:600;letter-spacing:0}
+.app .resume-form textarea{height:auto;padding:10px 12px;line-height:1.55;resize:vertical}
+.app .resume-form .note{display:flex;gap:10px;align-items:flex-start;margin:0;padding:12px 14px;
+  background:var(--wash);border-radius:12px;color:var(--ink-2);font-size:var(--fs-200);line-height:1.5}
+.app .resume-form .note svg{width:16px;height:16px;flex:none;margin-top:2px;color:var(--accent)}
+
+/* The stepper is a progress map, not a tab bar: past steps carry a tick so
+   people can see how much of the resume is already behind them. */
+.app .resume-form .stepper{display:flex;gap:6px;list-style:none;margin:0 0 var(--s-2);padding:0}
+.app .resume-form .stepper li{flex:1;min-width:0}
+.app .resume-form .stepper button{display:flex;flex-direction:column;gap:6px;width:100%;padding:0;
+  text-align:left;font-size:var(--fs-050);font-weight:800;letter-spacing:.02em;color:var(--ink-3);
+  border:0;background:none;border-top:3px solid var(--line);padding-top:8px;transition:color .16s,border-color .16s}
+.app .resume-form .stepper button b{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;
+  background:var(--line-2,#E4E9F0);color:var(--ink-2);font-size:var(--fs-050)}
+.app .resume-form .stepper button b svg{width:12px;height:12px}
+.app .resume-form .stepper .done{color:var(--ink-2);border-top-color:var(--accent)}
+.app .resume-form .stepper .done b{background:var(--accent-solid,var(--accent));color:#fff}
+.app .resume-form .stepper .active{color:var(--accent);border-top-color:var(--accent)}
+.app .resume-form .stepper .active b{background:var(--accent-solid,var(--accent));color:#fff}
+
+/* Repeating blocks (each qualification, each role) are real fieldsets so a
+   screen reader announces which one it is reading. */
+.app .repeater{display:flex;flex-direction:column;gap:var(--s-4)}
+.app .repeater fieldset{border:1px solid var(--line);border-radius:14px;padding:var(--s-3) var(--s-4) var(--s-4);
+  margin:0;display:grid;grid-template-columns:1fr 1fr;gap:var(--s-3)}
+.app .repeater legend{grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:0 8px;
+  font-size:var(--fs-050);font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.app .repeater legend button{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;
+  border:1px solid var(--line);background:#fff;color:var(--ink-3)}
+.app .repeater legend button:hover{border-color:#C9433F;color:#C9433F}
+.app .repeater legend button svg{width:12px;height:12px}
+.app .repeater label.wide{grid-column:1/-1}
+.app .repeater .add{align-self:flex-start}
+
+/* Skills are chips because a comma-separated string prints badly and a chip
+   can be removed with one tap on a phone. */
+.app .chip-input .ci-box{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:7px;
+  min-height:48px;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:#fff}
+.app .chip-input .ci-box:focus-within{border-color:var(--focus-ring);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 14%,transparent)}
+.app .chip-input .ci-box input{flex:1;min-width:130px;height:30px;min-height:30px;border:0;margin:0;padding:0;background:none}
+.app .chip-input .ci-box input:focus-visible{outline:none;border:0;box-shadow:none}
+.app .ci-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 6px 5px 10px;border-radius:99px;
+  background:var(--wash);color:var(--accent-ink);font-size:var(--fs-100);font-weight:700}
+.app .ci-chip button{display:grid;place-items:center;width:16px;height:16px;border:0;border-radius:50%;
+  background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent-ink)}
+.app .ci-chip button svg{width:10px;height:10px}
+.app .ci-chip button:hover{background:var(--accent-solid,var(--accent));color:#fff}
+
+/* Layout choices are shown, not described: each button carries a wireframe of
+   what the page will look like, plus the one situation it suits. */
+.app .template-picks{grid-template-columns:repeat(3,1fr)}
+.app .template-picks button{display:flex;flex-direction:column;gap:6px;padding:10px;text-align:left;
+  border:1px solid var(--line);border-radius:14px;background:#fff;transition:border-color .16s,box-shadow .16s}
+.app .template-picks button:hover{border-color:var(--accent);box-shadow:var(--e-1)}
+.app .template-picks button b{font-size:var(--fs-200)}
+.app .template-picks button small{color:var(--ink-3);font-size:var(--fs-050);line-height:1.4}
+.app .template-picks button em{font-style:normal;font-size:var(--fs-050);font-weight:800;letter-spacing:.05em;
+  text-transform:uppercase;color:var(--accent-ink)}
+.app .tp-thumb{display:block;height:58px;border-radius:8px;border:1px solid var(--line);background:#fff;
+  padding:7px;position:relative;overflow:hidden}
+.app .tp-thumb i{display:block;height:4px;border-radius:2px;background:var(--line-2,#E4E9F0);margin-bottom:5px}
+.app .tp-classic i:first-child{width:60%;height:7px;background:var(--ink-2)}
+.app .tp-classic i:nth-child(2){width:85%}
+.app .tp-classic i:last-child{width:70%}
+.app .tp-sidebar{padding-left:34%}
+.app .tp-sidebar:before{content:"";position:absolute;left:0;top:0;bottom:0;width:30%;background:var(--wash)}
+.app .tp-sidebar i:first-child{width:70%;height:7px;background:var(--ink-2)}
+.app .tp-banded{padding-top:20px}
+.app .tp-banded:before{content:"";position:absolute;left:0;right:0;top:0;height:16px;background:var(--accent)}
+.app .tp-banded i{width:80%}
+.app .tp-banded i:last-child{width:55%}
+
+.app .accent-picks{display:flex;gap:8px}
+.app .accent-picks button{width:30px;height:30px;border-radius:50%;border:2px solid transparent;
+  background:var(--sw);box-shadow:inset 0 0 0 2px #fff}
+.app .accent-picks button.active{border-color:var(--ink-2)}
+
+/* ----- the preview column ----- */
+.app .resume-side{display:flex;flex-direction:column;gap:var(--s-4);align-items:center}
+.app .resume-hint{margin:0;color:var(--ink-3);font-size:var(--fs-100);font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+
+/* A score is only useful if it says what is missing, so the ring is always
+   paired with the unmet checks in plain words. */
+.app .score-card{width:min(100%,640px);background:#fff;border:1px solid var(--line);border-radius:16px;
+  padding:var(--s-4);box-shadow:var(--e-1)}
+.app .sc-head{display:flex;align-items:center;gap:var(--s-4)}
+.app .sc-head b{display:block;font-size:var(--fs-400)}
+.app .sc-head small{display:block;color:var(--ink-3);font-size:var(--fs-200);margin-top:2px}
+.app .sc-ring{display:grid;place-items:center;width:64px;height:64px;flex:none;border-radius:50%;
+  background:conic-gradient(var(--accent) var(--pct),var(--line-2,#E4E9F0) 0);position:relative}
+.app .sc-ring:before{content:"";position:absolute;inset:6px;border-radius:50%;background:#fff}
+.app .sc-ring b,.app .sc-ring small{position:relative;line-height:1}
+.app .sc-ring b{font-size:var(--fs-600);letter-spacing:-.03em}
+.app .sc-ring small{font-size:var(--fs-050);color:var(--ink-3)}
+.app .sc-miss{list-style:none;margin:var(--s-3) 0 0;padding:var(--s-3) 0 0;border-top:1px solid var(--line);
+  display:grid;gap:8px}
+.app .sc-miss li{display:flex;align-items:center;gap:8px;font-size:var(--fs-200);color:var(--ink-2)}
+.app .sc-miss svg{width:14px;height:14px;flex:none;color:#C9433F}
+.app .sc-done{display:flex;align-items:center;gap:8px;margin:var(--s-3) 0 0;padding-top:var(--s-3);
+  border-top:1px solid var(--line);font-size:var(--fs-200);font-weight:700;color:#146B3E}
+.app .sc-done svg{width:15px;height:15px}
+
+/* ----- the page itself ----- */
+.app .resume-doc{--rc:#16233B;width:min(100%,640px);min-height:905px;background:#fff;
+  box-shadow:0 24px 70px #0b172018;color:#22303F;
+  font-family:var(--f-manrope),system-ui,sans-serif;font-size:var(--fs-200);line-height:1.55}
+.app .resume-doc.a-ink{--rc:#16233B}
+.app .resume-doc.a-blue{--rc:#0B4DA8}
+.app .resume-doc.a-teal{--rc:#0E7C5A}
+.app .resume-doc.a-plum{--rc:#6B2E63}
+.app .resume-doc.a-rust{--rc:#A5520A}
+.app .resume-doc h2{font-size:var(--fs-700);line-height:1.1;letter-spacing:-.02em;margin:0;color:inherit}
+.app .resume-doc .rd-role{margin:5px 0 0;font-size:var(--fs-300);font-weight:700;color:var(--rc)}
+.app .resume-doc .rd-contact{display:flex;flex-wrap:wrap;gap:4px 14px;margin:10px 0 0;font-size:var(--fs-100);color:#5A6A7A}
+.app .resume-doc .rd-contact span+span:before{content:"";display:inline-block;width:3px;height:3px;
+  border-radius:50%;background:#B6C1CC;vertical-align:middle;margin-right:14px}
+.app .resume-doc section{margin-top:20px}
+.app .resume-doc h3{font-size:var(--fs-050);font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--rc);margin:0 0 8px;padding-bottom:5px;border-bottom:1.5px solid var(--rc)}
+.app .resume-doc article{margin-bottom:12px}
+.app .resume-doc article:last-child{margin-bottom:0}
+.app .resume-doc .rd-row{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.app .resume-doc .rd-row b{font-size:var(--fs-300);color:#16233B}
+.app .resume-doc .rd-row span{font-size:var(--fs-050);color:#5A6A7A;white-space:nowrap}
+.app .resume-doc em{display:block;font-style:normal;font-size:var(--fs-100);color:#5A6A7A;margin-top:1px}
+.app .resume-doc p{margin:6px 0 0}
+.app .resume-doc .rd-inline{color:#3C4A59}
+.app .resume-doc ul{margin:7px 0 0;padding-left:16px}
+.app .resume-doc li{margin-bottom:4px}
+.app .resume-doc li::marker{color:var(--rc)}
+
+.app .resume-doc.t-classic{padding:48px 52px}
+.app .resume-doc .rd-plain{padding-bottom:16px;border-bottom:3px solid var(--rc)}
+
+.app .resume-doc.t-banded{padding:0 0 48px}
+.app .resume-doc .rd-band{background:var(--rc);color:#fff;padding:34px 52px}
+/* The global h1–h4 rule paints ink-1; this band is dark, so it is overridden
+   here rather than left to inherit an invisible colour. */
+.app .resume-doc .rd-band h2{color:#fff}
+.app .resume-doc .rd-band .rd-role{color:#fff;opacity:.92}
+.app .resume-doc .rd-band .rd-contact{color:#fff;opacity:.8}
+.app .resume-doc .rd-band .rd-contact span+span:before{background:currentColor;opacity:.5}
+.app .resume-doc.t-banded .rd-main{padding:26px 52px 0}
+
+.app .resume-doc.t-sidebar{display:grid;grid-template-columns:34% 1fr}
+.app .rd-rail{background:color-mix(in srgb,var(--rc) 8%,#fff);padding:38px 22px;color:#3C4A59}
+.app .rd-rail .rd-initials{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;
+  background:var(--rc);color:#fff;font-size:var(--fs-600);font-weight:800;letter-spacing:.02em;margin-bottom:22px}
+.app .rd-rail h4{margin:18px 0 7px;font-size:var(--fs-050);font-weight:800;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--rc)}
+.app .rd-rail h4:first-of-type{margin-top:0}
+.app .rd-rail ul{list-style:none;margin:0;padding:0;font-size:var(--fs-100)}
+.app .rd-rail li{margin-bottom:5px;word-break:break-word}
+.app .resume-doc.t-sidebar .rd-main{padding:38px 34px}
+.app .resume-doc.t-sidebar .rd-main h2{margin-bottom:2px}
+.app .resume-doc.t-sidebar .rd-main section:first-of-type{margin-top:22px}
+
+@media(max-width:1080px){
+  .app .resume-form{position:static;max-height:none;overflow:visible}
+  .app .resume-side{align-items:stretch}
+}
+@media(max-width:640px){
+  .app .resume-form .two-up,.app .repeater fieldset{grid-template-columns:1fr}
+  .app .template-picks{grid-template-columns:1fr}
+  .app .template-picks button{flex-direction:row;align-items:center;gap:12px;flex-wrap:wrap}
+  .app .tp-thumb{width:64px;flex:none}
+  .app .resume-doc{min-height:0;font-size:var(--fs-100)}
+  .app .resume-doc.t-classic{padding:26px 22px}
+  .app .resume-doc .rd-band,.app .resume-doc.t-banded .rd-main{padding-left:22px;padding-right:22px}
+  .app .resume-doc.t-sidebar{grid-template-columns:1fr}
+  .app .rd-rail{padding:22px}
+  .app .resume-doc.t-sidebar .rd-main{padding:22px}
+  .app .sc-ring{width:56px;height:56px}
+}
+
+/* Overrides for the older globals.css rules the rewrite outgrew: labels no
+   longer need their own bottom margin (the form is a flex column with a gap),
+   and template buttons size to their content rather than a fixed 75px. */
+.app .resume-form label{margin-bottom:0}
+.app .template-picks button{height:auto}
+.app .resume-form fieldset label,.app .chip-input{margin-bottom:0}
+
+/* globals.css styles the site chrome with a bare `header` selector — fixed
+   height, sticky, grid columns, a bottom border. That leaks into any nested
+   <header>, including the one on the resume page, so it is reset here and the
+   two header variants restate their own padding afterwards. */
+.app .resume-doc header{height:auto;display:block;position:static;top:auto;z-index:auto;
+  grid-template-columns:none;gap:0;background:none;border-bottom:0;backdrop-filter:none;padding:0}
+.app .resume-doc .rd-plain{padding:0 0 16px;border-bottom:3px solid var(--rc)}
+.app .resume-doc .rd-band{padding:34px 52px}
+@media(max-width:640px){.app .resume-doc .rd-band{padding:24px 22px}}
+
+/* The two-column layout needs roughly 1000px to keep an A4 page legible next
+   to the form; below that the page stacks under it. This lives here because
+   the unmediated `.app .resume-layout` rule above outranks the older
+   max-width:760px rule in globals.css. */
+@media(max-width:1080px){
+  .app .resume-layout{grid-template-columns:minmax(0,1fr);gap:var(--s-5)}
+  .app .resume-side{max-width:640px}
+}
+
+/* Five step labels do not fit across a phone. Rather than truncating all of
+   them into nonsense, only the step you are on keeps its name; the rest stay
+   as numbered ticks, which is enough to show progress and to jump back. */
+@media(max-width:640px){
+  .app .resume-form .stepper button span{display:none}
+  .app .resume-form .stepper .active span{display:inline;font-size:var(--fs-100)}
+  .app .resume-form .stepper .active{flex:none}
+  .app .resume-form .stepper li:has(.active){flex:2.4}
+}
+
+/* ===== About / Blog / Reviews ==============================================
+   The three pages a stranger reads before trusting the rest of the site. They
+   share the editorial hero and the chip filters already used by jobs, so the
+   company pages feel like the same product rather than a bolted-on CMS. */
+
+/* Used by the jobs hero too, which had no rule for it at all. */
+.app .tool-hero-cta{display:flex;flex-wrap:wrap;gap:var(--s-3);margin-top:var(--s-5)}
+.app .tool-hero-cta .btn{text-decoration:none}
+
+.app .about-hero{min-height:500px}
+.app .about-hero img{object-position:50% 34%}
+
+/* Figures earn their size by carrying their basis on the same card, so the
+   number and the caveat can never be separated in a screenshot. */
+.app .about-figures{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s-4);
+  margin-top:calc(var(--s-6) * -1);position:relative;z-index:3}
+.app .about-figures article{background:#fff;border:1px solid var(--line);border-radius:18px;
+  padding:var(--s-5);box-shadow:var(--e-2)}
+.app .about-figures b{display:block;font-family:var(--font-display);font-size:var(--fs-800);line-height:1;
+  letter-spacing:-.035em;color:var(--accent-ink)}
+.app .about-figures small{display:block;margin-top:10px;font-size:var(--fs-200);font-weight:700;color:var(--ink-1)}
+.app .about-figures em{display:block;margin-top:6px;font-style:normal;font-size:var(--fs-100);color:var(--ink-3);line-height:1.45}
+.app .figures-note{grid-column:1/-1;display:flex;align-items:center;gap:8px;margin:0;
+  font-size:var(--fs-200);color:var(--ink-3)}
+.app .figures-note svg{width:15px;height:15px;flex:none;color:var(--accent)}
+
+.app .about-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:var(--s-7);
+  align-items:start;padding-top:var(--s-8);padding-bottom:var(--s-8)}
+.app .as-copy h2{font-family:var(--font-display);font-size:clamp(28px,3.4vw,40px);line-height:1.1;
+  letter-spacing:-.035em;margin:10px 0 var(--s-4)}
+.app .as-copy p{color:var(--ink-2);line-height:1.7;margin:0 0 var(--s-4);max-width:52ch}
+.app .as-principles{list-style:none;margin:0;padding:0;display:grid;gap:var(--s-3);scroll-margin-top:120px}
+.app .as-principles li{display:flex;gap:var(--s-4);padding:var(--s-4);background:#fff;
+  border:1px solid var(--line);border-radius:16px}
+.app .ap-icon{display:grid;place-items:center;width:42px;height:42px;flex:none;border-radius:12px;
+  background:var(--wash);color:var(--accent)}
+.app .ap-icon svg{width:20px;height:20px}
+.app .as-principles b{display:block;font-size:var(--fs-300);margin-bottom:4px}
+.app .as-principles small{display:block;font-size:var(--fs-200);line-height:1.6;color:var(--ink-2)}
+.app .about-h2{font-family:var(--font-display);font-size:clamp(26px,3vw,36px);line-height:1.12;
+  letter-spacing:-.035em;margin:10px 0 var(--s-5)}
+
+/* A rail rather than four cards: the point of a history is the sequence, and
+   a row of equal cards hides it. */
+.app .timeline-rail{list-style:none;margin:0;padding:0;display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s-4)}
+.app .timeline-rail li{position:relative;padding-top:var(--s-5)}
+.app .timeline-rail li:before{content:"";position:absolute;left:0;right:0;top:9px;height:2px;background:var(--line)}
+.app .timeline-rail li:after{content:"";position:absolute;left:0;top:4px;width:12px;height:12px;
+  border-radius:50%;background:#fff;border:3px solid var(--line)}
+.app .timeline-rail li.now:after{border-color:var(--accent);background:var(--accent)}
+.app .timeline-rail li:last-child:before{right:auto;width:12px}
+.app .tr-year{display:block;font-family:var(--font-display);font-size:var(--fs-600);letter-spacing:-.02em;
+  color:var(--accent-ink);margin-bottom:8px}
+.app .tr-card b{display:block;font-size:var(--fs-300);margin-bottom:6px}
+.app .tr-card p{margin:0;font-size:var(--fs-200);line-height:1.6;color:var(--ink-2)}
+
+.app .about-money{padding-top:var(--s-8);padding-bottom:var(--s-8)}
+.app .am-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-4)}
+.app .am-grid article{padding:var(--s-5);border-radius:16px;background:var(--wash);border:1px solid var(--line)}
+.app .am-grid article:last-child{background:var(--ink,#0b1720);border-color:transparent;color:#fff}
+.app .am-grid b{display:block;font-size:var(--fs-400);margin-bottom:8px}
+.app .am-grid p{margin:0;font-size:var(--fs-300);line-height:1.65;color:var(--ink-2)}
+.app .am-grid article:last-child p{color:#c6d2d7}
+
+.app .about-contact{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:var(--s-6);
+  align-items:center;padding:var(--s-6);margin-bottom:var(--s-8);
+  background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--e-1)}
+.app .about-contact .about-h2{margin-bottom:8px}
+.app .about-contact p{margin:0;color:var(--ink-2);line-height:1.65;max-width:44ch}
+.app .about-contact dl{margin:0;display:grid;gap:12px}
+.app .about-contact dt{font-size:var(--fs-050);font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.app .about-contact dd{margin:2px 0 0;font-size:var(--fs-300);font-weight:700}
+.app .ac-actions{display:grid;gap:8px}
+
+/* ----- blog ----- */
+.app .blog-lead{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:var(--s-6);
+  width:100%;text-align:left;padding:var(--s-5);background:#fff;border:1px solid var(--line);
+  border-radius:22px;box-shadow:var(--e-1);transition:box-shadow .2s,transform .2s,border-color .2s}
+.app .blog-lead:hover{transform:translateY(-3px);box-shadow:var(--e-3);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.app .blog-lead .plate{aspect-ratio:16/10;border-radius:16px}
+.app .blog-lead>div{align-self:center;min-width:0}
+.app .blog-lead h2{font-family:var(--font-display);font-size:clamp(24px,2.6vw,32px);line-height:1.14;
+  letter-spacing:-.03em;margin:10px 0 12px}
+.app .blog-lead p{margin:0 0 var(--s-4);color:var(--ink-2);line-height:1.65;font-size:var(--fs-400)}
+.app .bl-meta,.app .pc-meta{display:flex;align-items:center;gap:8px;font-size:var(--fs-100);color:var(--ink-3)}
+.app .bl-meta b,.app .pc-meta b{color:var(--ink-1)}
+.app .bl-meta i,.app .pc-meta i{width:3px;height:3px;border-radius:50%;background:var(--line-2,#D8DEE6)}
+.app .bl-go{display:inline-flex;align-items:center;gap:8px;margin-top:var(--s-4);
+  font-size:var(--fs-100);font-weight:800;color:var(--accent)}
+.app .bl-go svg{width:16px;height:16px;transition:transform .2s}
+.app .blog-lead:hover .bl-go svg{transform:translateX(3px)}
+
+.app .blog-chips{margin:var(--s-6) 0 var(--s-4)}
+.app .blog-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-4);
+  padding-bottom:var(--s-7)}
+.app .post-card{display:flex;flex-direction:column;text-align:left;padding:0;overflow:hidden;
+  background:#fff;border:1px solid var(--line);border-radius:18px;transition:box-shadow .2s,transform .2s,border-color .2s}
+.app .post-card:hover{transform:translateY(-3px);box-shadow:var(--e-2);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.app .post-card .plate{aspect-ratio:16/8;border-radius:0}
+.app .pc-body{padding:var(--s-4);display:flex;flex-direction:column;gap:10px;flex:1}
+.app .pc-body h3{font-size:var(--fs-500);line-height:1.25;letter-spacing:-.02em;margin:0}
+.app .pc-body p{margin:0;font-size:var(--fs-300);line-height:1.6;color:var(--ink-2);flex:1}
+
+.app .article{max-width:760px;padding-top:var(--s-5);padding-bottom:var(--s-7)}
+.app .article h1{font-family:var(--font-display);font-size:clamp(30px,4.4vw,48px);line-height:1.08;
+  letter-spacing:-.04em;margin:10px 0 var(--s-4)}
+.app .art-dek{font-size:var(--fs-500);line-height:1.6;color:var(--ink-2);margin:0 0 var(--s-5)}
+.app .art-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  padding:var(--s-4) 0;border-block:1px solid var(--line)}
+.app .am-mark{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;
+  background:var(--wash);color:var(--accent);font-size:var(--fs-200);font-weight:800}
+.app .art-meta b{display:block;font-size:var(--fs-300)}
+.app .art-meta small{display:block;font-size:var(--fs-100);color:var(--ink-3)}
+.app .am-when{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-100);color:var(--ink-3)}
+.app .am-when svg{width:14px;height:14px}
+.app .art-plate{margin:var(--s-5) 0}
+.app .art-plate .plate{aspect-ratio:16/7;border-radius:18px}
+.app .art-body p{font-size:var(--fs-500);line-height:1.75;color:var(--ink-1);margin:0 0 var(--s-4)}
+.app .art-body p:first-child:first-letter{float:left;font-family:var(--font-display);font-size:56px;
+  line-height:.82;padding:4px 10px 0 0;color:var(--accent-ink)}
+.app .art-more{padding-bottom:var(--s-8)}
+.app .art-more .blog-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+
+/* ----- reviews ----- */
+.app .rating-panel{display:grid;grid-template-columns:auto minmax(220px,1fr) minmax(0,1.1fr);
+  gap:var(--s-6);align-items:center;padding:var(--s-5) var(--s-6);
+  background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:var(--e-1)}
+.app .rp-score{text-align:center}
+.app .rp-score>b{display:block;font-family:var(--font-display);font-size:52px;line-height:1;
+  letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.app .rp-score small{display:block;margin-top:8px;font-size:var(--fs-100);color:var(--ink-3)}
+.app .stars{display:inline-flex;gap:2px}
+.app .stars svg{width:15px;height:15px;color:var(--line-2,#D8DEE6);fill:none}
+.app .stars svg.on{color:var(--spark,#F5C93B);fill:var(--spark,#F5C93B)}
+.app .stars.big svg{width:19px;height:19px}
+.app .rp-dist{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.app .rp-dist li{display:grid;grid-template-columns:34px 1fr 24px;align-items:center;gap:10px;
+  font-size:var(--fs-100);color:var(--ink-3)}
+.app .rp-dist li>span{display:inline-flex;align-items:center;gap:3px;font-weight:700;color:var(--ink-2)}
+.app .rp-dist li>span svg{width:12px;height:12px;color:var(--spark,#F5C93B);fill:var(--spark,#F5C93B)}
+.app .rp-dist i{display:block;height:8px;border-radius:99px;background:var(--wash);overflow:hidden}
+.app .rp-dist i b{display:block;height:100%;border-radius:99px;background:var(--accent)}
+.app .rp-dist small{text-align:right;font-variant-numeric:tabular-nums}
+.app .rp-cta{border-left:1px solid var(--line);padding-left:var(--s-5)}
+.app .rp-cta p{display:flex;gap:8px;margin:0 0 var(--s-4);font-size:var(--fs-200);line-height:1.55;color:var(--ink-3)}
+.app .rp-cta p svg{width:15px;height:15px;flex:none;color:var(--accent)}
+
+.app .reviews-page .results-head{margin-top:var(--s-6);flex-wrap:wrap;gap:var(--s-3)}
+.app .review-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-4)}
+.app .review-card{display:flex;flex-direction:column;gap:12px;padding:var(--s-5);
+  background:#fff;border:1px solid var(--line);border-radius:18px}
+.app .review-card header{display:flex;align-items:center;gap:10px;height:auto;padding:0;position:static;
+  background:none;border:0;backdrop-filter:none;grid-template-columns:none;z-index:auto}
+.app .rv-mark{display:grid;place-items:center;width:38px;height:38px;flex:none;border-radius:50%;
+  background:var(--wash);color:var(--accent);font-size:var(--fs-100);font-weight:800}
+.app .review-card header b{display:block;font-size:var(--fs-300)}
+.app .review-card header small{display:flex;align-items:center;gap:4px;font-size:var(--fs-100);color:var(--ink-3)}
+.app .review-card header small svg{width:12px;height:12px}
+.app .rv-check{display:inline-flex;align-items:center;gap:4px;margin-left:auto;padding:4px 8px;
+  border-radius:99px;background:#E8F4EC;color:#146B3E;font-size:var(--fs-050);font-weight:800;white-space:nowrap}
+.app .rv-check svg{width:12px;height:12px}
+.app .rv-subject{margin:0;font-size:var(--fs-100);line-height:1.4;font-weight:800;color:var(--accent-ink)}
+.app .rv-text{margin:0;font-size:var(--fs-300);line-height:1.65;color:var(--ink-1);flex:1}
+.app .review-card footer{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding-top:12px;border-top:1px solid var(--line)}
+.app .rv-tag{padding:4px 9px;border-radius:99px;background:var(--wash);color:var(--accent-ink);
+  font-size:var(--fs-050);font-weight:800}
+.app .review-card footer button{display:inline-flex;align-items:center;gap:6px;
+  min-height:34px;padding:0 12px;border:1px solid var(--line);border-radius:var(--r-pill);
+  background:var(--n-0);font-size:var(--fs-100);font-weight:700;color:var(--ink-2);
+  transition:border-color var(--t-micro) var(--ease-std),color var(--t-micro) var(--ease-std),
+             background var(--t-micro) var(--ease-std)}
+.app .review-card footer button:hover{color:var(--accent-ink);border-color:var(--accent);
+  background:var(--wash)}
+.app .review-card footer button svg{width:14px;height:14px}
+.app .review-foot{display:flex;align-items:center;justify-content:space-between;gap:var(--s-4);
+  flex-wrap:wrap;margin-top:var(--s-6);padding-top:var(--s-5);border-top:1px solid var(--line)}
+.app .review-foot p{margin:0;font-size:var(--fs-200);color:var(--ink-3)}
+
+@media(max-width:1080px){
+  .app .about-figures{grid-template-columns:repeat(2,minmax(0,1fr));margin-top:calc(var(--s-5) * -1)}
+  .app .about-split{grid-template-columns:1fr;gap:var(--s-6)}
+  .app .timeline-rail,.app .blog-grid,.app .review-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .app .am-grid{grid-template-columns:1fr}
+  .app .about-contact{grid-template-columns:1fr;gap:var(--s-5)}
+  .app .blog-lead{grid-template-columns:1fr}
+  .app .rating-panel{grid-template-columns:auto 1fr}
+  .app .rp-cta{grid-column:1/-1;border-left:0;padding-left:0;padding-top:var(--s-4);border-top:1px solid var(--line)}
+}
+@media(max-width:760px){
+  .app .about-figures,.app .timeline-rail,.app .blog-grid,.app .review-grid,
+  .app .art-more .blog-grid{grid-template-columns:1fr}
+  .app .timeline-rail li:before{left:5px;right:auto;top:16px;bottom:-16px;width:2px;height:auto}
+  .app .timeline-rail li{padding:0 0 0 var(--s-5)}
+  .app .timeline-rail li:after{top:2px}
+  .app .rating-panel{grid-template-columns:1fr;text-align:left}
+  .app .art-body p{font-size:var(--fs-400)}
+}
+
+/* On a dark hero photo the kicker cannot be var(--accent): the distance blue
+   sits at roughly 2:1 against the image. The heroes already carry a warm gold
+   for emphasis (hero h1 em), so the eyebrow borrows it and stays legible in
+   all three verticals. */
+.app .tool-hero-copy .kicker{color:#F7D98C}
+
+
+/* ============================================================================
+   AUDIT FIXES — results heading, plate variety, click affordance
+   ========================================================================= */
+
+/* The results count is an <h2> for document outline reasons; it must not
+   inherit display-heading scale. It is a label, so it reads as one. */
+.app .results-head .rh-count{
+  font-size:var(--fs-200);font-weight:500;color:var(--ink-2);
+  margin:0;letter-spacing:0;line-height:1.3}
+.app .results-head .rh-count b{font-weight:800;color:var(--ink-1)}
+
+/* ============================================================================
+   INTERIOR PAGE HEROES
+   Every interior page now opens with a hero. Content pages (listings) carry the
+   editorial photograph; tool pages carry a generated field, because a stock
+   photo above a resume form claims something the page cannot deliver.
+   ========================================================================= */
+
+.app .page-hero{min-height:420px}
+.app .page-hero .tool-hero-copy h1{max-width:20ch}
+
+/* --- generated field -------------------------------------------------------
+   One key colour per page, drawn from the same six-tone family as the plates,
+   so the heroes and the cards below them read as one system. */
+.app .canvas-hero{
+  --hero-key:var(--accent);
+  min-height:340px;
+  background:var(--ink-1)}
+.app .canvas-hero.t-teal  {--hero-key:color-mix(in oklab,var(--accent) 36%,#0E7C5A)}
+.app .canvas-hero.t-indigo{--hero-key:color-mix(in oklab,var(--accent) 36%,#4A2F87)}
+.app .canvas-hero.t-rust  {--hero-key:color-mix(in oklab,var(--accent) 36%,#C2570B)}
+.app .canvas-hero.t-forest{--hero-key:color-mix(in oklab,var(--accent) 36%,#2F6B1E)}
+.app .canvas-hero.t-plum  {--hero-key:color-mix(in oklab,var(--accent) 36%,#9E1F4B)}
+
+.app .hero-weave{
+  position:absolute;inset:0;display:block;pointer-events:none;
+  background:
+    /* the spark, low and to the right, so the copy column stays the darkest */
+    radial-gradient(120% 90% at 88% 12%,
+      color-mix(in srgb,var(--spark,#F5C93B) 26%,transparent) 0%,transparent 58%),
+    /* the key colour bleeding in from the right edge */
+    radial-gradient(95% 120% at 100% 62%,
+      color-mix(in srgb,var(--hero-key) 78%,transparent) 0%,transparent 66%),
+    /* the ruled field: the same "measured" language as the plate motifs */
+    repeating-linear-gradient(101deg,
+      rgba(255,255,255,.055) 0 1px,transparent 1px 46px),
+    linear-gradient(105deg,
+      color-mix(in oklab,var(--ink-1) 92%,var(--hero-key)) 0%,
+      color-mix(in oklab,var(--ink-1) 70%,var(--hero-key)) 100%)}
+/* keeps the left third readable no matter how bright the key is */
+.app .hero-weave::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(96deg,
+    color-mix(in srgb,var(--ink-1) 88%,transparent) 0%,
+    color-mix(in srgb,var(--ink-1) 72%,transparent) 38%,
+    transparent 78%)}
+
+@media (max-width:900px){
+  .app .page-hero{min-height:300px}
+  .app .canvas-hero{min-height:260px}
+  .app .hero-weave::after{background:linear-gradient(180deg,
+    color-mix(in srgb,var(--ink-1) 74%,transparent) 0%,
+    color-mix(in srgb,var(--ink-1) 88%,transparent) 100%)}
+}
+
+/* The listing pages now start with a hero, so the results block needs its own
+   breathing room where the page-head used to provide it. */
+.app .page-hero+.locator,
+.app .page-hero+.container,
+.app .page-hero+.listing-layout{margin-top:var(--s-7)}
+
+/* ============================================================================
+   CLICK OPTIMISATION
+   Three things decide whether a card gets clicked: does it look clickable at
+   rest, is the target big enough for a thumb, and does the press acknowledge.
+   ========================================================================= */
+
+/* 1 — the whole card is the target, so it must carry the pointer. */
+.app .path-card,.app .board-card,.app .blog-card{cursor:pointer}
+
+/* 2 — the affordance is visible at rest, not only on hover. A grey "Explore"
+       that only colours up under a mouse is invisible on touch. */
+.app .path-card .pc-go{
+  /* full width on purpose: the card is the target, so the CTA bar should be
+     as wide as the thumb can reach, with the arrow parked at the far edge. */
+  display:flex;width:100%;align-items:center;justify-content:space-between;gap:7px;
+  min-height:38px;padding:0 14px;border-radius:var(--r-pill);
+  border:1px solid color-mix(in srgb,var(--accent) 26%,var(--line));
+  background:var(--wash);color:var(--accent-ink);
+  font-size:var(--fs-200);font-weight:800;letter-spacing:.01em;
+  transition:background var(--t-micro) var(--ease-std),
+             border-color var(--t-micro) var(--ease-std),
+             transform var(--t-micro) var(--ease-std)}
+.app .path-card .pc-go svg{width:15px;height:15px;
+  transition:transform var(--t-fast,.16s) var(--ease-std)}
+.app .path-card:hover .pc-go{
+  background:var(--accent-solid,var(--accent));border-color:transparent;color:#fff}
+.app .path-card:hover .pc-go svg{transform:translateX(3px)}
+.app .path-card:active{transform:translateY(-1px) scale(.996)}
+
+/* 3 — every control clears the 44px thumb target on touch pointers. Desktop
+       keeps the tighter rhythm; coarse pointers get the room. */
+@media (pointer:coarse){
+  .app .btn,.app .btn.small{min-height:46px}
+  .app .review-card footer button,
+  .app .filter-title button,
+  .app .text-btn{min-height:44px}
+  .app .icon{width:44px;height:44px}
+}
+
+/* 4 — the hero CTA is the page's one primary action; give it real weight. */
+.app .tool-hero-cta .btn.primary,.app .page-hero .btn.primary{
+  min-height:52px;padding-inline:22px;font-size:var(--fs-300)}
+.app .tool-hero-cta .btn.ghost{border-color:#ffffff5c}
+.app .tool-hero-cta .btn.ghost:hover{background:#ffffff1f;border-color:#fff}
+
+/* ============================================================================
+   MOBILE TYPE FLOOR
+   The desktop ramp leans on 11-12px for metadata. On a phone held at arm's
+   length that is the first thing that stops being read, so the bottom three
+   steps lift by one and prose returns to full body size.
+   ========================================================================= */
+@media (max-width:640px){
+  .app .path-card p,.app .board-card p,.app .blog-card p,
+  .app .side-card p,.app .recommend p,.app .human-cta p,
+  .app .decision>div:first-child p,.app .saved-row p,
+  .app .empty p,.app .review-card p{font-size:var(--fs-300);line-height:1.6}
+
+  .app .entity-top p,.app .detail-copy>p,
+  .app .metrics small,.app .metrics b,
+  .app .fact-grid small,.app .fact-grid b,
+  .app .tags span,.app .detail-tags span,
+  .app .proof-cards small,.app .command-results small,
+  .app .hero-pills span,.app .plate-tag{font-size:var(--fs-200)}
+
+  /* eyebrows and counters stay small but never below the 11px floor */
+  .app .kicker,.app .eyebrow,.app .verified,
+  .app .stepper span,.app .timeline-labels{font-size:var(--fs-100)}
+
+  .app .tool-hero-copy>p,.app .page-head p{font-size:var(--fs-400);line-height:1.6}
+}
+
+/* ============================================================================
+   HIGH CONTRAST & FORCED COLOURS
+   Windows high-contrast mode replaces our palette wholesale. The plates and
+   hero fields are decoration, so they step aside; what has to survive is the
+   boundary of every card and the fact that a control is a control.
+   ========================================================================= */
+@media (prefers-contrast:more){
+  .app{--line:#8A97A6;--ink-2:#2A3644}
+  .app .path-card,.app .entity-card,.app .side-card,
+  .app .filters,.app .review-card{border-width:2px}
+  .app .pc-go{border-color:var(--accent);background:var(--n-0)}
+  .app :focus-visible{outline-width:4px}
+}
+
+@media (forced-colors:active){
+  .app .plate-art,.app .hero-weave,.app .hero-shade{forced-color-adjust:none;opacity:.35}
+  .app .path-card,.app .entity-card,.app .board-card,
+  .app .review-card,.app .side-card,.app .filters{border:1px solid CanvasText}
+  .app .pc-go,.app .btn{border:1px solid ButtonText;forced-color-adjust:auto}
+  .app :focus-visible{outline:3px solid Highlight;outline-offset:2px}
+  /* colour is never the only signal, but make sure the fallbacks are visible */
+  .app .verified svg,.app .hero-pills svg{forced-color-adjust:auto}
+}
+
+/* ============================================================================
+   CARD SYSTEM v2 — "one surface, not a wall of rectangles"
+   ----------------------------------------------------------------------------
+   The previous pass answered "these all look the same" with six loud tonal
+   keys per grid. That fixed sameness and bought repetition of a different
+   kind: a picture rectangle stacked on a text rectangle, with a pill button
+   nested inside the card. This pass keeps the variety in the *artwork and the
+   layout* and puts the colour back under one accent per vertical.
+   ========================================================================== */
+
+/* --- grid ----------------------------------------------------------------- */
+.app .path-grid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:var(--s-4);grid-auto-flow:dense}
+@media (max-width:1080px){
+  .app .path-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){
+  .app .path-grid{grid-template-columns:minmax(0,1fr);gap:var(--s-3)}}
+
+/* --- the card ------------------------------------------------------------- */
+.app .path-card{
+  position:relative;isolation:isolate;overflow:hidden;
+  display:flex;flex-direction:column;text-align:left;
+  min-height:186px;padding:0;
+  border:1px solid var(--line);border-radius:18px;
+  background:var(--n-0);box-shadow:none;
+  /* the wash inherits the vertical accent — never a per-card hue */
+  --plate-line:color-mix(in srgb,var(--accent) 58%,var(--spark,#F5C93B));
+  --plate-node:var(--accent);
+  transition:transform 180ms var(--ease-out),
+             box-shadow  180ms var(--ease-out),
+             border-color 140ms var(--ease-std)}
+.app .path-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 4px 10px rgb(11 21 38/.06),0 14px 32px rgb(11 21 38/.08);
+  border-color:color-mix(in srgb,var(--accent) 34%,var(--line))}
+.app .path-card:active{transform:translateY(-1px)}
+
+/* Artwork as a corner wash: no second rectangle, no hard edge to read as a
+   separate panel. Masked so it dissolves before it reaches the copy. */
+.app .card-wash{
+  position:absolute;top:0;right:0;width:54%;height:76%;z-index:0;
+  pointer-events:none;opacity:.5;
+  -webkit-mask-image:radial-gradient(125% 115% at 100% 0,#000 22%,transparent 74%);
+          mask-image:radial-gradient(125% 115% at 100% 0,#000 22%,transparent 74%);
+  transition:opacity 180ms var(--ease-out)}
+.app .path-card:hover .card-wash{opacity:.66}
+
+/* --- body ----------------------------------------------------------------- */
+.app .pc-body{
+  position:relative;z-index:1;flex:1;
+  display:flex;flex-direction:column;gap:var(--s-3);
+  padding:22px}
+.app .pc-head{display:flex;align-items:center;gap:var(--s-3);min-height:38px}
+.app .pc-icon{
+  width:38px;height:38px;flex:none;border-radius:11px;display:grid;place-items:center;
+  background:var(--wash);color:var(--accent-ink,var(--accent));
+  border:1px solid color-mix(in srgb,var(--accent) 20%,transparent)}
+.app .pc-icon svg{width:19px;height:19px;stroke-width:2}
+.app .pc-badge{
+  font-size:var(--fs-050);font-weight:800;letter-spacing:var(--tr-caps);
+  text-transform:uppercase;color:var(--ink-3);
+  background:var(--n-1);border:1px solid var(--line);
+  padding:4px 9px;border-radius:var(--r-pill);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.app .path-card h3{
+  margin:0;font-size:var(--fs-500);line-height:1.22;
+  letter-spacing:-.015em;color:var(--ink-1)}
+.app .path-card p{
+  margin:0;font-size:var(--fs-200);line-height:1.55;color:var(--ink-3);
+  max-width:44ch;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* The pill is gone. A text action, because the card itself is the target. */
+.app .path-card .pc-go{
+  margin-top:auto;padding:0;width:auto;min-height:0;
+  display:inline-flex;align-items:center;justify-content:flex-start;gap:6px;
+  border:0;background:none;border-radius:0;
+  color:var(--accent-ink,var(--accent));
+  font-size:var(--fs-200);font-weight:800;letter-spacing:0}
+.app .path-card .pc-go svg{
+  width:15px;height:15px;transition:transform 160ms var(--ease-std)}
+.app .path-card:hover .pc-go{background:none;border:0;color:var(--accent-ink,var(--accent))}
+.app .path-card:hover .pc-go svg{transform:translateX(3px)}
+
+/* --- the one rhythm break: a wide featured card per section --------------- */
+@media (min-width:1081px){
+  .app .path-grid .pc-featured{grid-column:span 2;min-height:210px;
+    background:linear-gradient(102deg,var(--wash) 0%,var(--n-0) 62%)}
+  .app .pc-featured .pc-body{padding:26px 28px;max-width:64%}
+  .app .pc-featured h3{font-size:var(--fs-600)}
+  .app .pc-featured p{-webkit-line-clamp:3;max-width:48ch}
+  .app .pc-featured .card-wash{
+    width:46%;height:100%;opacity:.6;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 42%);
+            mask-image:linear-gradient(90deg,transparent 0,#000 42%)}}
+
+@media (prefers-reduced-motion:reduce){
+  .app .path-card,.app .card-wash,.app .path-card .pc-go svg{transition:none}
+  .app .path-card:hover{transform:none}
+  .app .path-card:hover .pc-go svg{transform:none}}
+
+/* --- plates: one family again --------------------------------------------
+   Kept as a band only where the card is genuinely an *entity* (a board, a
+   university, an article) and the mark or photograph is the point. The six
+   keys survive as a barely-there drift so a row is not six identical blues,
+   but nothing in a grid now shouts a colour of its own.                     */
+.app .plate.g0{--plate-key:var(--accent)}
+.app .plate.g1{--plate-key:color-mix(in oklab,var(--accent) 88%,#0E7C5A)}
+.app .plate.g2{--plate-key:color-mix(in oklab,var(--accent) 88%,#4A2F87)}
+.app .plate.g3{--plate-key:color-mix(in oklab,var(--accent) 88%,#C2570B)}
+.app .plate.g4{--plate-key:color-mix(in oklab,var(--accent) 88%,#2F6B1E)}
+.app .plate.g5{--plate-key:color-mix(in oklab,var(--accent) 88%,#9E1F4B)}
+.app .plate{border-radius:17px 17px 0 0}
+.app .board-card .plate{aspect-ratio:16/6}
+.app .entity-card .plate{aspect-ratio:16/6}
+.app .post-card .plate{aspect-ratio:16/7}
+
+/* Badge, not a neon capsule. */
+.app .plate-tag{
+  color:#fff;background:rgb(255 255 255/.17);
+  border:1px solid rgb(255 255 255/.3);
+  -webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px);
+  box-shadow:none;padding:4px 9px;font-size:var(--fs-050)}
+.app .plate-chip{width:34px;height:34px;border-radius:10px;box-shadow:inset 0 1px 0 rgb(255 255 255/.3)}
+.app .plate-chip svg{width:17px;height:17px}
+
+/* --- hero: trust indicators, not a slab ----------------------------------- */
+.app .hero .proof{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  align-items:start;gap:var(--s-5);
+  margin-top:var(--s-6);padding:var(--s-5) 0 0;
+  background:none;border:0;border-top:1px solid rgb(255 255 255/.18);
+  border-radius:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;
+  width:auto;max-width:min(100%,760px);overflow:visible}
+/* The strip was laid out as medallion-beside-text with the note spanning both
+   columns underneath, and what it actually rendered was a mark stranded 42px
+   from the figure it belongs to — nearer the previous item's caption than its
+   own — with the note printed against a second left margin. The cause was the
+   legacy `.proof span` rule reset above: the medallion is a span, so it carried
+   30px of margin the icon track had to absorb, which is why an "auto" column
+   measured 70px around a 40px medallion.
+
+   That reset fixes the gap; this stack fixes the two margins. All four lines
+   share one left edge and the medallion sits directly above the figure it
+   argues for, and the note gets the item's full 236px instead of wrapping
+   inside 184px against a 189px longest line. Below 900px the note is hidden
+   and vertical space is the scarce thing, so that width keeps the side-by-side
+   arrangement. */
+.app .hero .proof button{
+  display:grid;grid-template-areas:"icon" "num" "label" "note";
+  grid-template-columns:minmax(0,1fr);
+  gap:0;justify-items:start;align-content:start;
+  padding:0;border:0;background:none;text-align:left;min-width:0}
+.app .hero .proof button:hover{background:none}
+/* The hero tile was a 34px square of 12%-white with a hairline glyph dropped
+   in it — the same rectangle this page uses for decoration everywhere else, so
+   the three marks that carry the whole proof strip read as filler. It is now a
+   struck medallion: a near-opaque navy face so the marks' knock-outs have a
+   known colour to punch through, a gradient bezel that catches light at the
+   top-left and takes the brand gold at the foot, and a seated shadow so the
+   figure beside it has something to sit against.
+
+   --mark-knockout is the face colour. The check inside the seal and the door
+   and windows in the employer mark are cut out of the silhouette rather than
+   drawn over it, and they are only legible if they are painted the colour of
+   the thing behind them. */
+.app .hero .proof .stat-i{
+  --mark-knockout:#0A1A31;
+  /* On its own line the medallion is read as a figure rather than as a bullet,
+     so it takes the extra 4px it could not afford when it shared a row. */
+  width:44px;height:44px;border-radius:14px;margin-bottom:var(--s-3);
+  position:relative;isolation:isolate;display:grid;place-items:center;
+  background:
+    linear-gradient(155deg,rgb(255 255 255/.16),rgb(255 255 255/.03) 60%),
+    rgb(10 26 49/.92);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255/.26),
+    inset 0 -1px 0 rgb(0 0 0/.34),
+    0 5px 14px rgb(0 0 0/.36);
+  filter:none}
+.app .hero .proof .stat-i::before{
+  content:"";display:block;position:absolute;inset:0;border-radius:inherit;padding:1px;
+  background:linear-gradient(158deg,
+    rgb(255 255 255/.5),
+    rgb(255 255 255/.05) 54%,
+    color-mix(in srgb,var(--spark,#F5C93B) 72%,transparent) 128%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask-composite:exclude;pointer-events:none}
+.app .hero .proof .stat-i svg{width:25px;height:25px;color:var(--spark-lift,#F7D98C);filter:none}
+.app .hero .proof button:hover .stat-i{
+  transform:translateY(-1px);
+  background:
+    linear-gradient(155deg,rgb(255 255 255/.22),rgb(255 255 255/.05) 60%),
+    color-mix(in srgb,var(--spark,#F5C93B) 10%,rgb(10 26 49/.92));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255/.38),
+    inset 0 -1px 0 rgb(0 0 0/.28),
+    0 8px 18px rgb(0 0 0/.36)}
+/* The medallion is the only thing in the strip that moves, so it needs the
+   transition the flat version had no use for. */
+.app .hero .proof .stat-i{
+  transition:transform var(--t-comp) var(--ease-out),
+    background var(--t-micro) var(--ease-out),box-shadow var(--t-micro) var(--ease-out)}
+.app .hero .proof b{font-size:var(--fs-500);line-height:1.1}
+.app .hero .proof small{font-size:var(--fs-100);color:rgb(255 255 255/.76);font-weight:600}
+/* The note sits one step below the label in the hierarchy, and it used to buy
+   that step with alpha: white at .6, at 11px, over a photograph. The desktop
+   sweep had it at 4.58:1 against the 4.5 that size needs — passing, but with
+   nothing in hand, and it tipped to 4.14 the moment a note grew long enough to
+   reach the thin end of the hero wash. Alpha is the wrong currency here: the
+   label directly above already reads .76 and holds, so the note takes .78 and
+   keeps its step down through size and weight instead, which is where the
+   difference was legible anyway. Measured after: 5.75:1 on that note, and the hero's worst sample overall
+   moves from 4.58 to 5.25. */
+.app .hero .proof .stat-note{
+  grid-area:note;display:block;margin-top:6px;
+  font-size:var(--fs-050);font-weight:600;color:rgb(255 255 255/.78);line-height:1.35}
+@media (max-width:900px){
+  .app .hero .proof{grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-4)}
+  .app .hero .proof .stat-note{display:none}
+  /* Back to medallion-beside-figure. With the legacy span margin reset the
+     icon track sizes to the icon (it measured 64px around a 34px medallion
+     before), so the mark sits one gap from its figure rather than 30px past
+     it, and the note is display:none here so nothing wants a second row. */
+  .app .hero .proof button{
+    grid-template-areas:"icon num" "icon label";
+    grid-template-columns:auto minmax(0,1fr);
+    gap:0 var(--s-3);align-items:center;justify-items:stretch}
+  /* Three tiles across a phone leaves the figure about 14ch; the medallion
+     gives back the width before the number is allowed to wrap. */
+  .app .hero .proof .stat-i{width:34px;height:34px;border-radius:11px;margin-bottom:0}
+  .app .hero .proof .stat-i svg{width:20px;height:20px}}
+@media (max-width:520px){
+  .app .hero .proof{grid-template-columns:minmax(0,1fr);gap:var(--s-3)}}
+
+/* --- section rhythm + chrome density -------------------------------------- */
+.app .section{padding-block:var(--s-8)}
+@media (max-width:760px){.app .section{padding-block:var(--s-7)}}
+@media (min-width:901px){.app header{height:68px}}
+
+/* Nothing floating may sit on top of a card or a button. */
+@media (min-width:761px){
+  .app .compare-tray{max-width:min(760px,calc(100% - 210px))}}
+
+/* The section motif was reading as busy behind the lighter cards; halved so it
+   stays a texture in the gutters rather than a pattern competing with them. */
+.app{--motif-opacity:.035}
+
+/* The board grid is a set of four peers meant to be compared side by side, so
+   it keeps its own four-across rhythm rather than inheriting the 3-col path
+   grid above (which would orphan the fourth board on its own row). */
+.app .path-grid.board-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--s-4)}
+@media (max-width:1120px){.app .path-grid.board-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.app .path-grid.board-grid{grid-template-columns:minmax(0,1fr)}}
+/* Board and entity cards carry their own dense body; they must not inherit the
+   compact path-card body metrics. */
+.app .board-card,.app .entity-card{min-height:0;padding:0}
+.app .board-card p,.app .entity-card p{-webkit-line-clamp:none;display:block;max-width:none}
+
+/* --- floating assistant: docks into the page gutter -----------------------
+   A fixed launcher inevitably sits over the content column on narrow screens.
+   Where the viewport is wide enough it is pushed fully outside the 1240px
+   container so it covers nothing; below that it clamps to the corner and is
+   made smaller so it clears card text and controls rather than sitting on
+   them. */
+.app .bot-wrap:not(.open){
+  right:max(14px,calc((100vw - min(1240px,100vw - 48px))/2 - 68px))}
+.app .bot-launch{width:52px;height:52px}
+.app .bot-launch svg{width:21px;height:21px}
+@media (max-width:760px){
+  .app .bot-wrap:not(.open){right:12px;bottom:88px}
+  .app .bot-launch{width:48px;height:48px}}
+/* A supplied photograph takes the same corner slot as the generated wash, so a
+   card with real artwork stays the same single surface. */
+.app .card-photo{position:absolute;top:0;right:0;width:54%;height:76%;z-index:0;
+  object-fit:cover;pointer-events:none;
+  -webkit-mask-image:radial-gradient(125% 115% at 100% 0,#000 22%,transparent 74%);
+          mask-image:radial-gradient(125% 115% at 100% 0,#000 22%,transparent 74%)}
+@media (min-width:1081px){
+  .app .pc-featured .card-photo{width:46%;height:100%;
+    -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 42%);
+            mask-image:linear-gradient(90deg,transparent 0,#000 42%)}}
+
+/* ===========================================================================
+   LOADING · ERROR · EMPTY
+   The catalogue now arrives over the network, so three states that a hardcoded
+   array never had must be designed rather than left to chance.
+
+   The skeleton deliberately reproduces the entity card's box — same radius,
+   same border, same plate aspect ratio, same body rhythm — so the switch to
+   real content shifts nothing. That is a CLS decision, not a decorative one.
+   =========================================================================== */
+.app .skeleton-card{border:1px solid var(--line);border-radius:var(--r-4);
+  background:var(--n-0);box-shadow:var(--e-1);overflow:hidden;
+  display:flex;flex-direction:column;gap:var(--s-2);
+  padding:0 var(--s-4) var(--s-4)}
+.app .results>.skeleton-card{margin-bottom:var(--s-3)}
+.app .skeleton-card .sk-line{border-radius:var(--r-1);
+  background:linear-gradient(90deg,var(--n-2) 0%,var(--n-1) 40%,var(--n-2) 80%);
+  background-size:280% 100%;animation:sk-sweep 1.35s var(--ease-std) infinite}
+/* Matches .entity-card .plate — same 16:7 ratio, bled to the card edges. */
+.app .skeleton-card .sk-plate{height:0;padding-top:43.75%;margin:0 calc(var(--s-4) * -1);
+  border-radius:0}
+.app .skeleton-card .sk-title{height:20px;width:72%;margin-top:var(--s-4)}
+.app .skeleton-card .sk-meta{height:12px;width:56%}
+.app .skeleton-card .sk-metrics{display:grid;grid-template-columns:repeat(3,1fr);
+  gap:var(--s-2);margin-top:var(--s-2);padding:var(--s-3) 0;
+  border-block:1px solid var(--line)}
+.app .skeleton-card .sk-metrics span{height:30px;display:block}
+.app .skeleton-card .sk-tags{display:flex;gap:var(--s-1)}
+.app .skeleton-card .sk-tags span{height:24px;width:84px;display:block;
+  border-radius:var(--r-2)}
+.app .skeleton-card .sk-foot{height:40px;width:100%;margin-top:auto;
+  border-radius:var(--r-2)}
+@keyframes sk-sweep{from{background-position:180% 0}to{background-position:-80% 0}}
+@media(prefers-reduced-motion:reduce){
+  .app .skeleton-card .sk-line{animation:none;background:var(--n-2)}
+}
+
+/* Error and empty share one panel: both are "there is nothing to show and here
+   is what to do about it", and giving them different shapes only made the page
+   feel inconsistent. The icon and the action distinguish them. */
+.app .state-panel{grid-column:1/-1;text-align:center;
+  border:1px dashed var(--line);border-radius:var(--r-4);
+  background:var(--n-0);padding:var(--s-6) var(--s-4);
+  display:flex;flex-direction:column;align-items:center;gap:var(--s-2)}
+.app .state-panel .state-icon{width:52px;height:52px;border-radius:var(--r-3);
+  display:grid;place-items:center;background:var(--wash);color:var(--accent-ink,var(--accent))}
+.app .state-panel .state-icon svg{width:24px;height:24px}
+.app .state-panel[role=alert] .state-icon{background:var(--danger-wash,#fdecea);color:var(--danger,#a5271f)}
+.app .state-panel h2{font-size:var(--fs-600);letter-spacing:-.02em;margin:var(--s-1) 0 0}
+.app .state-panel p{color:var(--ink-3);font-size:var(--fs-200);line-height:1.6;
+  max-width:46ch;margin:0}
+.app .state-panel .btn{margin-top:var(--s-2)}
+/* A whole page that is only a state — a detail URL still loading, or a 404. */
+.app .state-main{min-height:60vh;padding:var(--s-7) 0}
+.app .state-main .container{display:flex;flex-direction:column;
+  align-items:center;gap:var(--s-3);max-width:640px}
+.app .state-main .skeleton-card{width:min(100%,520px)}
+
+/* The listing column recomposes the card into a row at 1000px (see the
+   .results>.entity-card block above). The skeleton has to recompose with it,
+   or the placeholder is twice the height of the card it stands in for and the
+   switch to real content drags the whole page up. Same columns, same areas. */
+@media(min-width:1000px){
+  /* min-height is the measured height of a real listing row at this width:
+     257px for an institution, 294px for a job, which carries one extra signal
+     line. The five rows are explicit so the plate can span 1/-1 — with
+     implicit rows, -1 resolves to the end of row one and the plate collapses. */
+  .app .results>.skeleton-card{display:grid;min-height:257px;
+    grid-template-columns:224px minmax(0,1fr);
+    grid-template-rows:auto auto auto auto 1fr;
+    padding:0;gap:0}
+  .app .results>.skeleton-card .sk-plate{grid-column:1;grid-row:1/-1;
+    height:auto;padding-top:0;margin:0;border-radius:var(--r-4) 0 0 var(--r-4)}
+  .app .results>.skeleton-card .sk-title,
+  .app .results>.skeleton-card .sk-meta,
+  .app .results>.skeleton-card .sk-metrics,
+  .app .results>.skeleton-card .sk-tags,
+  .app .results>.skeleton-card .sk-foot{grid-column:2;margin-inline:var(--s-5)}
+  .app .results>.skeleton-card .sk-title{height:22px;margin-top:var(--s-4)}
+  .app .results>.skeleton-card .sk-meta{height:14px;margin-top:var(--s-2)}
+  .app .results>.skeleton-card .sk-metrics{margin-top:var(--s-3);padding:var(--s-3) 0}
+  .app .results>.skeleton-card .sk-metrics span{height:34px}
+  .app .results>.skeleton-card .sk-tags{margin-top:var(--s-3)}
+  .app .results>.skeleton-card .sk-foot{height:38px;width:220px;align-self:end;
+    margin-block:var(--s-3) var(--s-4);justify-self:end}
+  .app-jobs .results>.skeleton-card{min-height:294px}
+}
+
+/* Stacked cards below 1000px: an institution card lands within ~15px of the
+   skeleton's natural height, so it is left alone. A job card carries an extra
+   signals line and measures ~470px at every width from 360 to 900, so the job
+   skeleton is pinned there rather than left 100px short. */
+@media(max-width:999px){
+  .app-jobs .skeleton-card{min-height:470px}
+}
+
+/* ---- consent block in the lead modal --------------------------------------
+   Checkboxes, not toggles: a toggle implies a setting that persists, and this
+   is a one-time permission attached to one submission. Unchecked by default,
+   full-size targets, and the wording sits beside the box rather than in a
+   tooltip, because the wording is the thing being agreed to. */
+.app .consent-block{display:flex;flex-direction:column;gap:var(--s-2);
+  margin-top:var(--s-2);padding:var(--s-3);border:1px solid var(--line);
+  border-radius:var(--r-3);background:var(--n-1)}
+.app .consent-block .check{display:grid;grid-template-columns:auto 1fr;
+  gap:var(--s-2);align-items:start;margin:0;font-weight:400;
+  font-size:var(--fs-200);line-height:1.5;color:var(--ink-2);cursor:pointer}
+.app .consent-block .check input[type=checkbox]{width:20px;height:20px;
+  min-height:20px;flex:none;align-self:start;
+  margin:1px 0 0;accent-color:var(--accent-solid,var(--accent));cursor:pointer}
+.app .consent-block .check input:focus-visible{outline:2px solid var(--accent);
+  outline-offset:2px}
+.app .consent-why{margin:0;font-size:var(--fs-100);line-height:1.5;
+  color:var(--ink-3)}
+
+/* ---- skip link -------------------------------------------------------------
+   Off-screen until focused, then it lands above the sticky header rather than
+   under it — a skip link the header covers is not a skip link. */
+.app .skip-link{position:fixed;top:0;left:var(--s-4);z-index:1200;
+  transform:translateY(-120%);
+  padding:12px var(--s-4);border-radius:0 0 var(--r-2) var(--r-2);
+  background:var(--accent-solid,var(--accent));color:#fff;font-weight:700;
+  font-size:var(--fs-300);text-decoration:none;
+  transition:transform var(--t-comp) var(--ease-out)}
+/* :focus, not only :focus-visible — a skip link that stays hidden for any
+   route into focus is useless, and it can only be reached by keyboard anyway. */
+.app .skip-link:focus{transform:translateY(0);
+  outline:3px solid var(--ink-1,#0F1B2D);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.app .skip-link{transition:none}}
+/* The target is focusable only as a skip destination; it must not draw a ring
+   of its own when clicked. */
+.app main:focus{outline:none}
+
+/* ---- sample rows ------------------------------------------------------------
+   Two rows on /applications illustrate the stages an application moves through.
+   They are not records of anything, and they sit in the same list as the
+   visitor's real enquiries, so they say so — in the row, not in a footnote. */
+.app .app-timeline .is-sample{border-style:dashed;background:var(--n-1)}
+.app .sample-tag{display:inline-block;margin-left:6px;padding:1px 6px;
+  border:1px solid var(--line);border-radius:var(--r-1);
+  background:var(--n-0);color:var(--ink-3);
+  font-size:var(--fs-050);font-weight:800;letter-spacing:.06em}
+
+/* ---- predictor results ------------------------------------------------------
+   Submitting the form used to append the shortlist below the fold and leave
+   focus on the button, so a keyboard or screen-reader user was told nothing.
+   The section now takes focus; it needs the sticky masthead's height of
+   clearance so it does not land underneath it. */
+.app .prediction-results{scroll-margin-top:110px}
+.app .prediction-results:focus{outline:none}
+.app .prediction-results:focus-visible{outline:2px solid var(--accent);outline-offset:8px;border-radius:var(--r-3)}
+
+/* ---- path-card hit area -----------------------------------------------------
+   `.pc-link::after{position:absolute;inset:0}` further up turns the whole card
+   into the target, and the comment there says exactly that. It had stopped
+   being true: hit-testing four points across a 284x203 path card returned
+   `.pc-body` every time, so the only clickable region left was the 122x22
+   title — under the 24x24 that WCAG 2.2 AA (2.5.8) asks of a target, on a card
+   that lifts on hover and draws a card-wide focus ring, i.e. one that looks
+   clickable everywhere and is not.
+
+   The cause was not paint order. `globals.css` carries an old 3D flourish —
+   `.path-card{transform-style:preserve-3d}` with `.path-card h3{transform:
+   translateZ(12px)}` so the title floats a little when the card tilts on
+   hover. A transform makes an element the containing block for absolutely
+   positioned descendants, so `inset:0` had quietly stopped meaning "the card"
+   and started meaning "the h3": the overlay measured 238 x 21.95px, one line
+   of text. `.ec-link` on entity cards uses the same pattern and works,
+   because no entity-card heading is transformed.
+
+   The 12px lift is dropped. It is only perceptible during a hover tilt on a
+   pointer device, it never applied on touch, and it was costing the card its
+   entire hit area. The card's own `:hover` transform is untouched, so the
+   tilt itself stays.
+
+   With the h3 no longer a containing block the overlay resolves against
+   `.pc-body` (`position:relative` from the card-wash work) — 282x201 of the
+   284x203 card, everything inside the border. `z-index:2` lifts it over
+   `.pc-body`'s own contents (the paragraph and the `pc-go` row) as well as the
+   artwork beneath. A path card holds exactly one control, so the overlay
+   covers nothing that needed its own clicks. */
+.app .path-card h3{transform:none}
+.app .pc-link::after{z-index:2}
+
+/* ---- masthead switcher below 360px ------------------------------------------
+   The switcher is allowed to scroll on a phone, and the bleed-and-pad above
+   is meant to clip a tab at the gutter so the cut reads as "there is more
+   this way". At 320px — the reflow floor — that stopped being true: the three
+   tabs need 333px against 308px of track, and the 12px bleed is not enough to
+   carry the extra 25px, so "Berojgar Bharat" was cut through the middle of a
+   word. A tab clipped mid-glyph reads as broken, which is the exact failure
+   the bleed exists to prevent.
+
+   The tabs fit unchanged at 360, 390, 430 and above, so nothing there moves.
+   Below 360 the second line goes instead: it repeats the brand name printed
+   in full one row above it, and at that width the switcher's only job is to
+   say which of three products you are looking at. "Distance / Colleges /
+   Jobs" says that, fits without a scroller, and keeps the accessible name
+   unambiguous. */
+@media(max-width:359px){
+  .app>header>.verticals button small{display:none}
+  .app>header>.verticals button{padding-block:var(--s-2)}
+}
+
+/* ---- predictor results ------------------------------------------------------
+   Three groups, not one flat grid: the point of a rank predictor is the
+   distance between a rank and a cutoff, so each college carries the two
+   numbers side by side and the group heading says what that distance means.
+   Bucket colour is semantic — reachable, borderline, fallback — and is never
+   the only signal, because the heading says the same thing in words. */
+.app .predict-status{color:var(--ink-2);font-size:var(--fs-300);margin:0}
+.app .bucket-group{margin-bottom:var(--s-6)}
+.app .bucket-group:last-of-type{margin-bottom:0}
+.app .bucket-group>.bucket{display:inline-block;margin:0;padding:6px 12px;border-radius:999px;
+  font-size:var(--fs-200);font-weight:800;letter-spacing:.04em;text-transform:uppercase;line-height:1.3}
+.app .bucket.b-strong{background:var(--ok-wash);color:var(--ok)}
+.app .bucket.b-possible{background:var(--warn-wash);color:var(--warn)}
+.app .bucket.b-backup{background:var(--n-1);color:var(--ink-2);border:1px solid var(--line)}
+.app .bucket-note{margin:var(--s-2) 0 var(--s-4);color:var(--ink-2);font-size:var(--fs-300);max-width:62ch}
+.app .bucket-grid article h4{margin:0 0 2px;font-size:var(--fs-400);line-height:1.3}
+/* Column count follows the card, not the viewport: these cards are three
+   across on a desktop and one across on a phone, so a viewport breakpoint
+   would give the narrowest card the widest columns. */
+.app .cutoff-line{display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:var(--s-3);
+  margin:var(--s-4) 0 0;padding-top:var(--s-3);border-top:1px solid var(--line)}
+.app .cutoff-line div{min-width:0}
+.app .cutoff-line dt{margin:0;color:var(--ink-3);font-size:var(--fs-200);font-weight:600}
+.app .cutoff-line dd{margin:2px 0 0;font-size:var(--fs-300);font-weight:800;
+  font-variant-numeric:tabular-nums;color:var(--ink-1)}
+.app .cutoff-caveat{display:block;margin-top:var(--s-3);color:var(--ink-3);
+  font-size:var(--fs-200);line-height:1.45}
+/* Three across only while three cards still have room to hold a name, a place
+   and three figures. Below that the count drops rather than the legibility.
+   Fixed track counts rather than auto-fit: a bucket often holds one or two
+   colleges, and auto-fit would stretch those to the full width of the row. */
+.app .bucket-grid{grid-template-columns:repeat(3,1fr)}
+@media(max-width:1000px){.app .bucket-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.app .bucket-grid{grid-template-columns:1fr}}
+
+/* ---- headings on the automation aside ---------------------------------------
+   `.app h1,.app h2,.app h3,.app h4{color:var(--ink-1)}` paints every heading
+   near-black, and a companion rule lists the surfaces where that is wrong —
+   `.hero-copy`, `.glass-dark`, `.footer`, `.decision`, `.band-dark` — and turns
+   their headings white. `/automations` has such a surface and was never added
+   to the list: `.automation-grid>aside` sets `color:#fff` over a
+   `#07356F -> #0B4DA8` gradient, and its `<h2>` came back out at `--ink-1`.
+   Measured against both gradient stops that is **1.52:1 and 2.30:1** — a 32px
+   heading needs 3.0 — i.e. near-black on dark navy, the page's own title
+   effectively unreadable. The paragraph beneath it (9.02 / 5.97) and the tag
+   (8.8) were always fine, which is why it read as a rendering oddity rather
+   than a missing rule.
+
+   `inherit` rather than `#fff`, matching the `.path-card` rule above: the aside
+   owns its foreground colour, and a heading on it should follow whatever that
+   becomes. */
+.app .automation-grid>aside h1,.app .automation-grid>aside h2,
+.app .automation-grid>aside h3,.app .automation-grid>aside h4{color:inherit}
+
+
+/* ---- the atlas hero's scrim on a narrow screen -------------------------------
+   globals.css already answers this: the base `.hero-shade` is a 90deg wash that
+   is nearly opaque on the left, where the desktop copy column sits, and thins to
+   .08 on the right so the photograph survives beside it — and inside
+   `@media(max-width:760px)` globals re-declares `.hero-shade` as a 180deg wash,
+   because once the hero stacks the copy is no longer in a left column, it is the
+   whole width.
+
+   That mobile rule stopped applying. `.app .atlas-hero .hero-shade` further up
+   this file re-states the horizontal gradient in `--ink-deep` so each vertical
+   tints its own black, and at 0-3-0 it outranks the 0-1-0 mobile rule — media
+   queries carry no specificity of their own. So the desktop wash was still in
+   force at 390px, with the copy running across the thin end of it.
+
+   Measured at 390x844 over `career-editorial-full.webp`: the jobs eyebrow 2.05,
+   the `<em>` in the 34px headline 1.94 (against 3.0), the standfirst 2.27; on
+   `/colleges` the eyebrow 3.01 and the standfirst 3.48. Backdrops around
+   rgb(154 157 150) — the bright part of the photograph, straight behind white
+   text. At 1440 all of these pass, which is why a desktop-only sweep missed it.
+
+   The vertical wash returns, in the same token and following `.tool-hero`'s
+   mobile rule directly above. It reaches full strength earlier (62% rather than
+   66%) because the atlas hero's copy runs from 11% to 82% of an 821px box, not
+   the shorter tool hero's. */
+@media(max-width:760px){
+  .app .atlas-hero .hero-shade{background:linear-gradient(180deg,
+    color-mix(in srgb,var(--ink-deep) 78%,transparent) 0%,
+    color-mix(in srgb,var(--ink-deep) 92%,transparent) 34%,
+    color-mix(in srgb,var(--ink-deep) 96%,transparent) 62%)}
+}
+
+/* The other side of that breakpoint -----------------------------------------
+   The rule above returns the vertical wash below 760px, where the hero stacks.
+   Above 760px the horizontal wash stays, and in principle that is right: the
+   copy is in a left column and the photograph deserves the right. What was
+   wrong was where the wash decided the column ended.
+
+   `.hero-shade`'s stops are percentages of the hero. The copy column is 61.8%
+   of a container that is `min(1280px, 100% - 48px)`, so its right edge lands at
+   about 61% of the hero at every width from 761px up — and the proof rail under
+   the headline is the widest thing in that column, running the full 61%. The
+   wash held .92 only to 42% and was down to .38 by 72%; interpolated at 61%
+   that is roughly .55 alpha under a 12px label that needs the scrim opaque.
+
+   Measured on /jobs, worst sample on the third proof label ("hiring employers",
+   12px, white at .76), against the 4.5:1 that size requires:
+
+     768   3.54      1101  4.20      1440  5.20
+     1024  3.96      1280  4.67
+
+   Three widths fail outright and the two that pass do so on the photograph's
+   good behaviour, not the scrim's — the number tracks how bright the crop
+   happens to be behind the rail at that width, which is why the desktop sweep
+   read this as a near miss rather than a defect. It is one defect at every
+   width above the stacking breakpoint.
+
+   So the shoulder moves out to where the copy actually ends, and the ramp to
+   the photograph is compressed into the remaining third rather than removed:
+   the image still opens up on the right, it just stops reclaiming the scrim
+   from underneath the text. Measured after, same label, same samples:
+
+     768   8.98      1101  9.08      1440  9.18
+     1024  9.08      1280  9.17
+
+   and no other text in the hero falls below its threshold on /, /distance,
+   /colleges or /jobs at 768, 1024, 1280 or 1440. */
+@media(min-width:761px){
+  .app .atlas-hero .hero-shade{background:linear-gradient(90deg,
+    color-mix(in srgb,var(--ink-deep) 97%,transparent) 0%,
+    color-mix(in srgb,var(--ink-deep) 93%,transparent) 64%,
+    color-mix(in srgb,var(--ink-deep) 40%,transparent) 84%,
+    color-mix(in srgb,var(--ink-deep) 12%,transparent))}
+}
+
+/* The same question asked of the tool hero -----------------------------------
+   The atlas hero has a copy column that holds a near-constant share of the
+   hero, so one shoulder serves every desktop width. The tool hero does not:
+   `.tool-hero-copy` is the plain container, the standfirst wraps at 58ch and
+   the proof pills wrap onto fewer lines as the viewport widens, so the text
+   keeps shrinking away from the right edge as the screen grows. Measured as a
+   percentage of hero width, worst route at each width:
+
+     1728  57      1280  56      768  91
+     1440  58      1101  66      761  94
+     1024  71
+
+   Above ~1200 that leaves a third of the hero with nothing in it, and the
+   96deg wash — down to .40 by 76% — is doing the right thing there: the
+   photograph opens up on the right and no text is standing in it. Nothing at
+   1201 and above needed the shoulder moved, so the scrim there is untouched.
+
+   Below it the copy runs most of the way across and the wash is releasing the
+   scrim underneath live text. Worst sample on each affected route, against the
+   4.5:1 that 13px and 16px require, measured before and after:
+
+     761   /jobs/search            2.27 -> 5.51
+     761   /distance/universities  4.43 -> 7.95
+     761   /colleges/search        5.29 -> 5.84
+     768   /jobs/search            3.22 -> 5.51
+     768   /about                  3.24 -> 7.66
+     900   /jobs/search            4.00 -> 5.51
+     1024  /jobs/search            5.26 -> 5.51
+
+   so the shoulder moves out to 78% for that band and the release is compressed
+   into the last fifth. The image is still lit on the right — this is not the
+   flat vertical wash the stacked layout uses below 761 — it just stops handing
+   the scrim back where the text still is.
+
+   After: the worst small text anywhere in the seven tool heroes is 5.51, and
+   that is a solid-filled button label rather than anything sitting on the
+   photograph. Swept at 360, 390, 430, 761, 768, 900, 1024, 1200, 1201, 1280
+   and 1440; both sides of the 1200/1201 boundary read the same. The four
+   vertical homepages re-checked at 390, 768 and 1440 are unchanged. */
+@media(min-width:761px) and (max-width:1200px){
+  .app .tool-hero .hero-shade{background:linear-gradient(96deg,
+    color-mix(in srgb,var(--ink-deep) 93%,transparent) 0%,
+    color-mix(in srgb,var(--ink-deep) 82%,transparent) 78%,
+    color-mix(in srgb,var(--ink-deep) 42%,transparent) 100%)}
+}
+
+
+/* Reflow (WCAG 1.4.10) at 320 CSS px ------------------------------------------
+   The card foot is a nowrap flex row: compare label, "Details", "Apply now".
+   A <button> carries `overflow:hidden` from the UA sheet, so as a flex item its
+   automatic minimum size collapses to zero and it shrinks *past* its own label
+   instead of refusing to. Measured at 320: the row needs 282px of content box
+   and gets 250, so "Details" was cut at 56 of the 66 it needs and "Apply now"
+   at 81 of 103 — the label was clipped, silently, with no scrollbar. It fits
+   from about 350 up, which is why every device width in the sweep passed and
+   only the 320px reflow target failed.
+
+   Wrapping is the fix rather than a smaller font: the line breaks before the
+   labels do, so the two buttons drop to their own row and keep full width. */
+.app .entity-foot{flex-wrap:wrap;row-gap:var(--s-2)}
+
+/* Same requirement, opposite mechanism. Below 761 the trust strip turns its
+   container into a horizontal scroller with `white-space:nowrap`, so at 320 the
+   third item ("Updated every admission cycle") sat off-screen behind a
+   sideways scroll inside a vertically-scrolling page. Three short factual
+   statements are not content that needs a two-dimensional layout, so they wrap
+   instead. The strip grows taller on a phone; nothing is hidden. */
+@media(max-width:760px){
+  .app .trust-strip .container{overflow:visible;height:auto;flex-wrap:wrap;
+    justify-content:flex-start;gap:var(--s-2) var(--s-5);
+    padding-block:var(--s-4)}
+  .app .trust-strip span{white-space:normal}
+}
+
+/* The same UA quirk, found again at 768 on the closing CTA: "Book a free call"
+   needed 154px and was given 130. It is not worth hunting button by button, so
+   the floor goes on the control itself. `min-width:auto` on a flex item whose
+   overflow is not visible resolves to 0, and a <button> always has
+   `overflow:hidden` from the UA sheet — naming the floor explicitly restores
+   the behaviour every other flex item already has. A button may still shrink;
+   it may no longer shrink past its own label. Where a row then cannot fit, it
+   wraps instead. */
+.app .btn{min-width:fit-content}
+.app .human-cta{flex-wrap:wrap;gap:var(--s-5)}
+
+/* ============================================================
+   RESPONSIVE RECOMPOSITION — measured, not guessed
+   Every number below came from a running browser at 1440x1000,
+   1280x800, 1024x768, 768x1024, 430x932, 390x844 and 360x800.
+   The problems were all in the band between "desktop" and
+   "phone": the layout had a desktop tier and a 760px phone tier
+   and nothing in between, so an iPad in portrait got the desktop
+   grid at tablet width.
+   ============================================================ */
+
+/* --- 1. One header height, named once ------------------------
+   Three sticky elements each carried their own hand-written
+   guess at how tall the header is: .anchor-nav top:76px,
+   .filters top:100px, .side-card top:155px. The header is not
+   76px tall. Measured: 68px above 901px, 115px between 761 and
+   900 (the two-row brand/verticals layout), 109px below 761.
+   The worst case was the anchor nav on a phone — top:64px under
+   a 109px header put 45px of the nav permanently behind it, so
+   the section links you were meant to tap were the part that was
+   covered. A token means the offsets cannot drift apart again,
+   and scroll-margin-top makes in-page jumps land below the
+   header rather than under it. */
+/* Sticky was dead site-wide before this line, at every width.
+   globals.css carries `html,body{overflow-x:hidden}`. Setting overflow-x on
+   the BODY makes body a scrolling box, and a scrolling box is the scrollport
+   its descendants stick inside — body never scrolls (html does), so every
+   `position:sticky` in the app was inert. Verified in the browser at 1440
+   and at 390: at scrollY 900 the header's top was -860, i.e. it had scrolled
+   away exactly as a static element would.
+   The horizontal clip is still wanted, and it still applies: overflow on the
+   root element propagates to the viewport, so `html{overflow-x:hidden}` alone
+   does the clipping while leaving body a normal, non-scrolling block. Both
+   axes are returned to visible here because leaving overflow-y at `auto` —
+   which is what a lone `overflow-x:hidden` coerces it to — would recreate the
+   scrolling box and the bug with it. */
+body{overflow-x:visible;overflow-y:visible}
+
+/* Now that things actually stick, how much is stuck to the top matters.
+   Measured header heights: 68px at 901px and up, 115px between 761 and 900
+   (the brand row and the verticals row stack), 109px below 761.
+   Below 761 the header is deliberately not sticky. The bottom navigation bar
+   appears at exactly that width and is the primary navigation there, so a
+   sticky header would be a second, redundant nav costing 109px on top of the
+   40px ticker — 18% of an 844px phone screen permanently spent on chrome that
+   duplicates the bar under the thumb. It scrolls away, and --header-h is 0 so
+   nothing reserves space for a bar that is not there. */
+.app{--header-h:68px}
+@media(max-width:900px){.app{--header-h:115px}}
+@media(max-width:760px){
+  .app{--header-h:0px}
+  .app header{position:static}
+}
+
+.app .anchor-nav{top:var(--header-h)}
+.app .filters{top:calc(var(--header-h) + var(--s-4))}
+.app .side-card{top:calc(var(--header-h) + var(--s-6))}
+/* An in-page jump has to clear everything that is stuck above it,
+   not just the header. On a detail page the anchor nav is stuck
+   under the header — measured 64px at every width — so clicking
+   "Process" landed the section at y=131 with the nav's bottom at
+   y=179: 48px of the heading you asked for, hidden behind the
+   control you clicked. The stack is named once and the sections
+   inside a detail layout add the nav to it. */
+.app{--anchor-h:64px;--sticky-stack:var(--header-h)}
+.app .detail-layout{--sticky-stack:calc(var(--header-h) + var(--anchor-h))}
+.app #results,
+.app .detail-section{scroll-margin-top:calc(var(--sticky-stack) + var(--s-4))}
+
+/* --- 2. A gutter the page is allowed to keep -----------------
+   At 1440 the design gives itself a 100px gutter either side of
+   the 1240px column. Below 1336 that gutter collapses to the
+   32px floor, and at 1024 the content ran to within 32px of the
+   window edge — which is where the floating chat launcher lives.
+   Measured at 1024: the launcher's box was x943-995 and the
+   "Save" control on every result card was x926-964, so the
+   launcher sat on 21px of a 38px button, and elementFromPoint
+   returned the launcher. Not one card — every card, because they
+   all share that right edge, so scrolling dragged one save
+   button after another under a dead zone.
+   Holding the gutter at 72px between 941 and 1384 fixes it at
+   the cause: the floating column now has somewhere to stand that
+   is not on top of the page. It costs 40px a side at 1024 and
+   reads better for it — 32px of margin at that width was thin
+   for the design's own proportions. Above 1384 the original
+   centring formula already produces more than 72px and takes
+   over again. */
+@media screen{
+  .app{--gutter:max(32px,calc((100vw - 1240px)/2))}
+  @media(min-width:941px) and (max-width:1384px){.app{--gutter:72px}}
+  @media(max-width:760px){.app{--gutter:18px}}
+  .app .container{width:min(1240px,calc(100% - var(--gutter)*2))}
+  /* The anchor nav sizes to its own links and centres them; it is
+     not a page column and must not inherit the page column's width. */
+  .app .anchor-nav .container{width:max-content}
+  .app header{padding-inline:var(--gutter)}
+}
+
+/* --- 3. The listing gets three layouts, not two --------------
+   .listing-layout stayed a 280px + 1fr grid all the way down to
+   761px. At 768 that resolved to a 280px filter rail beside a
+   361px results column: the rail was taking 44% of the screen to
+   hold five controls, and the content it filtered had less room
+   than a phone gives it.
+   The stacking point is arithmetic. Results width is
+   viewport - 2*72 (gutter) - 280 (rail) - 48 (gap); for the
+   results column to hold the 560px its card interior needs
+   before the meta row wraps twice, the viewport must be at least
+   1032px. So the rail stops being a rail at 1040.
+   Below that the panel is not simply moved — it is rebuilt. A
+   761-1039px screen is wide and short: the controls go side by
+   side in an auto-fitting row, still fully visible, because a
+   landscape tablet has the width for them and hiding them there
+   would cost a click for nothing. Only below 761, where they
+   stack into a 613px tower, do they collapse behind a summary. */
+@media(max-width:1039px){
+  .app .listing-layout{display:block}
+  .app .filters{position:static;top:auto;width:auto;height:auto;
+    margin-bottom:var(--s-5)}
+
+  /* The hero headline was locked to 64% of the line at every
+     width below 1080. On a 753px-wide viewport that is a 436px
+     text column with 317px of nothing beside it: the panel it
+     was leaving room for is already stacked below by then. */
+  .app .hero-copy{width:100%}
+}
+
+/* Tier two: the controls become a row. */
+@media(min-width:761px) and (max-width:1039px){
+  .app .filters .filter-body{display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:var(--s-4) var(--s-5);align-items:end}
+  /* The must-have checkboxes are a stacked column in the sidebar.
+     Left stacked here they were 271px of a 592px panel — four
+     checkboxes in an 815px-wide box, one per line. Wrapped into a
+     row they take the width they were already given. */
+  .app .filters .check-list{grid-column:1/-1;display:flex;flex-wrap:wrap;
+    align-items:center;gap:var(--s-3) var(--s-5)}
+  .app .filters .check-list>b{flex-basis:100%}
+}
+
+@media(max-width:940px){
+  /* Five footer columns at 2fr+4x1fr resolved to 287px and four
+     90px columns at 768 — every link inside them wrapping twice.
+     Two columns of real width read better than five of none. */
+  .app .footer>.container:first-child{grid-template-columns:1fr 1fr;
+    gap:var(--s-6) var(--s-5)}
+}
+
+/* Tier three: below 761 the panel is a disclosure ------------
+   Measured at 390x844 on /distance/universities: the panel is
+   613px tall and sits above the results, so the first university
+   card began at document y=1516. Two full screens of controls
+   before one result, on the page whose entire job is showing
+   results.
+   The toggle exists only here; above 760 it is display:none and
+   .filter-body is never hidden, so no layout above this width
+   depends on JavaScript state to be visible. The active-filter
+   count rides on the summary line, so a closed panel is never a
+   hidden state — you can always see that something is filtering.
+   44px minimum height because this is the control standing
+   between a thumb and the results. */
+.app .filters .filter-toggle{display:none}
+@media(max-width:760px){
+  .app .filters .filter-title{display:flex;align-items:center;
+    gap:var(--s-3);flex-wrap:wrap}
+  .app .filters .filter-toggle{display:inline-flex;align-items:center;
+    justify-content:center;margin-left:auto;
+    min-height:44px;padding:0 var(--s-4);
+    /* --line is #DDE3EC: 1.29:1 against the panel it sits on, and
+       the --n-1 fill is 1.03:1. A control whose only boundary is
+       both of those is a control you have to already know is
+       there. --ink-4 measures 5.04:1 on white, comfortably past
+       the 3:1 that 1.4.11 asks of a control's visual boundary. */
+    border:1px solid var(--ink-4);border-radius:var(--r-2);
+    background:var(--n-1);color:var(--ink-1);
+    font-family:inherit;font-weight:600;font-size:var(--fs-100);
+    letter-spacing:.01em;cursor:pointer}
+  .app .filters .filter-toggle:hover{border-color:var(--accent)}
+  .app .filters[data-open="no"] .filter-body{display:none}
+  .app .filters[data-open="yes"] .filter-body{
+    padding-top:var(--s-4);margin-top:var(--s-4);
+    border-top:1px solid var(--line)}
+  .app .filters .filter-title>button:last-child{min-height:44px}
+}
+
+/* --- 4. Stop hiding a real result on tablet ------------------
+   `@media(max-width:1080px){.card-grid .entity-card:last-child
+   {display:none}}` removed the third university from the grid
+   between 761 and 1080px and put it back below 761. A tablet
+   user was shown fewer universities than a phone user, and no
+   part of the interface said so. Two columns of three cards
+   wraps; that is what wrapping is for. */
+@media(max-width:1080px){
+  .app .card-grid .entity-card:last-child{display:flex}
+}
+
+/* --- 5. Micro type on small screens --------------------------
+   --fs-050 is 11px. It carries .stat-note, .pc-badge and
+   .plate-tag — the fee footnote, the card badge and the mode
+   tag, all of which are read at arm's length on a phone rather
+   than a foot away on a desk. 12px is the floor. */
+@media(max-width:760px){
+  .app{--fs-050:12px}
+}
+
+/* --- 6. The two floating controls become one column ----------
+   The chat launcher docks into the page gutter, but only while
+   the gutter exists — above roughly 1348px. Below that it clamps
+   to right:14px and lands on the content: measured at 1024 it
+   covered "Save Amity University Online" by 21x33 and
+   elementFromPoint returned BUTTON.bot-launch, so the click went
+   to the launcher rather than the save button.
+   The scroll-top button never got the docking treatment at all —
+   right:88px, fixed — and at 1024 scrolled it covered "Apply
+   now" by 40x36. The two of them sat side by side across a
+   ~115px band of the right edge.
+   Now both share one dock offset and stack vertically, so the
+   floating pair occupies a single 52px column instead of a
+   115px band, and each is a full launcher-height clear of the
+   other. Same corner, a third of the footprint. */
+.app{--float-dock:max(12px,calc(var(--gutter) - 60px))}
+.app .bot-wrap:not(.open){right:var(--float-dock)}
+.app .scroll-top{right:var(--float-dock);bottom:calc(21px + 52px + 12px)}
+@media(max-width:760px){
+  .app .scroll-top{bottom:calc(88px + 48px + 12px)}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   REFERENCE RESKIN — light hero, civic blue, hairline depth
+
+   Everything above this line was written against a dark photographic hero and
+   a slate-neutral palette. The public site is now matched to the reference
+   analysed in docs/reference-analysis.md, which inverts the two decisions this
+   sheet's hero was built on: its hero is LIGHT, and its depth comes from 1px
+   hairlines and tinted washes rather than from elevation.
+
+   This block is appended rather than merged into the sections above for one
+   reason: the rules it replaces are load-bearing for /colleges and /jobs too,
+   and rewriting them in place would have meant re-verifying three verticals'
+   heroes against a reference that only describes one. Scoped overrides at the
+   end are the smaller claim. Where a rule here shadows one above, the comment
+   says which.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. UTILITY BAR ────────────────────────────────────────────────────────
+   Shadows `.ticker` (globals.css), which painted it --ink dark. The reference
+   runs a flat brand blue with no gradient and no border: it is a rail, not a
+   surface, and any depth on it would make the masthead below look sunken.
+
+   --rail is its own token rather than --accent or --accent-deep. Neither works:
+   --accent is the CTA blue and repeating it at full width flattens the button
+   that matters, and --accent-deep is the heading navy, which reads as a black
+   bar. The reference sits between them, and white on it measures 5.1:1. */
+.app{--rail:#0F5BD6}
+.app .ticker,.app .ticker.utility{
+  background:var(--rail);color:#fff;border-bottom:0}
+.app .ticker small{color:rgb(255 255 255/.80)}
+.app .ticker span{background:none;color:#fff;font-weight:500;
+  font-size:var(--fs-200);letter-spacing:0;padding:0}
+/* The live pill is the one thing on the rail that is not text, so it keeps a
+   fill — but in the warm accent, which is the only colour on the page allowed
+   to interrupt the blue. --spark-ink is near-black, so it clears AA on amber. */
+.app .ticker span.live,.app .ticker>span:first-child{
+  background:var(--spark);color:var(--spark-ink);
+  border-radius:var(--r-pill);padding:3px 9px;font-weight:800}
+
+/* ── 2. MASTHEAD ───────────────────────────────────────────────────────────
+   Opaque white with a single hairline. The glass treatment above assumed dark
+   content scrolling under it; over a light hero it only greys the logo. */
+.app>header{background:var(--n-0);backdrop-filter:none;-webkit-backdrop-filter:none;
+  border-bottom:1px solid var(--line);box-shadow:none}
+.app .verticals button span{font-weight:600;letter-spacing:0}
+
+/* ── 3. HERO ───────────────────────────────────────────────────────────────
+   The inversion. Four things change together, and they only work together:
+
+   a. The background becomes a 160° wash instead of a near-black fill.
+   b. The photograph stops being a full-bleed cover image and becomes a
+      right-hand panel, feathered out on its left edge so it never runs under
+      the headline. `object-position` alone could not do this — the image was
+      inset:0 and the shade was doing the masking, so the mask moves onto the
+      picture element itself.
+   c. `.hero-shade` inverts from a dark scrim to a light one. It is kept rather
+      than removed because it still does real work: it is what stops the photo
+      from touching the text column at narrow widths.
+   d. Every piece of hero text flips from white-on-dark to ink-on-light. This
+      is the part with the contrast risk, so each colour below is a token that
+      was measured against white rather than a literal.                       */
+.app .hero,.app .hero.atlas-hero{
+  background:linear-gradient(160deg,#E8F1FE 0%,#F3F8FF 52%,#FBFDFF 100%);
+  min-height:640px}
+
+/* The blob. One soft ellipse of --tint behind the subject, blurred past the
+   point of being a shape — its whole job is to keep the cutout from sitting
+   flat on the wash. Decorative, so it is inert to the accessibility tree. */
+.app .hero:before{
+  content:"";position:absolute;z-index:0;pointer-events:none;
+  right:6%;top:8%;width:min(620px,46vw);aspect-ratio:1/.92;
+  background:var(--tint);opacity:.5;border-radius:50%;filter:blur(58px)}
+
+.app .hero>picture{position:absolute;inset:0 0 0 auto;width:min(56%,900px);
+  animation:none}
+/* Two feathers, not one, composited with `intersect`.
+
+   The left edge was always going to need one — the photograph has to end in
+   the wash rather than against it. The top edge turned out to need one too,
+   and this is an asset problem rather than a design choice: the only hero art
+   in the repo is a night-city illustration, so its sky is a saturated dark
+   blue that met the pale wash in a hard horizontal line right under the
+   masthead. The reference's photograph has a light, desaturated background and
+   needs no such help. Fading the top 18% and taking ~10% of the saturation out
+   is the closest this asset gets; a daylight or cutout image would let both
+   the vertical mask and the filter go.
+
+   The prefixed properties are still here because Safari wants them, and
+   -webkit-mask-composite spells the same operation `source-in`. */
+.app .hero>picture>img{width:100%;height:100%;object-fit:cover;object-position:center;
+  filter:saturate(.9) brightness(1.04);
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 34%,#000 100%),
+    linear-gradient(180deg,transparent 0%,#000 18%,#000 100%);
+  mask-image:linear-gradient(90deg,transparent 0%,#000 34%,#000 100%),
+    linear-gradient(180deg,transparent 0%,#000 18%,#000 100%);
+  -webkit-mask-composite:source-in;mask-composite:intersect}
+/* Three selectors, not one. Two media-query rules further up this sheet set
+   `.app .atlas-hero .hero-shade` at 0-3-0 — once for ≤760 and once for ≥761 —
+   and media queries carry no specificity of their own, so a 0-2-0 rule down
+   here loses to both no matter how late it appears. They are answered at
+   matching specificity inside the same breakpoints. The stops are the mirror
+   of the dark version: opaque over the copy column, gone by the time the
+   photograph starts. */
+.app .hero-shade{
+  background:linear-gradient(90deg,#F4F9FF 0%,rgb(244 249 255/.92) 38%,
+    rgb(244 249 255/.35) 58%,transparent 74%)}
+@media(min-width:761px){
+  .app .atlas-hero .hero-shade{background:linear-gradient(90deg,
+    #F4F9FF 0%,rgb(244 249 255/.94) 46%,
+    rgb(244 249 255/.42) 66%,transparent 80%)}
+}
+@media(max-width:760px){
+  /* Stacked: the copy is the full width, so the wash runs down rather than
+     across, and has to reach full strength before the text starts. */
+  .app .atlas-hero .hero-shade{background:linear-gradient(180deg,
+    rgb(244 249 255/.62) 0%,rgb(244 249 255/.94) 30%,#F4F9FF 58%)}
+  /* The photograph goes back to full width underneath it, so the left-edge
+     feather would cut the subject in half. */
+  .app .hero>picture{width:100%}
+  .app .hero>picture>img{-webkit-mask-image:none;mask-image:none;
+    object-position:62% 20%}
+}
+
+.app .hero-copy{color:var(--ink-2);position:relative;z-index:1}
+.app .hero-copy h1,.app .hero-copy h2{color:var(--ink-1)}
+.app .hero-copy>p{color:var(--ink-3);font-size:var(--fs-500);
+  line-height:var(--lh-body);max-width:52ch}
+/* The band between the hero's two layouts: 761-1039, where the picture is
+   still a 56% right panel but `.app .hero-copy{width:100%}` (further up, in
+   the listing-layout block) has already released the copy to the full line.
+   That rule's comment is about the tool hero, whose side panel really has
+   stacked by 1039 — this one's has not, so at 768 the paragraph ran to x=594
+   while the left feather only finishes at x=475, putting its last two words on
+   the photograph. The headline clears the image on its own (it breaks at
+   ~342px), and the search field and buttons are opaque surfaces that sit over
+   it legibly; the paragraph is the only thing in the hero that is text
+   directly on art.
+   54% is where the measure ends before the mask goes solid — 0.54 x 768 =
+   415px against a feather that completes at 475 — and the shade is pushed out
+   to cover the gap between them. min() keeps 52ch as the cap, so nothing
+   changes at the top of the band where the line was already the shorter of the
+   two. It has to sit below the declaration it corrects: both are 0-2-0, and a
+   media query adds no specificity of its own. */
+@media(min-width:761px) and (max-width:1039px){
+  .app .hero-copy>p{max-width:min(52ch,54%)}
+  .app .atlas-hero .hero-shade{background:linear-gradient(90deg,
+    #F4F9FF 0%,rgb(244 249 255/.96) 52%,
+    rgb(244 249 255/.5) 72%,transparent 88%)}
+}
+/* Shadows the contrast correction above, which lifted the eyebrow to
+   --spark-lift for legibility on a dark photograph. On the light wash that
+   same colour measures under 2:1; the accent reads at 7.3:1. */
+.app .hero .eyebrow{color:var(--accent-ink)}
+.app .hero .eyebrow svg{color:var(--spark)}
+
+/* The tri-colour headline. Line 1 inherits --ink-1 from the rule above; the
+   two `em`s carry lines 2 and 3. Weight stays at 800 across all three — the
+   reference does not step the weight down on the coloured lines, and doing so
+   (as the previous sheet did, at 400) makes them read as a subtitle rather
+   than as a continuation of the same sentence. */
+.app .hero-copy h1{font-weight:800;line-height:var(--lh-tight)}
+.app .hero-copy h1 em{font-weight:800;color:var(--accent)}
+/* Line 3 is the one place the reference's own palette does not survive being
+   copied. #F7A928 on its pale wash measures 1.97:1 — the reference ships that,
+   and at 62px/800 it is still under the 3:1 that large text is allowed. The
+   brief's instruction for exactly this case is to keep the intent and fix the
+   ratio, so the hue is held and only the lightness moves: 72% of --spark over
+   black lands on #B27A1D, which is 3.2:1 on the wash and 3.7:1 on white, at
+   the same 37° hue. It stays unmistakably the warm end of the gradient.
+   Derived rather than written as a literal so the other two verticals, whose
+   --spark is a navy and a green, get the same treatment for free.
+   The mobile hero overrides this back to full --spark, because there the word
+   sits on a dark card and the bright value is the legible one. */
+.app .hero-copy h1 em.warm{color:color-mix(in srgb,var(--spark) 72%,#000)}
+
+/* The hero search: a real field on a light ground, so it needs a border it
+   did not need when it sat on a photograph. */
+.app .hero-search{background:var(--n-0);border:1px solid var(--line);
+  border-radius:var(--r-3);box-shadow:0 4px 20px rgb(10 43 94/.06);
+  height:64px;padding:0 8px 0 20px}
+.app .hero-search svg{color:var(--ink-4)}
+.app .hero-search span{color:var(--ink-4)}
+.app .hero-search b{background:var(--accent);border-radius:var(--r-2);
+  height:46px;padding:0 24px;font-size:var(--fs-300);font-weight:700}
+
+/* Both hero CTAs become pills, and the secondary one becomes an outline
+   rather than the translucent ghost it was — a ghost button needs something
+   behind it to be a ghost of. */
+.app .hero-ctas .btn{border-radius:var(--r-pill)}
+.app .hero-ctas .btn.primary{background:var(--accent);box-shadow:0 2px 8px rgb(18 99 224/.28)}
+.app .hero-ctas .btn.primary:hover:not(:disabled){
+  background:var(--accent-ink);box-shadow:0 4px 14px rgb(18 99 224/.34)}
+.app .hero-ctas .btn.ghost{background:var(--n-0);color:var(--accent-ink);
+  border:1px solid var(--accent);box-shadow:none}
+.app .hero-ctas .btn.ghost:hover:not(:disabled){background:var(--wash)}
+
+/* Focus rings inside the hero were tuned for a dark ground. */
+.app .hero :focus-visible{outline-color:var(--accent-ink)}
+
+/* ── 4. STAT STRIP ─────────────────────────────────────────────────────────
+   The reference's most confident element, and the one most easily ruined: its
+   three cells are separated by 1px RULES, not by gaps. Gaps would turn a
+   single instrument into three weak cards. The rules live on the cells rather
+   than on the container so the last one can be removed without a wrapper.
+
+   Every selector here is `.app .hero .proof …`, not `.app .proof …`. The strip
+   only ever renders inside the hero, so the extra element buys nothing on its
+   own — but the block it is replacing (the struck-medallion treatment, ~line
+   2350) is written at that depth, and being later in the file does not help a
+   0-2-0 rule against a 0-3-0 one. This has to match, not merely follow. */
+.app .hero .proof{
+  background:var(--n-2);border:0;border-radius:var(--r-4);
+  padding:var(--s-5) var(--s-6);gap:0;box-shadow:none;margin-top:var(--s-7)}
+/* The rule is the whole point of this component, so it cannot be --n-3: that
+   is #E1E9F4 on the strip's own #EFF4FB, a 1.06:1 step that vanishes at 1px.
+   16% accent mixed into it lands at #C0D4F1 — still a hairline, but one you
+   can actually see, and blue rather than grey so it belongs to the band. */
+.app .hero .proof button{
+  border-right:1px solid color-mix(in srgb,var(--accent) 16%,var(--n-3));
+  border-radius:0;background:none;
+  color:var(--ink-2);padding-inline:var(--s-6)}
+.app .hero .proof button:first-child{padding-left:0}
+.app .hero .proof button:last-child{border-right:0;padding-right:0}
+.app .hero .proof button:hover{background:none}
+
+/* The medallion. The struck-metal treatment further up this sheet — dark well,
+   masked gradient bezel via ::before, gold glyph, seated shadow — was built to
+   sit on a photograph and needs a dark ground to read as minted. On a pale wash
+   the same object is a dark blot. The reference uses the plainest possible
+   container: a flat 10% brand circle with the icon in full accent. The ::before
+   ring has to be switched off explicitly; overriding `background` on the parent
+   leaves the pseudo-element drawing its bezel over the top of it. */
+.app .hero .proof .stat-i{background:color-mix(in srgb,var(--accent) 10%,transparent);
+  border:0;box-shadow:none;width:44px;height:44px;border-radius:50%;
+  /* The marks punch their details (the check inside the seal, the door and
+     windows in the employer mark) out of the silhouette rather than drawing
+     them on top, so this has to be the colour actually behind the glyph — now
+     10% #1263E0 composited over --n-2, which resolves to #D9E5F8. The old
+     value was the dark well's #0A1A31 and would print the cut-outs as ink. */
+  --mark-knockout:#D9E5F8}
+.app .hero .proof .stat-i::before{display:none}
+.app .hero .proof .stat-i svg{color:var(--accent);width:21px;height:21px;filter:none}
+.app .hero .proof button:hover .stat-i{
+  background:color-mix(in srgb,var(--accent) 16%,transparent);
+  box-shadow:none;transform:none}
+.app .hero .proof b{color:var(--ink-1);font-weight:800;font-size:var(--fs-700)}
+.app .hero .proof small{color:var(--ink-3);font-size:var(--fs-300);font-weight:500}
+.app .hero .proof .stat-note{color:var(--ink-4)}
+.app .hero .proof .stat-bar{display:none}   /* the wash already groups them */
+
+@media(max-width:900px){
+  /* Below the single-column switch the rules would be horizontal, which reads
+     as a table. Drop them and let the wash do the grouping on its own. */
+  .app .hero .proof button{border-right:0;padding-inline:0}
+  .app .hero .proof{padding:var(--s-4) var(--s-5)}
+  .app .hero .proof .stat-i{width:34px;height:34px;border-radius:50%}
+}
+
+/* ── 5. TRUST STRIP ────────────────────────────────────────────────────────
+   Sits directly under the hero, so it inherits the wash rather than the dark
+   band it used to close. */
+.app .trust-strip{background:var(--n-0);border-bottom:1px solid var(--line);
+  color:var(--ink-3)}
+/* The span needs saying separately. globals.css:271 has
+   `.app .trust-strip span{color:#eef3f9}` — a near-white chosen when this
+   strip closed the dark hero — and that is 0-2-1 against the 0-2-0 above, so
+   inheriting from the strip never reaches the text. On the new white ground
+   #EEF3F9 measures 1.1:1: the line was there in the DOM and gone from the
+   page. Matching its specificity is enough to win, because this sheet loads
+   after globals. */
+.app .trust-strip span{color:var(--ink-3)}
+.app .trust-strip svg{color:var(--accent)}
+
+/* ── 6. SECTION HEADERS ────────────────────────────────────────────────────
+   The reference pairs a title with a plain sentence beneath it, and puts the
+   "see everything" affordance on the right of the same baseline. The kicker
+   stays — it carries information the reference's subtitle carries in prose —
+   but it stops being the loudest thing in the header. */
+.app .section-title .kicker,.app .section-head .kicker{
+  color:var(--ink-4);font-weight:700}
+.app .section-title h2,.app .section-head h2{font-weight:800;letter-spacing:-.018em}
+
+/* ── 7. PROGRAMME CARDS ────────────────────────────────────────────────────
+   The reference card is centred, hairlined, and effectively shadowless: a
+   badge chip, an icon, a title, then a footer link behind a rule. Centring a
+   card this small is deliberate — it makes a dense row scan as texture rather
+   than as a wall of left-aligned text. */
+.app .path-card{
+  background:var(--n-0);border:1px solid var(--line);border-radius:var(--r-3);
+  box-shadow:var(--e-1)}
+.app .path-card:hover{border-color:color-mix(in srgb,var(--accent) 38%,var(--line));
+  box-shadow:var(--e-2);transform:translateY(-2px)}
+.app .path-card h3,.app .path-card h4,.app .path-card b{color:var(--ink-1);font-weight:700}
+.app .path-card p,.app .path-card>small{color:var(--ink-3)}
+/* The badge chip. It was an outlined pill — --n-1 fill, --line hairline,
+   --ink-3 caps — which is the reference's *geometry* with none of its colour:
+   at 11px on a white card an outlined neutral pill reads as a disabled control
+   rather than as a label. The reference fills these instead and drops the
+   border entirely, and every one of its chips is a measured wash/ink pair.
+   --info-wash/--info is that pair here: #E9F1FE on #1250B8, 6.4:1, which is
+   the reference's own blue chip to within a rounding error.
+
+   The tracking comes down from --tr-caps (+.07em) to +.01em because the chip
+   is now a filled object with its own edges — the letterspacing was doing the
+   separating work the fill now does. The text stays uppercase: it arrives that
+   way from the data, and the sheet's other micro-labels are uppercase, so
+   lower-casing it here in CSS would make this one chip the odd one out. */
+.app .pc-badge{
+  background:var(--info-wash);color:var(--info);border:0;
+  padding:5px 10px;letter-spacing:.01em;font-weight:700}
+/* The reference puts a hairline between the card body and its footer link.
+   `.pc-go` already has `margin-top:auto`, so the rule needs its own spacing
+   above rather than a margin that would collapse into that auto. */
+.app .path-card .pc-go{
+  border-top:1px solid var(--line);padding-top:var(--s-3);
+  width:100%;margin-top:auto}
+.app .path-card .plate{background:var(--wash)}
+
+/* ── 8. DOWNSTREAM ─────────────────────────────────────────────────────────
+   Everything that inherited the old palette by way of --accent picks the new
+   one up for free. These are the places that had a literal instead. */
+
+/* The page canvas. globals.css paints `body` #F7F5EF — a warm paper cream that
+   showed through every `.section` with no wash of its own, which is why the
+   bands between the tinted ones read as beige rather than as white. The
+   reference alternates pure white against a cool blue-white; a warm ground
+   under a cold palette is the single loudest thing left that says "not the
+   reference".
+
+   It is set on `.app` rather than on `body` on purpose: `body` is shared with
+   /admin, /login and .resume-doc, which are deliberately outside this design
+   system and still want the cream. */
+.app{background:var(--n-0)}
+
+/* Legacy token bridge.
+
+   globals.css still carries the original `:root` — --canvas, --muted, --ink,
+   --teal and friends — and a good deal of the sheet below it is still written
+   against those names (`.header-search`, `.tags span`, `.detail-tags span`,
+   `.command footer`, and roughly forty selectors on --muted). This block does
+   not rename any of them; it re-points the two that were still resolving to
+   the old warm palette so that everything downstream picks up the new ramp
+   without a single call site changing.
+
+   Scoped to `.app`, not `:root`, for the reason above: /admin, /login and
+   .resume-doc read the same tokens and are deliberately not part of this
+   reskin, so they keep the values globals.css gives them.
+
+   --muted goes to --ink-3 rather than --ink-4 on purpose. The old #536274 is
+   7.0:1 on white; --ink-4 (#63718A) is 4.93:1, and quietly dropping forty
+   selectors' worth of secondary text by two points of contrast to gain a hue
+   is not a trade worth making. --ink-3 is #4B5E78 at 6.6:1 — same role, same
+   apparent weight, now blue instead of slate. */
+.app{
+  --canvas:var(--n-1);
+  --muted:var(--ink-3);
+}
+
+.app .section.ink{background:var(--accent-deep)}
+
+/* The counselling panel was a full-width amber wash: --wash into --band-b into
+   55% --spark-lift, which on the new palette resolves to a tan slab about a
+   third of the viewport tall. That is the failure mode the analysis called out
+   — in the reference, warm is one word in a headline and one hand-drawn
+   underline, and it is never a surface. The gradient keeps its shape and its
+   drift; the amber comes down to a note at the far corner.
+
+   `background-image`, not the `background` shorthand: the rule this overrides
+   also sets `background-size:220% 220%`, which is what gives the drift
+   animation somewhere to travel. The shorthand would reset it to `auto` and
+   the panel would sit still. */
+.app .human-cta{
+  background-image:linear-gradient(120deg,var(--wash),var(--n-1) 58%,
+    color-mix(in srgb,var(--spark-lift) 24%,var(--n-0)))}
+.app .section.wash{background:var(--n-1)}
+.app .entity-card{border-color:var(--line);box-shadow:var(--e-1)}
+.app .entity-card:hover{box-shadow:var(--e-2)}
+
+/* ══ 9. THE MOBILE REFERENCE ══════════════════════════════════════════════
+   A second reference image, of the same product's phone layout, and it is not
+   a narrowed version of the desktop one — it is a different set of decisions:
+
+   • the hero is an inset rounded card with a dark image inside it, not a
+     full-bleed light wash;
+   • the stats are three gapped tiles, not one ruled strip. This is the exact
+     inverse of the desktop rule ("rules, not gaps") and it is right for the
+     width: at 375px, three cells divided by hairlines are three columns of
+     ~100px with nothing to hold them apart;
+   • the programme cards stay in a multi-column grid rather than stacking,
+     carry their chip in the top-right corner rather than in a header row, and
+     close with a solid accent bar flush to the card's bottom edge;
+   • the tab bar is an inset rounded bar, not a full-bleed strip.
+
+   Everything below is CSS at ≤760, the site's existing stacking breakpoint.
+   No DOM moved: .proof is a child of .hero-copy, so it rides inside the dark
+   card rather than sitting under it as it does in the reference. That is the
+   one structural difference, and it costs nothing — the tiles read as tiles
+   either way. */
+@media(max-width:760px){
+
+  /* ── The hero card ──────────────────────────────────────────────────────
+     The picture element is dismissed and the same asset comes back as the
+     card's own background. It has to: <picture> is a child of .hero, not of
+     .hero-copy, so there is no way to clip it to the card's rounded box
+     without moving it. Painting it on .hero-copy puts the image and the
+     radius on the same element, which is also what makes overflow:hidden
+     unnecessary.
+     The gradient over it is the shade, rebuilt as part of the same
+     background: opaque navy under the headline, thinning to the right so the
+     city reads through the far edge — the reference does the same thing with
+     its video still. */
+  .app .hero{min-height:auto;background:var(--n-0);
+    padding-block:var(--s-4) var(--s-6);display:block}
+  .app .hero>picture,.app .hero-shade,.app .hero:before{display:none}
+  .app .hero-content{padding:0;align-items:stretch}
+  .app .hero-copy{width:100%;color:#fff;border-radius:var(--r-4);
+    padding:var(--s-6) var(--s-5) var(--s-5);
+    background-image:linear-gradient(103deg,
+      rgb(7 22 47/.95) 0%,rgb(7 22 47/.86) 46%,rgb(7 22 47/.58) 100%),
+      url('/dcw-journey-hero-900.webp');
+    background-size:cover;background-position:62% 22%}
+
+  /* The tri-colour headline inverts, keeping its order. Navy is invisible on
+     navy, so line 1 takes white; line 2 lifts --accent toward white until it
+     clears the card (a 45% mix lands near #93B7F2, ~7:1); line 3 goes back to
+     full --spark, which is the value the desktop rule had to darken for a
+     pale ground and which is the legible one here at 9.4:1. Cold to warm,
+     ending on the verb, exactly as before. */
+  .app .hero-copy h1{color:#fff}
+  .app .hero-copy h1 em{color:color-mix(in srgb,var(--accent) 45%,#fff)}
+  .app .hero-copy h1 em.warm{color:var(--spark)}
+  .app .hero-copy>p{color:rgb(255 255 255/.84);max-width:none}
+  .app .hero .eyebrow{color:var(--spark-lift)}
+  .app .hero .eyebrow svg{color:var(--spark)}
+  /* The field carries a .glass class — 76% white plus a backdrop blur, which
+     is 0-3-0 and so survives the reskin's 0-2-0 rule everywhere. Over the
+     pale desktop wash that reads as white and no one notices. Over the dark
+     card it reads as smoked grey, and the placeholder inside it drops to
+     about 2.7:1. It becomes a real white field here, which is also what the
+     reference's one button on its hero card is. */
+  .app .hero-search.glass{background:var(--n-0);border-color:var(--n-0);
+    -webkit-backdrop-filter:none;backdrop-filter:none}
+  .app .hero-search.glass span{color:var(--ink-3)}
+
+  /* The ghost button was an outlined blue pill sized for a white page. On the
+     card its border is 1.4:1 and its label barely more. */
+  .app .hero-ctas .btn.ghost{border-color:rgb(255 255 255/.55);color:#fff;
+    background:rgb(255 255 255/.08)}
+  .app .hero-ctas .btn.ghost:hover{background:rgb(255 255 255/.16);
+    border-color:#fff}
+
+  /* ── The stat tiles ─────────────────────────────────────────────────────
+     Three columns of equal width, gapped rather than ruled, each stacking
+     icon over numeral over label and centred — the reference's arrangement.
+     The dividers set at ≤900 are removed rather than overridden to none,
+     because gap and border-right are now doing opposite jobs.
+     .stat-note is the third line of each cell ("6 of 6 checked at source").
+     At ~100px wide it wraps to four lines and turns the tile into a
+     paragraph; the numeral and its label are what the reference keeps. */
+  .app .hero .proof{display:grid;grid-template-columns:repeat(3,1fr);
+    gap:var(--s-3);background:none;border:0;padding:0;
+    margin-top:var(--s-5);box-shadow:none}
+  .app .hero .proof button{background:var(--n-1);border:1px solid var(--line);
+    border-radius:var(--r-3);padding:var(--s-4) var(--s-2);
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+    text-align:center;gap:var(--s-2);border-right:1px solid var(--line)}
+  .app .hero .proof .stat-note{display:none}
+  .app .hero .proof .stat-i{width:38px;height:38px;margin:0}
+  .app .hero .proof b{font-size:var(--fs-600);line-height:1.15}
+  .app .hero .proof small{font-size:var(--fs-100);line-height:1.3}
+
+  /* ── The programme cards ────────────────────────────────────────────────
+     globals.css stacks .path-grid to a single column at this width. The
+     reference keeps a grid, and it can because its cards hold four things:
+     chip, icon, title, action. Ours hold five — there is a sentence of
+     description under each title. Two columns is where that arithmetic lands
+     on a 375px screen: 163px of card interior, which fits "Complete 10th" on
+     one line but not "Recognised open boards with flexible exam cycles."
+     So the description is hidden here, matching the reference's card exactly
+     rather than keeping a line of 9px text nobody can read. It is CSS-only
+     and it returns at 761. Flagged rather than buried: this is the one place
+     the mobile pass drops content instead of re-arranging it. */
+  .app .path-grid{grid-template-columns:1fr 1fr;gap:var(--s-4)}
+  /* The padding all moves to .pc-body. The card was carrying its own inset
+     and .pc-body another 22px inside that, which is fine while everything
+     sits in the middle and impossible once two children have to reach the
+     card's edges. One padding box, on the element the children are actually
+     in, is what makes both the corner chip and the base bar simple. */
+  .app .path-card{min-height:0;padding:0;
+    display:flex;flex-direction:column;text-align:center;position:relative;
+    overflow:hidden}
+  .app .path-card .pc-body{position:static;
+    padding:var(--s-5) var(--s-4) 0;gap:var(--s-2)}
+  .app .path-card>p,.app .path-card .pc-body>p{display:none}
+  /* The chip leaves the header row and goes to the corner, with only its
+     inward corner rounded — the reference's detail, and the reason its cards
+     read as labelled objects rather than as cards with a badge on top. The
+     other three corners are left square for the card's overflow:hidden to
+     mitre against its own radius.
+     .pc-body going position:static is what makes this work: it was the
+     nearest positioned ancestor, so top/right resolved to its padding box —
+     the chip landed a padding's width in from the corner it was aimed at. */
+  .app .path-card .pc-head{display:block}
+  .app .path-card .pc-badge{position:absolute;top:0;right:0;
+    border-radius:0 0 0 var(--r-3);padding:5px 9px}
+  .app .path-card .pc-icon{margin:var(--s-2) auto var(--s-3)}
+  .app .path-card h3{font-size:var(--fs-300);margin:0}
+  /* The action becomes the card's base: full width, flush to all three of the
+     bottom edges, solid accent. The negative margins are the card's own
+     padding read back out, which is why the padding above is written as
+     three values with a zero bottom — the bar supplies it. */
+  .app .path-card .pc-go{margin:auto calc(var(--s-4) * -1) 0;width:auto;
+    border-top:0;padding:var(--s-3);justify-content:center;
+    background:var(--accent);color:#fff;font-size:var(--fs-100);font-weight:700}
+  .app .path-card .pc-go svg{color:#fff}
+
+  /* ── The tab bar ────────────────────────────────────────────────────────
+     Inset and rounded, sitting over the page rather than closing it off. The
+     safe-area inset moves from padding to margin: as padding it was pushing
+     the labels up inside a full-bleed strip; as margin it lifts the whole bar
+     clear of the home indicator, which is what the inset is for once the bar
+     has edges of its own. */
+  .app .mobile-nav{left:var(--gutter);right:var(--gutter);
+    width:auto;border-radius:var(--r-4);border:1px solid var(--line);
+    box-shadow:var(--e-3);padding-bottom:0;
+    margin-bottom:calc(env(safe-area-inset-bottom) + var(--s-3))}
+  .app .mobile-nav button{color:var(--ink-4)}
+  .app .mobile-nav button.active{color:var(--accent)}
+  /* The raised centre circle is ours, not the reference's — its bar is five
+     items of equal weight. Flattened to match, which also gets the bar's own
+     radius out of the way of a disc that used to hang above it. */
+  .app .mobile-nav .mobile-main svg{width:22px;height:22px;background:none;
+    color:inherit;padding:0;border-radius:0;margin-top:0;box-shadow:none}
+}
