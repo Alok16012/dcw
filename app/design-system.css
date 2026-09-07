@@ -2348,9 +2348,20 @@
 .app .plate-chip svg{width:17px;height:17px}
 
 /* --- hero: trust indicators, not a slab ----------------------------------- */
+/* `align-items` is stretch, not start. start looks like it is protecting the
+   numerals' common baseline, and it is not: each cell is its own grid with
+   its own rows, so the numeral and the label sit at the same y either way —
+   swapping start for stretch moves neither by a pixel. What start actually
+   does is size every cell to its own content, and since one label wraps to
+   two lines where the others take one, the cells came out 122.8 / 137.7 /
+   122.8. On the phone, where each cell is a bordered tile, that is one short
+   tile in a row of three. On desktop, where the cells are divided by 1px
+   rules rather than gaps, it is two dividers of different lengths — which
+   undoes the one thing the divided strip is for, reading as a single
+   instrument instead of three separate figures. */
 .app .hero .proof{
   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-  align-items:start;gap:var(--s-5);
+  align-items:stretch;gap:var(--s-5);
   margin-top:var(--s-6);padding:var(--s-5) 0 0;
   background:none;border:0;border-top:1px solid rgb(255 255 255/.18);
   border-radius:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;
@@ -3337,6 +3348,17 @@ body{overflow-x:visible;overflow-y:visible}
 /* Both hero CTAs become pills, and the secondary one becomes an outline
    rather than the translucent ghost it was — a ghost button needs something
    behind it to be a ghost of. */
+/* The row is allowed to wrap. It was `nowrap`, and the buttons carry
+   `white-space:nowrap` and `min-width:fit-content`, so they cannot shrink
+   below their own text plus 48px of padding — 387px for this pair. globals
+   stacks them at max-width:430, which was picked to look right rather than
+   measured: the row needs ~471px of viewport before it actually fits inside
+   the hero card, so every width from 431 to 470 put the second button past
+   the card's right edge while the search field and the stat tiles above and
+   below it stopped at the padding. A 440px phone landed squarely in that
+   gap. Wrapping is the fix that does not need a number: the break happens
+   when the items stop fitting, whatever the labels later say. */
+.app .hero-ctas{flex-wrap:wrap}
 .app .hero-ctas .btn{border-radius:var(--r-pill)}
 .app .hero-ctas .btn.primary{background:var(--accent);box-shadow:0 2px 8px rgb(18 99 224/.28)}
 .app .hero-ctas .btn.primary:hover:not(:disabled){
@@ -3595,6 +3617,14 @@ body{overflow-x:visible;overflow-y:visible}
 
   /* The ghost button was an outlined blue pill sized for a white page. On the
      card its border is 1.4:1 and its label barely more. */
+  /* `1 1 0` rather than a `flex-direction:column` at some new breakpoint.
+     A zero basis makes the two buttons exactly equal when they share a line
+     — grow-from-natural-width would leave them 3px apart, because their
+     labels differ — and when the wrap above sends one to its own line, the
+     same rule fills that line edge to edge. One declaration covers both
+     arrangements, so the row lines up with the search field and the tiles at
+     every width instead of at the widths someone thought to check. */
+  .app .hero-ctas .btn{flex:1 1 0}
   .app .hero-ctas .btn.ghost{border-color:rgb(255 255 255/.55);color:#fff;
     background:rgb(255 255 255/.08)}
   .app .hero-ctas .btn.ghost:hover{background:rgb(255 255 255/.16);
