@@ -11,19 +11,28 @@
    are scoped to .app to keep the console (app/admin) out of scope.
    ═══════════════════════════════════════════════════════════════════════════ */
 
-/* Lato carries the headings and Open Sans the running text — the pairing the
-   Allen coaching material uses: humanist, high x-height, authoritative at
-   weight without turning literary. Both are self-hosted by next/font from
-   app/layout.jsx; the families are read here through --f-display and --f-body
-   so the fingerprinted family names never have to be repeated. Open Sans is
-   the variable face, so any weight from 300 to 800 is real rather than
-   rounded to the nearest declared one. */
+/* Mulish carries both the headings and the running text — geometric-humanist,
+   high x-height, double-storey `a`, near-circular `o`. It is self-hosted by
+   next/font from app/layout.jsx, which emits --f-display only; --f-body is
+   aliased to it below rather than loading the same woff2 twice. Because it is
+   a variable face spanning 200–1000, every weight this sheet asks for is real
+   rather than rounded to the nearest declared one.
+
+   The pairing it replaced (Lato display + Open Sans body) was humanist, which
+   is a different genus: warmer stroke modulation, flared terminals, a
+   calligraphic `g`. The reference this sheet now matches is geometric, and the
+   difference is visible at 60px even to someone who cannot name it. See
+   docs/reference-analysis.md for the letterform evidence. */
 
 :root{
   /* ── TYPE ────────────────────────────────────────────────────────────────
      One scale, ratio ~1.2 off a 16px base. 12px is the floor: the audit found
      live text at 7px (mobile nav), 10.5px and 11.5px, none of it legible on a
      phone held at arm's length. */
+  /* One face, two roles. --f-body is an alias, not a second download; see the
+     note in app/layout.jsx. Anything reading --font-body keeps working if the
+     roles are split back onto two families later. */
+  --f-body:var(--f-display);
   --font-display:var(--f-display),'Segoe UI',system-ui,sans-serif;
   --font-body:var(--f-body),system-ui,sans-serif;
   --font-num:var(--f-body),ui-monospace,system-ui,sans-serif;
@@ -39,14 +48,18 @@
   --fs-800:32px;    /* h2 */
   --fs-900:40px;    /* h1 on interior pages */
   --fs-1000:52px;   /* interior page display */
-  --fs-display:clamp(38px,4.4vw,60px);
+  --fs-display:clamp(38px,4.6vw,64px);   /* reference measures ~62px at 1586 */
 
-  --lh-tight:1.12;  /* display */
-  --lh-snug:1.28;   /* headings */
-  --lh-body:1.6;    /* running text */
+  /* The reference sets its display far tighter than this sheet did — 1.06
+     against 1.12 — and that single number is most of why its hero reads as one
+     object rather than three stacked lines. Body loosens the other way: 1.55
+     rather than 1.6, because Mulish's high x-height already fills the line. */
+  --lh-tight:1.06;  /* display */
+  --lh-snug:1.22;   /* headings */
+  --lh-body:1.55;   /* running text */
   --lh-ui:1.35;
 
-  --tr-display:-.022em;  /* Lato needs a little negative tracking at size */
+  --tr-display:-.022em;  /* negative only at 32px and up; UI sizes sit at 0 */
   --tr-body:0;
   --tr-caps:.07em;       /* eyebrows/kickers only */
 
@@ -63,24 +76,33 @@
   --band-tight:clamp(32px,4vw,52px);
 
   /* ── RADIUS ──────────────────────────────────────────────────────────────
-     A hierarchy, so nesting reads as nesting. Replaces 26 ad-hoc values. */
+     A hierarchy, so nesting reads as nesting. Replaces 26 ad-hoc values.
+     Flattened one notch toward the reference, which is squarer than this sheet
+     was: cards 12, panels 18. --r-1 stays 6 so a chip inside a 12px card still
+     reads as nested. */
   --r-1:6px;    /* chips, tags, swatches */
   --r-2:10px;   /* controls: inputs, buttons */
-  --r-3:14px;   /* cards */
-  --r-4:20px;   /* panels, drawers */
-  --r-5:28px;   /* hero surfaces */
+  --r-3:12px;   /* cards */
+  --r-4:18px;   /* panels, drawers */
+  --r-5:24px;   /* hero surfaces */
   --r-pill:999px;
 
   /* ── ELEVATION ───────────────────────────────────────────────────────────
      Two shadows per step, always: a tight contact shadow that anchors the
-     object to the surface, and a wide ambient one that gives it mass. The
-     old sheet used single 100px blurs, which read as fog rather than height. */
+     object to the surface, and a wide ambient one that gives it mass.
+
+     Every step is roughly 40% lighter than it was. The reference carries depth
+     almost entirely on 1px hairlines and tinted washes — its programme cards
+     have a shadow you have to look for. Keeping the old ramp under the new
+     palette produced cards that floated off a page that is trying to read as
+     flat, which is the single most common way a reskin like this goes wrong.
+     The steps still exist and still separate; they just stopped shouting. */
   --e-0:none;
-  --e-1:0 1px 2px rgb(11 21 38/.06), 0 1px 1px rgb(11 21 38/.04);
-  --e-2:0 2px 4px rgb(11 21 38/.06), 0 4px 10px rgb(11 21 38/.06);
-  --e-3:0 4px 8px rgb(11 21 38/.07), 0 10px 24px rgb(11 21 38/.08);
-  --e-4:0 8px 16px rgb(11 21 38/.08), 0 20px 44px rgb(11 21 38/.10);
-  --e-5:0 14px 28px rgb(11 21 38/.10), 0 34px 76px rgb(11 21 38/.14);
+  --e-1:0 1px 2px rgb(10 43 94/.04);
+  --e-2:0 1px 2px rgb(10 43 94/.05), 0 2px 6px rgb(10 43 94/.04);
+  --e-3:0 2px 4px rgb(10 43 94/.05), 0 6px 16px rgb(10 43 94/.06);
+  --e-4:0 4px 10px rgb(10 43 94/.06), 0 14px 32px rgb(10 43 94/.08);
+  --e-5:0 10px 20px rgb(10 43 94/.08), 0 26px 60px rgb(10 43 94/.12);
 
   /* Light comes from above, so a raised surface catches it on its top edge.
      This one line does more for perceived depth than any blur radius. */
@@ -98,25 +120,39 @@
   --ease-spring:cubic-bezier(.34,1.42,.44,1);
 
   /* ── NEUTRALS ────────────────────────────────────────────────────────────
-     A single ramp. --ink-1 through --ink-4 are text; --n-* are surfaces. */
-  --ink-1:#0B1526;  /* headings */
-  --ink-2:#243449;  /* body */
-  --ink-3:#4E6076;  /* secondary — 7.0:1 on white */
-  --ink-4:#627084;  /* metadata — measured 5.04:1 on white, 4.53:1 on --n-2;
-                       the lightest text the system allows anywhere */
+     A single ramp. --ink-1 through --ink-4 are text; --n-* are surfaces.
+
+     The whole ramp is rotated toward blue. The old one was a true neutral grey
+     with a hint of slate; the reference's darks are unmistakably navy, and a
+     neutral grey sitting next to a saturated blue reads as dirty rather than
+     as restraint. Contrast is held or improved at every step — the hue moved,
+     the luminance did not. Ratios below are computed, not estimated. */
+  --ink-1:#0A2B5E;  /* headings — 13.8:1 on white */
+  --ink-2:#3D4A5C;  /* body — 9.0:1 on white */
+  --ink-3:#4B5E78;  /* secondary — 6.6:1 on white */
+  --ink-4:#63718A;  /* metadata — 4.93:1 on white, 4.55:1 on --n-2;
+                       the lightest text the system allows anywhere.
+
+                       The reference's own muted ink (#6B7A8D) measures 4.38:1
+                       on its hero wash and fails AA. This is that colour pulled
+                       down until it passes: same role, same read, legal. */
   --n-0:#FFFFFF;
-  --n-1:#F8F9FB;    /* page canvas */
-  --n-2:#F1F3F7;    /* recessed wells */
-  --n-3:#E4E8EF;    /* hairlines on tinted ground */
-  --line:#DDE3EC;
+  --n-1:#F7FAFF;    /* page canvas */
+  --n-2:#EFF4FB;    /* recessed wells */
+  --n-3:#E1E9F4;    /* hairlines on tinted ground */
+  --line:#E6EBF2;
 
   /* ── SEMANTIC ────────────────────────────────────────────────────────────
      Each pairs an AA-safe ink with a wash, and every use carries an icon or
-     a word as well — colour never states anything on its own. */
-  --ok:#0F6B52;      --ok-wash:#E4F4EE;
-  --warn:#8A5300;    --warn-wash:#FDF3E2;
+     a word as well — colour never states anything on its own.
+
+     --ok is the reference's chip green darkened: its own pair (#14804A on
+     #E7F7EC) measures 4.47:1, which misses AA by a hair. At #12703F it is
+     5.5:1 and indistinguishable at chip size. */
+  --ok:#12703F;      --ok-wash:#E7F7EC;   /* 5.5:1 */
+  --warn:#8A5300;    --warn-wash:#FDF2E1; /* 5.9:1 */
   --danger:#A0201A;  --danger-wash:#FCEBEA;
-  --info:#1B4B8F;    --info-wash:#EAF1FB;
+  --info:#1250B8;    --info-wash:#E9F1FE;  /* 6.4:1 */
 }
 
 /* ── DEPTH: glass has to earn it ─────────────────────────────────────────────
@@ -3111,4 +3147,539 @@ body{overflow-x:visible;overflow-y:visible}
 .app .scroll-top{right:var(--float-dock);bottom:calc(21px + 52px + 12px)}
 @media(max-width:760px){
   .app .scroll-top{bottom:calc(88px + 48px + 12px)}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   REFERENCE RESKIN — light hero, civic blue, hairline depth
+
+   Everything above this line was written against a dark photographic hero and
+   a slate-neutral palette. The public site is now matched to the reference
+   analysed in docs/reference-analysis.md, which inverts the two decisions this
+   sheet's hero was built on: its hero is LIGHT, and its depth comes from 1px
+   hairlines and tinted washes rather than from elevation.
+
+   This block is appended rather than merged into the sections above for one
+   reason: the rules it replaces are load-bearing for /colleges and /jobs too,
+   and rewriting them in place would have meant re-verifying three verticals'
+   heroes against a reference that only describes one. Scoped overrides at the
+   end are the smaller claim. Where a rule here shadows one above, the comment
+   says which.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. UTILITY BAR ────────────────────────────────────────────────────────
+   Shadows `.ticker` (globals.css), which painted it --ink dark. The reference
+   runs a flat brand blue with no gradient and no border: it is a rail, not a
+   surface, and any depth on it would make the masthead below look sunken.
+
+   --rail is its own token rather than --accent or --accent-deep. Neither works:
+   --accent is the CTA blue and repeating it at full width flattens the button
+   that matters, and --accent-deep is the heading navy, which reads as a black
+   bar. The reference sits between them, and white on it measures 5.1:1. */
+.app{--rail:#0F5BD6}
+.app .ticker,.app .ticker.utility{
+  background:var(--rail);color:#fff;border-bottom:0}
+.app .ticker small{color:rgb(255 255 255/.80)}
+.app .ticker span{background:none;color:#fff;font-weight:500;
+  font-size:var(--fs-200);letter-spacing:0;padding:0}
+/* The live pill is the one thing on the rail that is not text, so it keeps a
+   fill — but in the warm accent, which is the only colour on the page allowed
+   to interrupt the blue. --spark-ink is near-black, so it clears AA on amber. */
+.app .ticker span.live,.app .ticker>span:first-child{
+  background:var(--spark);color:var(--spark-ink);
+  border-radius:var(--r-pill);padding:3px 9px;font-weight:800}
+
+/* ── 2. MASTHEAD ───────────────────────────────────────────────────────────
+   Opaque white with a single hairline. The glass treatment above assumed dark
+   content scrolling under it; over a light hero it only greys the logo. */
+.app>header{background:var(--n-0);backdrop-filter:none;-webkit-backdrop-filter:none;
+  border-bottom:1px solid var(--line);box-shadow:none}
+.app .verticals button span{font-weight:600;letter-spacing:0}
+
+/* ── 3. HERO ───────────────────────────────────────────────────────────────
+   The inversion. Four things change together, and they only work together:
+
+   a. The background becomes a 160° wash instead of a near-black fill.
+   b. The photograph stops being a full-bleed cover image and becomes a
+      right-hand panel, feathered out on its left edge so it never runs under
+      the headline. `object-position` alone could not do this — the image was
+      inset:0 and the shade was doing the masking, so the mask moves onto the
+      picture element itself.
+   c. `.hero-shade` inverts from a dark scrim to a light one. It is kept rather
+      than removed because it still does real work: it is what stops the photo
+      from touching the text column at narrow widths.
+   d. Every piece of hero text flips from white-on-dark to ink-on-light. This
+      is the part with the contrast risk, so each colour below is a token that
+      was measured against white rather than a literal.                       */
+.app .hero,.app .hero.atlas-hero{
+  background:linear-gradient(160deg,#E8F1FE 0%,#F3F8FF 52%,#FBFDFF 100%);
+  min-height:640px}
+
+/* The blob. One soft ellipse of --tint behind the subject, blurred past the
+   point of being a shape — its whole job is to keep the cutout from sitting
+   flat on the wash. Decorative, so it is inert to the accessibility tree. */
+.app .hero:before{
+  content:"";position:absolute;z-index:0;pointer-events:none;
+  right:6%;top:8%;width:min(620px,46vw);aspect-ratio:1/.92;
+  background:var(--tint);opacity:.5;border-radius:50%;filter:blur(58px)}
+
+.app .hero>picture{position:absolute;inset:0 0 0 auto;width:min(56%,900px);
+  animation:none}
+/* Two feathers, not one, composited with `intersect`.
+
+   The left edge was always going to need one — the photograph has to end in
+   the wash rather than against it. The top edge turned out to need one too,
+   and this is an asset problem rather than a design choice: the only hero art
+   in the repo is a night-city illustration, so its sky is a saturated dark
+   blue that met the pale wash in a hard horizontal line right under the
+   masthead. The reference's photograph has a light, desaturated background and
+   needs no such help. Fading the top 18% and taking ~10% of the saturation out
+   is the closest this asset gets; a daylight or cutout image would let both
+   the vertical mask and the filter go.
+
+   The prefixed properties are still here because Safari wants them, and
+   -webkit-mask-composite spells the same operation `source-in`. */
+.app .hero>picture>img{width:100%;height:100%;object-fit:cover;object-position:center;
+  filter:saturate(.9) brightness(1.04);
+  -webkit-mask-image:linear-gradient(90deg,transparent 0%,#000 34%,#000 100%),
+    linear-gradient(180deg,transparent 0%,#000 18%,#000 100%);
+  mask-image:linear-gradient(90deg,transparent 0%,#000 34%,#000 100%),
+    linear-gradient(180deg,transparent 0%,#000 18%,#000 100%);
+  -webkit-mask-composite:source-in;mask-composite:intersect}
+/* Three selectors, not one. Two media-query rules further up this sheet set
+   `.app .atlas-hero .hero-shade` at 0-3-0 — once for ≤760 and once for ≥761 —
+   and media queries carry no specificity of their own, so a 0-2-0 rule down
+   here loses to both no matter how late it appears. They are answered at
+   matching specificity inside the same breakpoints. The stops are the mirror
+   of the dark version: opaque over the copy column, gone by the time the
+   photograph starts. */
+.app .hero-shade{
+  background:linear-gradient(90deg,#F4F9FF 0%,rgb(244 249 255/.92) 38%,
+    rgb(244 249 255/.35) 58%,transparent 74%)}
+@media(min-width:761px){
+  .app .atlas-hero .hero-shade{background:linear-gradient(90deg,
+    #F4F9FF 0%,rgb(244 249 255/.94) 46%,
+    rgb(244 249 255/.42) 66%,transparent 80%)}
+}
+@media(max-width:760px){
+  /* Stacked: the copy is the full width, so the wash runs down rather than
+     across, and has to reach full strength before the text starts. */
+  .app .atlas-hero .hero-shade{background:linear-gradient(180deg,
+    rgb(244 249 255/.62) 0%,rgb(244 249 255/.94) 30%,#F4F9FF 58%)}
+  /* The photograph goes back to full width underneath it, so the left-edge
+     feather would cut the subject in half. */
+  .app .hero>picture{width:100%}
+  .app .hero>picture>img{-webkit-mask-image:none;mask-image:none;
+    object-position:62% 20%}
+}
+
+.app .hero-copy{color:var(--ink-2);position:relative;z-index:1}
+.app .hero-copy h1,.app .hero-copy h2{color:var(--ink-1)}
+.app .hero-copy>p{color:var(--ink-3);font-size:var(--fs-500);
+  line-height:var(--lh-body);max-width:52ch}
+/* The band between the hero's two layouts: 761-1039, where the picture is
+   still a 56% right panel but `.app .hero-copy{width:100%}` (further up, in
+   the listing-layout block) has already released the copy to the full line.
+   That rule's comment is about the tool hero, whose side panel really has
+   stacked by 1039 — this one's has not, so at 768 the paragraph ran to x=594
+   while the left feather only finishes at x=475, putting its last two words on
+   the photograph. The headline clears the image on its own (it breaks at
+   ~342px), and the search field and buttons are opaque surfaces that sit over
+   it legibly; the paragraph is the only thing in the hero that is text
+   directly on art.
+   54% is where the measure ends before the mask goes solid — 0.54 x 768 =
+   415px against a feather that completes at 475 — and the shade is pushed out
+   to cover the gap between them. min() keeps 52ch as the cap, so nothing
+   changes at the top of the band where the line was already the shorter of the
+   two. It has to sit below the declaration it corrects: both are 0-2-0, and a
+   media query adds no specificity of its own. */
+@media(min-width:761px) and (max-width:1039px){
+  .app .hero-copy>p{max-width:min(52ch,54%)}
+  .app .atlas-hero .hero-shade{background:linear-gradient(90deg,
+    #F4F9FF 0%,rgb(244 249 255/.96) 52%,
+    rgb(244 249 255/.5) 72%,transparent 88%)}
+}
+/* Shadows the contrast correction above, which lifted the eyebrow to
+   --spark-lift for legibility on a dark photograph. On the light wash that
+   same colour measures under 2:1; the accent reads at 7.3:1. */
+.app .hero .eyebrow{color:var(--accent-ink)}
+.app .hero .eyebrow svg{color:var(--spark)}
+
+/* The tri-colour headline. Line 1 inherits --ink-1 from the rule above; the
+   two `em`s carry lines 2 and 3. Weight stays at 800 across all three — the
+   reference does not step the weight down on the coloured lines, and doing so
+   (as the previous sheet did, at 400) makes them read as a subtitle rather
+   than as a continuation of the same sentence. */
+.app .hero-copy h1{font-weight:800;line-height:var(--lh-tight)}
+.app .hero-copy h1 em{font-weight:800;color:var(--accent)}
+/* Line 3 is the one place the reference's own palette does not survive being
+   copied. #F7A928 on its pale wash measures 1.97:1 — the reference ships that,
+   and at 62px/800 it is still under the 3:1 that large text is allowed. The
+   brief's instruction for exactly this case is to keep the intent and fix the
+   ratio, so the hue is held and only the lightness moves: 72% of --spark over
+   black lands on #B27A1D, which is 3.2:1 on the wash and 3.7:1 on white, at
+   the same 37° hue. It stays unmistakably the warm end of the gradient.
+   Derived rather than written as a literal so the other two verticals, whose
+   --spark is a navy and a green, get the same treatment for free.
+   The mobile hero overrides this back to full --spark, because there the word
+   sits on a dark card and the bright value is the legible one. */
+.app .hero-copy h1 em.warm{color:color-mix(in srgb,var(--spark) 72%,#000)}
+
+/* The hero search: a real field on a light ground, so it needs a border it
+   did not need when it sat on a photograph. */
+.app .hero-search{background:var(--n-0);border:1px solid var(--line);
+  border-radius:var(--r-3);box-shadow:0 4px 20px rgb(10 43 94/.06);
+  height:64px;padding:0 8px 0 20px}
+.app .hero-search svg{color:var(--ink-4)}
+.app .hero-search span{color:var(--ink-4)}
+.app .hero-search b{background:var(--accent);border-radius:var(--r-2);
+  height:46px;padding:0 24px;font-size:var(--fs-300);font-weight:700}
+
+/* Both hero CTAs become pills, and the secondary one becomes an outline
+   rather than the translucent ghost it was — a ghost button needs something
+   behind it to be a ghost of. */
+.app .hero-ctas .btn{border-radius:var(--r-pill)}
+.app .hero-ctas .btn.primary{background:var(--accent);box-shadow:0 2px 8px rgb(18 99 224/.28)}
+.app .hero-ctas .btn.primary:hover:not(:disabled){
+  background:var(--accent-ink);box-shadow:0 4px 14px rgb(18 99 224/.34)}
+.app .hero-ctas .btn.ghost{background:var(--n-0);color:var(--accent-ink);
+  border:1px solid var(--accent);box-shadow:none}
+.app .hero-ctas .btn.ghost:hover:not(:disabled){background:var(--wash)}
+
+/* Focus rings inside the hero were tuned for a dark ground. */
+.app .hero :focus-visible{outline-color:var(--accent-ink)}
+
+/* ── 4. STAT STRIP ─────────────────────────────────────────────────────────
+   The reference's most confident element, and the one most easily ruined: its
+   three cells are separated by 1px RULES, not by gaps. Gaps would turn a
+   single instrument into three weak cards. The rules live on the cells rather
+   than on the container so the last one can be removed without a wrapper.
+
+   Every selector here is `.app .hero .proof …`, not `.app .proof …`. The strip
+   only ever renders inside the hero, so the extra element buys nothing on its
+   own — but the block it is replacing (the struck-medallion treatment, ~line
+   2350) is written at that depth, and being later in the file does not help a
+   0-2-0 rule against a 0-3-0 one. This has to match, not merely follow. */
+.app .hero .proof{
+  background:var(--n-2);border:0;border-radius:var(--r-4);
+  padding:var(--s-5) var(--s-6);gap:0;box-shadow:none;margin-top:var(--s-7)}
+/* The rule is the whole point of this component, so it cannot be --n-3: that
+   is #E1E9F4 on the strip's own #EFF4FB, a 1.06:1 step that vanishes at 1px.
+   16% accent mixed into it lands at #C0D4F1 — still a hairline, but one you
+   can actually see, and blue rather than grey so it belongs to the band. */
+.app .hero .proof button{
+  border-right:1px solid color-mix(in srgb,var(--accent) 16%,var(--n-3));
+  border-radius:0;background:none;
+  color:var(--ink-2);padding-inline:var(--s-6)}
+.app .hero .proof button:first-child{padding-left:0}
+.app .hero .proof button:last-child{border-right:0;padding-right:0}
+.app .hero .proof button:hover{background:none}
+
+/* The medallion. The struck-metal treatment further up this sheet — dark well,
+   masked gradient bezel via ::before, gold glyph, seated shadow — was built to
+   sit on a photograph and needs a dark ground to read as minted. On a pale wash
+   the same object is a dark blot. The reference uses the plainest possible
+   container: a flat 10% brand circle with the icon in full accent. The ::before
+   ring has to be switched off explicitly; overriding `background` on the parent
+   leaves the pseudo-element drawing its bezel over the top of it. */
+.app .hero .proof .stat-i{background:color-mix(in srgb,var(--accent) 10%,transparent);
+  border:0;box-shadow:none;width:44px;height:44px;border-radius:50%;
+  /* The marks punch their details (the check inside the seal, the door and
+     windows in the employer mark) out of the silhouette rather than drawing
+     them on top, so this has to be the colour actually behind the glyph — now
+     10% #1263E0 composited over --n-2, which resolves to #D9E5F8. The old
+     value was the dark well's #0A1A31 and would print the cut-outs as ink. */
+  --mark-knockout:#D9E5F8}
+.app .hero .proof .stat-i::before{display:none}
+.app .hero .proof .stat-i svg{color:var(--accent);width:21px;height:21px;filter:none}
+.app .hero .proof button:hover .stat-i{
+  background:color-mix(in srgb,var(--accent) 16%,transparent);
+  box-shadow:none;transform:none}
+.app .hero .proof b{color:var(--ink-1);font-weight:800;font-size:var(--fs-700)}
+.app .hero .proof small{color:var(--ink-3);font-size:var(--fs-300);font-weight:500}
+.app .hero .proof .stat-note{color:var(--ink-4)}
+.app .hero .proof .stat-bar{display:none}   /* the wash already groups them */
+
+@media(max-width:900px){
+  /* Below the single-column switch the rules would be horizontal, which reads
+     as a table. Drop them and let the wash do the grouping on its own. */
+  .app .hero .proof button{border-right:0;padding-inline:0}
+  .app .hero .proof{padding:var(--s-4) var(--s-5)}
+  .app .hero .proof .stat-i{width:34px;height:34px;border-radius:50%}
+}
+
+/* ── 5. TRUST STRIP ────────────────────────────────────────────────────────
+   Sits directly under the hero, so it inherits the wash rather than the dark
+   band it used to close. */
+.app .trust-strip{background:var(--n-0);border-bottom:1px solid var(--line);
+  color:var(--ink-3)}
+/* The span needs saying separately. globals.css:271 has
+   `.app .trust-strip span{color:#eef3f9}` — a near-white chosen when this
+   strip closed the dark hero — and that is 0-2-1 against the 0-2-0 above, so
+   inheriting from the strip never reaches the text. On the new white ground
+   #EEF3F9 measures 1.1:1: the line was there in the DOM and gone from the
+   page. Matching its specificity is enough to win, because this sheet loads
+   after globals. */
+.app .trust-strip span{color:var(--ink-3)}
+.app .trust-strip svg{color:var(--accent)}
+
+/* ── 6. SECTION HEADERS ────────────────────────────────────────────────────
+   The reference pairs a title with a plain sentence beneath it, and puts the
+   "see everything" affordance on the right of the same baseline. The kicker
+   stays — it carries information the reference's subtitle carries in prose —
+   but it stops being the loudest thing in the header. */
+.app .section-title .kicker,.app .section-head .kicker{
+  color:var(--ink-4);font-weight:700}
+.app .section-title h2,.app .section-head h2{font-weight:800;letter-spacing:-.018em}
+
+/* ── 7. PROGRAMME CARDS ────────────────────────────────────────────────────
+   The reference card is centred, hairlined, and effectively shadowless: a
+   badge chip, an icon, a title, then a footer link behind a rule. Centring a
+   card this small is deliberate — it makes a dense row scan as texture rather
+   than as a wall of left-aligned text. */
+.app .path-card{
+  background:var(--n-0);border:1px solid var(--line);border-radius:var(--r-3);
+  box-shadow:var(--e-1)}
+.app .path-card:hover{border-color:color-mix(in srgb,var(--accent) 38%,var(--line));
+  box-shadow:var(--e-2);transform:translateY(-2px)}
+.app .path-card h3,.app .path-card h4,.app .path-card b{color:var(--ink-1);font-weight:700}
+.app .path-card p,.app .path-card>small{color:var(--ink-3)}
+/* The badge chip. It was an outlined pill — --n-1 fill, --line hairline,
+   --ink-3 caps — which is the reference's *geometry* with none of its colour:
+   at 11px on a white card an outlined neutral pill reads as a disabled control
+   rather than as a label. The reference fills these instead and drops the
+   border entirely, and every one of its chips is a measured wash/ink pair.
+   --info-wash/--info is that pair here: #E9F1FE on #1250B8, 6.4:1, which is
+   the reference's own blue chip to within a rounding error.
+
+   The tracking comes down from --tr-caps (+.07em) to +.01em because the chip
+   is now a filled object with its own edges — the letterspacing was doing the
+   separating work the fill now does. The text stays uppercase: it arrives that
+   way from the data, and the sheet's other micro-labels are uppercase, so
+   lower-casing it here in CSS would make this one chip the odd one out. */
+.app .pc-badge{
+  background:var(--info-wash);color:var(--info);border:0;
+  padding:5px 10px;letter-spacing:.01em;font-weight:700}
+/* The reference puts a hairline between the card body and its footer link.
+   `.pc-go` already has `margin-top:auto`, so the rule needs its own spacing
+   above rather than a margin that would collapse into that auto. */
+.app .path-card .pc-go{
+  border-top:1px solid var(--line);padding-top:var(--s-3);
+  width:100%;margin-top:auto}
+.app .path-card .plate{background:var(--wash)}
+
+/* ── 8. DOWNSTREAM ─────────────────────────────────────────────────────────
+   Everything that inherited the old palette by way of --accent picks the new
+   one up for free. These are the places that had a literal instead. */
+
+/* The page canvas. globals.css paints `body` #F7F5EF — a warm paper cream that
+   showed through every `.section` with no wash of its own, which is why the
+   bands between the tinted ones read as beige rather than as white. The
+   reference alternates pure white against a cool blue-white; a warm ground
+   under a cold palette is the single loudest thing left that says "not the
+   reference".
+
+   It is set on `.app` rather than on `body` on purpose: `body` is shared with
+   /admin, /login and .resume-doc, which are deliberately outside this design
+   system and still want the cream. */
+.app{background:var(--n-0)}
+
+/* Legacy token bridge.
+
+   globals.css still carries the original `:root` — --canvas, --muted, --ink,
+   --teal and friends — and a good deal of the sheet below it is still written
+   against those names (`.header-search`, `.tags span`, `.detail-tags span`,
+   `.command footer`, and roughly forty selectors on --muted). This block does
+   not rename any of them; it re-points the two that were still resolving to
+   the old warm palette so that everything downstream picks up the new ramp
+   without a single call site changing.
+
+   Scoped to `.app`, not `:root`, for the reason above: /admin, /login and
+   .resume-doc read the same tokens and are deliberately not part of this
+   reskin, so they keep the values globals.css gives them.
+
+   --muted goes to --ink-3 rather than --ink-4 on purpose. The old #536274 is
+   7.0:1 on white; --ink-4 (#63718A) is 4.93:1, and quietly dropping forty
+   selectors' worth of secondary text by two points of contrast to gain a hue
+   is not a trade worth making. --ink-3 is #4B5E78 at 6.6:1 — same role, same
+   apparent weight, now blue instead of slate. */
+.app{
+  --canvas:var(--n-1);
+  --muted:var(--ink-3);
+}
+
+.app .section.ink{background:var(--accent-deep)}
+
+/* The counselling panel was a full-width amber wash: --wash into --band-b into
+   55% --spark-lift, which on the new palette resolves to a tan slab about a
+   third of the viewport tall. That is the failure mode the analysis called out
+   — in the reference, warm is one word in a headline and one hand-drawn
+   underline, and it is never a surface. The gradient keeps its shape and its
+   drift; the amber comes down to a note at the far corner.
+
+   `background-image`, not the `background` shorthand: the rule this overrides
+   also sets `background-size:220% 220%`, which is what gives the drift
+   animation somewhere to travel. The shorthand would reset it to `auto` and
+   the panel would sit still. */
+.app .human-cta{
+  background-image:linear-gradient(120deg,var(--wash),var(--n-1) 58%,
+    color-mix(in srgb,var(--spark-lift) 24%,var(--n-0)))}
+.app .section.wash{background:var(--n-1)}
+.app .entity-card{border-color:var(--line);box-shadow:var(--e-1)}
+.app .entity-card:hover{box-shadow:var(--e-2)}
+
+/* ══ 9. THE MOBILE REFERENCE ══════════════════════════════════════════════
+   A second reference image, of the same product's phone layout, and it is not
+   a narrowed version of the desktop one — it is a different set of decisions:
+
+   • the hero is an inset rounded card with a dark image inside it, not a
+     full-bleed light wash;
+   • the stats are three gapped tiles, not one ruled strip. This is the exact
+     inverse of the desktop rule ("rules, not gaps") and it is right for the
+     width: at 375px, three cells divided by hairlines are three columns of
+     ~100px with nothing to hold them apart;
+   • the programme cards stay in a multi-column grid rather than stacking,
+     carry their chip in the top-right corner rather than in a header row, and
+     close with a solid accent bar flush to the card's bottom edge;
+   • the tab bar is an inset rounded bar, not a full-bleed strip.
+
+   Everything below is CSS at ≤760, the site's existing stacking breakpoint.
+   No DOM moved: .proof is a child of .hero-copy, so it rides inside the dark
+   card rather than sitting under it as it does in the reference. That is the
+   one structural difference, and it costs nothing — the tiles read as tiles
+   either way. */
+@media(max-width:760px){
+
+  /* ── The hero card ──────────────────────────────────────────────────────
+     The picture element is dismissed and the same asset comes back as the
+     card's own background. It has to: <picture> is a child of .hero, not of
+     .hero-copy, so there is no way to clip it to the card's rounded box
+     without moving it. Painting it on .hero-copy puts the image and the
+     radius on the same element, which is also what makes overflow:hidden
+     unnecessary.
+     The gradient over it is the shade, rebuilt as part of the same
+     background: opaque navy under the headline, thinning to the right so the
+     city reads through the far edge — the reference does the same thing with
+     its video still. */
+  .app .hero{min-height:auto;background:var(--n-0);
+    padding-block:var(--s-4) var(--s-6);display:block}
+  .app .hero>picture,.app .hero-shade,.app .hero:before{display:none}
+  .app .hero-content{padding:0;align-items:stretch}
+  .app .hero-copy{width:100%;color:#fff;border-radius:var(--r-4);
+    padding:var(--s-6) var(--s-5) var(--s-5);
+    background-image:linear-gradient(103deg,
+      rgb(7 22 47/.95) 0%,rgb(7 22 47/.86) 46%,rgb(7 22 47/.58) 100%),
+      url('/dcw-journey-hero-900.webp');
+    background-size:cover;background-position:62% 22%}
+
+  /* The tri-colour headline inverts, keeping its order. Navy is invisible on
+     navy, so line 1 takes white; line 2 lifts --accent toward white until it
+     clears the card (a 45% mix lands near #93B7F2, ~7:1); line 3 goes back to
+     full --spark, which is the value the desktop rule had to darken for a
+     pale ground and which is the legible one here at 9.4:1. Cold to warm,
+     ending on the verb, exactly as before. */
+  .app .hero-copy h1{color:#fff}
+  .app .hero-copy h1 em{color:color-mix(in srgb,var(--accent) 45%,#fff)}
+  .app .hero-copy h1 em.warm{color:var(--spark)}
+  .app .hero-copy>p{color:rgb(255 255 255/.84);max-width:none}
+  .app .hero .eyebrow{color:var(--spark-lift)}
+  .app .hero .eyebrow svg{color:var(--spark)}
+  /* The field carries a .glass class — 76% white plus a backdrop blur, which
+     is 0-3-0 and so survives the reskin's 0-2-0 rule everywhere. Over the
+     pale desktop wash that reads as white and no one notices. Over the dark
+     card it reads as smoked grey, and the placeholder inside it drops to
+     about 2.7:1. It becomes a real white field here, which is also what the
+     reference's one button on its hero card is. */
+  .app .hero-search.glass{background:var(--n-0);border-color:var(--n-0);
+    -webkit-backdrop-filter:none;backdrop-filter:none}
+  .app .hero-search.glass span{color:var(--ink-3)}
+
+  /* The ghost button was an outlined blue pill sized for a white page. On the
+     card its border is 1.4:1 and its label barely more. */
+  .app .hero-ctas .btn.ghost{border-color:rgb(255 255 255/.55);color:#fff;
+    background:rgb(255 255 255/.08)}
+  .app .hero-ctas .btn.ghost:hover{background:rgb(255 255 255/.16);
+    border-color:#fff}
+
+  /* ── The stat tiles ─────────────────────────────────────────────────────
+     Three columns of equal width, gapped rather than ruled, each stacking
+     icon over numeral over label and centred — the reference's arrangement.
+     The dividers set at ≤900 are removed rather than overridden to none,
+     because gap and border-right are now doing opposite jobs.
+     .stat-note is the third line of each cell ("6 of 6 checked at source").
+     At ~100px wide it wraps to four lines and turns the tile into a
+     paragraph; the numeral and its label are what the reference keeps. */
+  .app .hero .proof{display:grid;grid-template-columns:repeat(3,1fr);
+    gap:var(--s-3);background:none;border:0;padding:0;
+    margin-top:var(--s-5);box-shadow:none}
+  .app .hero .proof button{background:var(--n-1);border:1px solid var(--line);
+    border-radius:var(--r-3);padding:var(--s-4) var(--s-2);
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+    text-align:center;gap:var(--s-2);border-right:1px solid var(--line)}
+  .app .hero .proof .stat-note{display:none}
+  .app .hero .proof .stat-i{width:38px;height:38px;margin:0}
+  .app .hero .proof b{font-size:var(--fs-600);line-height:1.15}
+  .app .hero .proof small{font-size:var(--fs-100);line-height:1.3}
+
+  /* ── The programme cards ────────────────────────────────────────────────
+     globals.css stacks .path-grid to a single column at this width. The
+     reference keeps a grid, and it can because its cards hold four things:
+     chip, icon, title, action. Ours hold five — there is a sentence of
+     description under each title. Two columns is where that arithmetic lands
+     on a 375px screen: 163px of card interior, which fits "Complete 10th" on
+     one line but not "Recognised open boards with flexible exam cycles."
+     So the description is hidden here, matching the reference's card exactly
+     rather than keeping a line of 9px text nobody can read. It is CSS-only
+     and it returns at 761. Flagged rather than buried: this is the one place
+     the mobile pass drops content instead of re-arranging it. */
+  .app .path-grid{grid-template-columns:1fr 1fr;gap:var(--s-4)}
+  /* The padding all moves to .pc-body. The card was carrying its own inset
+     and .pc-body another 22px inside that, which is fine while everything
+     sits in the middle and impossible once two children have to reach the
+     card's edges. One padding box, on the element the children are actually
+     in, is what makes both the corner chip and the base bar simple. */
+  .app .path-card{min-height:0;padding:0;
+    display:flex;flex-direction:column;text-align:center;position:relative;
+    overflow:hidden}
+  .app .path-card .pc-body{position:static;
+    padding:var(--s-5) var(--s-4) 0;gap:var(--s-2)}
+  .app .path-card>p,.app .path-card .pc-body>p{display:none}
+  /* The chip leaves the header row and goes to the corner, with only its
+     inward corner rounded — the reference's detail, and the reason its cards
+     read as labelled objects rather than as cards with a badge on top. The
+     other three corners are left square for the card's overflow:hidden to
+     mitre against its own radius.
+     .pc-body going position:static is what makes this work: it was the
+     nearest positioned ancestor, so top/right resolved to its padding box —
+     the chip landed a padding's width in from the corner it was aimed at. */
+  .app .path-card .pc-head{display:block}
+  .app .path-card .pc-badge{position:absolute;top:0;right:0;
+    border-radius:0 0 0 var(--r-3);padding:5px 9px}
+  .app .path-card .pc-icon{margin:var(--s-2) auto var(--s-3)}
+  .app .path-card h3{font-size:var(--fs-300);margin:0}
+  /* The action becomes the card's base: full width, flush to all three of the
+     bottom edges, solid accent. The negative margins are the card's own
+     padding read back out, which is why the padding above is written as
+     three values with a zero bottom — the bar supplies it. */
+  .app .path-card .pc-go{margin:auto calc(var(--s-4) * -1) 0;width:auto;
+    border-top:0;padding:var(--s-3);justify-content:center;
+    background:var(--accent);color:#fff;font-size:var(--fs-100);font-weight:700}
+  .app .path-card .pc-go svg{color:#fff}
+
+  /* ── The tab bar ────────────────────────────────────────────────────────
+     Inset and rounded, sitting over the page rather than closing it off. The
+     safe-area inset moves from padding to margin: as padding it was pushing
+     the labels up inside a full-bleed strip; as margin it lifts the whole bar
+     clear of the home indicator, which is what the inset is for once the bar
+     has edges of its own. */
+  .app .mobile-nav{left:var(--gutter);right:var(--gutter);
+    width:auto;border-radius:var(--r-4);border:1px solid var(--line);
+    box-shadow:var(--e-3);padding-bottom:0;
+    margin-bottom:calc(env(safe-area-inset-bottom) + var(--s-3))}
+  .app .mobile-nav button{color:var(--ink-4)}
+  .app .mobile-nav button.active{color:var(--accent)}
+  /* The raised centre circle is ours, not the reference's — its bar is five
+     items of equal weight. Flattened to match, which also gets the bar's own
+     radius out of the way of a disc that used to hang above it. */
+  .app .mobile-nav .mobile-main svg{width:22px;height:22px;background:none;
+    color:inherit;padding:0;border-radius:0;margin-top:0;box-shadow:none}
 }
