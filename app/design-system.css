@@ -454,7 +454,7 @@
    #E2760F is 2.82:1 on white and 3.07:1 carrying white text — both below AA
    for the sizes they were used at. --accent stays the brand colour for fills
    and rules; --accent-ink is the darkened variant used wherever it is text. */
-.app .kicker,.app .eyebrow,.app .text-btn,.app .section-title>button,
+.app .kicker,.app .eyebrow,.app .text-btn,.app .section-title button,
 .app .filter-title button,.app .stepper button.active,.app .mobile-nav button.active,
 .app .verified,.app a{color:var(--accent-ink,var(--accent))}
 
@@ -567,7 +567,7 @@
 .app .kicker,
 .app .path-card>small,
 .app .header-actions .avatar,
-.app .section-title>button,
+.app .section-title button,
 .app .text-btn,
 .app .entity-mark,
 .app .stepper .active,
@@ -4024,3 +4024,360 @@ body{overflow-x:visible;overflow-y:visible}
   .app .rv-narrow{padding:var(--s-3) var(--s-4)}
   .app .pow-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:var(--s-3)}
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE HOMEPAGE, AS SPECIFIED
+   The reference is a light page with one accent, and it puts the four things a
+   student needs in a fixed order: who we are, what to search, where to start,
+   who is on the list. Everything below serves that order. There is no new
+   colour and no new radius — only the tokens already at the top of this sheet.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. MASTHEAD ──────────────────────────────────────────────────────────
+   The wordmark carries the tagline, the switcher carries three cards, and the
+   right rail carries the two account actions. The grid loses the old search
+   column: the search moved into the hero, where it is the page's main verb,
+   and the masthead keeps only the icon. */
+.app>header{grid-template-columns:auto 1fr auto;gap:var(--s-5)}
+.app .vertical-brand small{text-transform:none;letter-spacing:-.005em;
+  font-size:var(--fs-100);color:var(--ink-3);font-weight:600;white-space:nowrap}
+
+/* Three cards, not three words. Each is a bordered surface with its own mark,
+   so the active vertical is legible from its outline rather than from a 2px
+   rule under a label — requirement 2. */
+.app>header>.verticals{height:auto;gap:var(--s-2);align-items:center}
+.app>header>.verticals button{
+  display:grid;grid-template-columns:auto 1fr;grid-template-areas:"i t" "i s";
+  column-gap:var(--s-3);align-items:center;text-align:left;
+  padding:7px var(--s-4) 7px 9px;min-height:48px;
+  border:1px solid var(--line);border-radius:var(--r-3);background:var(--n-0);
+  transition:border-color var(--t-micro) var(--ease-out),background var(--t-micro) var(--ease-out)}
+.app>header>.verticals button:after{display:none}
+.app>header>.verticals button .vs-icon{grid-area:i;display:grid;place-items:center;
+  width:32px;height:32px;border-radius:9px;background:var(--n-1);color:var(--ink-3);
+  transition:background var(--t-micro) var(--ease-out),color var(--t-micro) var(--ease-out)}
+.app>header>.verticals button .vs-icon svg{width:17px;height:17px}
+.app>header>.verticals button span{grid-area:t;font-family:var(--font-display);
+  font-size:var(--fs-200);font-weight:700;letter-spacing:-.01em;line-height:1.2;color:var(--ink-1)}
+.app>header>.verticals button small{grid-area:s;font-size:var(--fs-050)!important;
+  opacity:1;color:var(--ink-3);line-height:1.25;white-space:nowrap}
+.app>header>.verticals button:hover{border-color:var(--tint);background:var(--wash)}
+.app>header>.verticals button.active{border-color:var(--accent);background:var(--wash)}
+.app>header>.verticals button.active .vs-icon{background:var(--accent);color:#fff}
+.app>header>.verticals button.active span{color:var(--accent-text,var(--accent-ink))}
+
+.app .header-actions{gap:var(--s-2)}
+.app .header-actions .header-link{
+  border:0;background:none;padding:0 var(--s-2);font-size:var(--fs-200);
+  font-weight:600;color:var(--ink-2);border-radius:var(--r-1);min-height:36px}
+.app .header-actions .header-link:hover{color:var(--accent-ink)}
+.app .header-actions .header-icon{
+  position:relative;display:grid;place-items:center;width:38px;height:38px;
+  border:0;background:none;border-radius:var(--r-2);color:var(--ink-2)}
+.app .header-actions .header-icon:hover{background:var(--n-1);color:var(--ink-1)}
+.app .header-actions .header-icon>i{position:absolute;top:8px;right:9px;width:6px;height:6px;
+  border-radius:50%;background:var(--spark)}
+.app .header-actions .hd-login{white-space:nowrap}
+@media(max-width:1180px){
+  .app .header-actions .header-link{display:none}
+  .app>header>.verticals button small{display:none}
+  .app>header>.verticals button{grid-template-areas:"i t";padding-right:var(--s-3)}
+}
+/* The tagline is a nowrap line roughly as wide as the wordmark above it. On the
+   two-row narrow masthead the brand shares its row with the account actions and
+   there is no width for a second line of it, so it goes — the hero says the
+   same thing three lines later, in bigger type. */
+@media(max-width:900px){
+  .app .vertical-brand small{display:none}
+  .app .vertical-brand b{white-space:normal;overflow-wrap:anywhere}
+}
+.app>header>.verticals button em{font-style:normal}
+.app>header>.verticals button .vs-abbr{display:none}
+@media(max-width:1040px){
+  .app .header-actions .header-icon[aria-label="Saved items"]{display:none}
+}
+/* Below 900 the switcher already becomes a three-segment control further up
+   this sheet. That treatment was written when the label was one word; it now
+   gets the one-word spelling back, plus the mark, which is what makes a segment
+   readable at a glance rather than at a read. The mark loses its chip here —
+   inside a 44px segment a filled tile next to a word reads as two objects. */
+@media(max-width:900px){
+  .app>header>.verticals button{gap:var(--s-2);padding-inline:var(--s-2)}
+  .app>header>.verticals button .vs-full{display:none}
+  .app>header>.verticals button .vs-abbr{display:inline}
+  .app>header>.verticals button .vs-icon{width:auto;height:auto;background:none;
+    border-radius:0;color:inherit;flex:none}
+  .app>header>.verticals button .vs-icon svg{width:16px;height:16px;display:block}
+  .app>header>.verticals button.active .vs-icon{background:none;color:#fff}
+  .app>header>.verticals button span{font-size:var(--fs-200);min-width:0;
+    overflow:hidden;text-overflow:ellipsis}
+  /* Restated because the card rules above are later in this sheet than the
+     segmented-control block and match at the same specificity. The filled
+     segment is the treatment that answered "the toggle carries no weight";
+     the outlined card is the desktop reading of the same control. */
+  .app>header>.verticals button.active{background:var(--accent-ink);
+    border-color:transparent;box-shadow:0 1px 3px rgb(11 43 94/.18)}
+  .app>header>.verticals button.active span{color:#fff;font-weight:800}
+}
+
+/* ── 2. HERO ───────────────────────────────────────────────────────────────
+   Two columns on a light wash: the sentence and the search on the left, the
+   person and the reasons on the right. It replaces the full-bleed photograph,
+   which could not hold a panel over it without either hiding the subject or
+   dropping the contrast. */
+.app .home-hero{position:relative;overflow:hidden;min-height:0;
+  padding-block:var(--s-8) var(--s-7);display:block}
+.app .home-hero .hero-content{
+  display:grid;grid-template-columns:minmax(0,1.16fr) minmax(0,.84fr);
+  gap:var(--s-7);align-items:center;position:relative;z-index:1}
+.app .home-hero .hero-copy{width:100%;max-width:none}
+/* A grid item's automatic minimum is its min-content contribution, and a
+   photograph contributes its intrinsic width (900px) no matter how narrow the
+   column is told to be. Without these three the aside refuses to go under the
+   width of the asset and drags the whole hero — headline, search field, chip
+   row — off the right edge of every viewport below about 1000px. */
+.app .home-hero .hero-copy,.app .hero-aside,.app .hh-photo{min-width:0}
+
+/* Qualified by .home-hero because the narrow `.hero-copy>p` rule for the
+   interior heroes is a `>p` — more specific than a lone class — and would
+   otherwise repaint these chips white at 18px. */
+.app .home-hero .hh-chips{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-2);
+  margin:0 0 var(--s-4);font-size:var(--fs-050);font-weight:800;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--accent-ink);max-width:none}
+.app .hh-chips>svg{color:#127A45;flex:none}
+.app .hh-chips span{display:inline-flex;align-items:center}
+/* The separator trails its own chip rather than leading the next one, so a row
+   that wraps does not start the second line with a floating dot. */
+.app .hh-chips span:not(:last-child):after{content:"";width:3px;height:3px;
+  border-radius:50%;background:currentColor;opacity:.45;margin-left:var(--s-2)}
+
+/* Capped at 52 rather than 62: the second line is the longer of the two and
+   has to hold on one line, which is the whole point of colouring it. */
+.app .home-hero h1{font-size:clamp(34px,3.7vw,52px);line-height:1.06;
+  letter-spacing:-.03em;margin:0 0 var(--s-4);color:var(--ink-1);max-width:none}
+/* The one gradient on the page, and it is on four words. Anything wider than a
+   single line of display type turns into a wash and stops reading as emphasis.
+   The fallback colour is set first so a browser without background-clip shows
+   accent ink rather than transparent text. */
+.app .home-hero h1 em{font-style:normal;font-weight:800;color:var(--accent-ink)}
+.app .home-hero h1 em.hh-grad{
+  background:linear-gradient(96deg,var(--accent) 8%,#7A3FD4 92%);
+  -webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent}
+.app .home-hero .hh-body{color:var(--ink-3);font-size:var(--fs-500);
+  line-height:var(--lh-body);max-width:50ch;margin:0 0 var(--s-5)}
+
+/* The search bar. One surface, three controls, one hairline between the field
+   and the select so the select reads as part of the same instrument. */
+.app .hh-search{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;
+  align-items:center;gap:var(--s-3);padding:7px 7px 7px var(--s-4);
+  background:var(--n-0);border:1px solid var(--line);border-radius:var(--r-3);
+  box-shadow:var(--e-2);max-width:640px}
+.app .hh-search:focus-within{border-color:var(--accent);box-shadow:var(--e-3)}
+.app .hh-search>svg{color:var(--ink-3);flex:none}
+.app .hh-search input{border:0;outline:0;background:none;min-height:44px;padding:0;
+  font-size:var(--fs-300);color:var(--ink-1);width:100%}
+.app .hh-search input::placeholder{color:var(--ink-4)}
+.app .hh-search input::-webkit-search-cancel-button{-webkit-appearance:none}
+.app .hh-search select{border:0;border-left:1px solid var(--line);background:none;
+  min-height:38px;padding:0 var(--s-3);font-size:var(--fs-200);font-weight:600;
+  color:var(--ink-2);max-width:170px}
+.app .hh-search .btn{min-height:46px;padding-inline:var(--s-5);white-space:nowrap}
+
+.app .hh-popular{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s-2);
+  margin-top:var(--s-4)}
+.app .hh-popular>span{font-size:var(--fs-200);font-weight:700;color:var(--ink-3);
+  margin-right:var(--s-1)}
+.app .hh-popular button{border:1px solid var(--line);background:var(--n-0);
+  border-radius:var(--r-pill);padding:7px var(--s-4);min-height:34px;
+  font-size:var(--fs-200);font-weight:600;color:var(--ink-2);
+  transition:border-color var(--t-micro) var(--ease-out),color var(--t-micro) var(--ease-out)}
+.app .hh-popular button:hover{border-color:var(--accent);color:var(--accent-ink);background:var(--wash)}
+
+/* The right column. The photograph is a framed panel rather than a bleed, so
+   the floating card and the panel under it have something to sit against. */
+.app .hero-aside{display:grid;gap:var(--s-4);position:relative;z-index:1}
+.app .hh-photo{position:relative;margin:0;border-radius:var(--r-5);overflow:visible}
+.app .hh-photo picture{display:block;border-radius:var(--r-5);overflow:hidden;
+  background:var(--wash);box-shadow:var(--e-3)}
+.app .hh-photo img{display:block;width:100%;height:clamp(240px,29vw,330px);
+  object-fit:cover;object-position:center 22%}
+.app .hh-guided{position:absolute;left:calc(var(--s-4)*-1);bottom:var(--s-4);
+  display:flex;align-items:center;gap:var(--s-3);
+  background:var(--n-0);border:1px solid var(--line);border-radius:var(--r-3);
+  padding:var(--s-3) var(--s-4);box-shadow:var(--e-3);max-width:min(280px,80%)}
+.app .hh-faces{display:flex;align-items:center}
+.app .hh-faces i,.app .hh-faces b{width:26px;height:26px;border-radius:50%;
+  border:2px solid var(--n-0);margin-right:-8px;display:grid;place-items:center;
+  font-size:11px;font-weight:800}
+.app .hh-faces i:nth-child(1){background:var(--tint)}
+.app .hh-faces i:nth-child(2){background:var(--spark-lift,#FFD37A)}
+.app .hh-faces i:nth-child(3){background:var(--wash)}
+.app .hh-faces b{background:var(--accent);color:#fff;margin-right:0;font-style:normal}
+.app .hh-guided-t b{display:block;font-size:var(--fs-200);font-weight:800;
+  color:var(--ink-1);line-height:1.2}
+.app .hh-guided-t small{display:block;font-size:var(--fs-050);color:var(--ink-3)}
+/* The handwritten aside from the reference. It is set in the display face in
+   italic rather than a script webfont: a fourth family for three words is not
+   worth the request, and the reference's own hand-lettering is an illustration,
+   not type. */
+.app .hh-script{position:absolute;right:var(--s-4);top:calc(var(--s-4)*-1);
+  font-family:var(--font-display);font-style:italic;font-weight:700;
+  font-size:var(--fs-300);color:var(--accent-ink);
+  background:var(--n-0);border-radius:var(--r-pill);padding:6px var(--s-4);
+  box-shadow:var(--e-2);transform:rotate(-2.5deg)}
+
+.app .hh-trust{background:var(--n-0);border:1px solid var(--line);
+  border-radius:var(--r-4);padding:var(--s-5);box-shadow:var(--e-2)}
+.app .hh-trust-t{margin:0 0 var(--s-4);font-family:var(--font-display);
+  font-size:var(--fs-400);font-weight:800;letter-spacing:-.015em;color:var(--ink-1)}
+.app .hh-trust ul{list-style:none;margin:0 0 var(--s-5);padding:0;display:grid;gap:var(--s-3)}
+.app .hh-trust li{display:grid;grid-template-columns:auto 1fr auto;align-items:center;
+  gap:var(--s-3);font-size:var(--fs-200);font-weight:600;color:var(--ink-2)}
+.app .hh-t-i{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;
+  background:var(--wash);color:var(--accent-ink)}
+.app .hh-t-i svg{width:15px;height:15px}
+.app .hh-tick{color:#127A45;flex:none}
+.app .hh-trust .btn{width:100%;justify-content:center;min-height:48px}
+.app .hh-trust>small{display:block;margin-top:var(--s-3);text-align:center;
+  font-size:var(--fs-100);color:var(--ink-3)}
+
+@media(max-width:1100px){
+  .app .home-hero .hero-content{grid-template-columns:1fr;gap:var(--s-6)}
+  .app .hh-photo img{height:clamp(220px,34vw,300px)}
+  .app .hh-trust ul{grid-template-columns:1fr 1fr}
+}
+@media(max-width:760px){
+  /* The narrow `.hero-copy` further up this sheet turns the column into a dark
+     navy card painted with the hero photograph, because the interior heroes put
+     their copy *over* a full-bleed image and the text has to survive it. This
+     hero has no bleed — it has a photograph of its own in the right column and a
+     white page behind the words — so the card treatment has to come back off
+     here, or the headline, the search field and the chips all sit on navy. */
+  .app .home-hero .hero-copy{background-image:none;color:var(--ink-2);
+    border-radius:0;padding:0}
+  .app .home-hero{padding-block:var(--s-6) var(--s-6)}
+  .app .home-hero h1{font-size:clamp(32px,8.6vw,42px)}
+  /* Four controls in a row do not survive 360px. The field takes the first row
+     on its own, and the select and the button share the second — both keep a
+     44px target, which stacking into three rows would have cost in height. */
+  /* The magnifier goes, and the field takes the whole first row. Kept as a
+     column it would be sized by the select sitting under it, which parks the
+     placeholder 150px in from the left edge with nothing in between. The icon
+     is not carrying meaning the placeholder and the button do not already. */
+  .app .hh-search{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--s-2) var(--s-3);
+    padding:var(--s-3);box-shadow:var(--e-1)}
+  .app .hh-search>svg{display:none}
+  .app .hh-search input{min-height:40px;grid-column:1/-1}
+  .app .hh-search select{grid-column:1/2;border-left:0;border:1px solid var(--line);
+    border-radius:var(--r-2);min-height:44px;max-width:none;padding-inline:var(--s-3)}
+  .app .hh-search .btn{grid-column:2/3;width:100%}
+  /* The chip row becomes a single scrolling line rather than three wrapped
+     ones: it is a shortcut, and a shortcut that costs 120px of scroll is not. */
+  /* scroll-padding, not just padding: a snap target aligned to `start` aligns to
+     the scrollport's *start edge*, which without this sits a gutter's width to
+     the left of where the rest of the column begins. */
+  .app .hh-popular{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;
+    margin-inline:calc(var(--s-4)*-1);padding-inline:var(--s-4);
+    scroll-padding-inline:var(--s-4);scroll-snap-type:x proximity}
+  .app .hh-popular::-webkit-scrollbar{display:none}
+  .app .hh-popular button{flex:0 0 auto;scroll-snap-align:start}
+  /* The "Popular:" label is not a button, so without a snap position of its own
+     the scroller snapped straight past it to the first chip and the row opened
+     with the label already scrolled off. */
+  .app .hh-popular>span{flex:0 0 auto;scroll-snap-align:start}
+  .app .hh-guided{left:var(--s-3);bottom:var(--s-3);padding:9px var(--s-3)}
+  .app .hh-script{font-size:var(--fs-200);right:var(--s-3);top:calc(var(--s-3)*-1)}
+  .app .hh-trust ul{grid-template-columns:1fr}
+  .app .hh-trust{padding:var(--s-4)}
+}
+
+/* ── 3. SECTION HEADS ──────────────────────────────────────────────────────
+   The reference puts a line of plain explanation under every heading, and the
+   action and the rail arrows on the same baseline to its right. */
+.app .st-sub{margin:var(--s-2) 0 0;font-size:var(--fs-300);color:var(--ink-3);
+  line-height:var(--lh-body);max-width:62ch}
+.app .st-actions{display:inline-flex;align-items:center;gap:var(--s-3);flex:none}
+.app .rail-arrows{display:inline-flex;gap:var(--s-2)}
+.app .rail-arrows button{display:grid;place-items:center;width:38px;height:38px;
+  border:1px solid var(--line);background:var(--n-0);border-radius:50%;color:var(--ink-2)}
+.app .rail-arrows button:hover:not(:disabled){border-color:var(--accent);color:var(--accent-ink)}
+.app .rail-arrows button:disabled{opacity:.38;cursor:default}
+
+/* ── 4. CATEGORY STRIP ─────────────────────────────────────────────────────
+   Six doors in one band. A category is a turning, not a destination, so it gets
+   a mark, a name, one short line and a chevron — the height belongs to the
+   listing it opens, not to the tile. */
+.app .cat-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-4)}
+.app .cat-tile{display:grid;grid-template-columns:auto 1fr auto;align-items:center;
+  gap:var(--s-4);text-align:left;padding:var(--s-4);min-height:82px;
+  background:var(--n-0);border:1px solid var(--line);border-radius:var(--r-3);
+  transition:border-color var(--t-micro) var(--ease-out),
+    box-shadow var(--t-micro) var(--ease-out),transform var(--t-micro) var(--ease-out)}
+.app .cat-tile:hover{border-color:var(--accent);box-shadow:var(--e-2);transform:translateY(-2px)}
+.app .ct-icon{display:grid;place-items:center;width:46px;height:46px;flex:none;
+  border-radius:var(--r-2);background:var(--wash);color:var(--accent-ink)}
+.app .ct-icon svg{width:21px;height:21px}
+.app .ct-text b{display:block;font-family:var(--font-display);font-size:var(--fs-400);
+  font-weight:700;letter-spacing:-.015em;color:var(--ink-1);line-height:1.25}
+.app .ct-text small{display:block;margin-top:2px;font-size:var(--fs-100);color:var(--ink-3)}
+.app .ct-go{color:var(--ink-4);flex:none;
+  transition:transform var(--t-micro) var(--ease-out),color var(--t-micro) var(--ease-out)}
+.app .cat-tile:hover .ct-go{color:var(--accent);transform:translateX(3px)}
+@media(prefers-reduced-motion:reduce){
+  .app .cat-tile,.app .cat-tile:hover,.app .ct-go,.app .cat-tile:hover .ct-go{
+    transform:none;transition:none}
+}
+@media(max-width:1000px){.app .cat-strip{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){
+  .app .cat-strip{grid-template-columns:1fr;gap:var(--s-3)}
+  .app .cat-tile{min-height:72px;padding:var(--s-3) var(--s-4);gap:var(--s-3)}
+  .app .ct-icon{width:40px;height:40px}
+}
+
+/* ── 5. THE RAIL ───────────────────────────────────────────────────────────
+   A real scroller, so a trackpad, a finger and the Tab key all move it the same
+   way. The cards keep the width they have in the grid; only the overflow
+   changes. */
+.app .rail{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(312px,1fr);
+  gap:var(--s-4);overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;
+  padding-bottom:var(--s-2);margin-inline:calc(var(--s-2)*-1);padding-inline:var(--s-2)}
+.app .rail::-webkit-scrollbar{display:none}
+.app .rail>*{scroll-snap-align:start}
+@media(max-width:760px){
+  .app .rail{grid-auto-columns:minmax(280px,86%);
+    margin-inline:calc(var(--s-4)*-1);padding-inline:var(--s-4)}
+}
+
+/* ── 6. CLOSING STAT BAND ──────────────────────────────────────────────────
+   The reference's blue band. The figures inside it are the ones the hero strip
+   used to show, moved rather than reinvented — they are computed from the live
+   catalogue and every one of them is a link to the rows it counted. `.proof`
+   is already written for white-on-dark further up this sheet, which is why the
+   band only has to supply the ground. */
+.app .stat-band{position:relative;overflow:hidden;
+  background:linear-gradient(115deg,var(--accent-deep) 0%,var(--accent-ink) 55%,var(--accent) 100%);
+  color:#fff;padding-block:var(--s-7)}
+.app .stat-band:before{content:"";position:absolute;inset:auto -8% -60% auto;
+  width:480px;height:480px;border-radius:50%;background:#fff;opacity:.06;pointer-events:none}
+.app .stat-band .proof{margin:0}
+.app .sb-foot{display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:var(--s-4);margin-top:var(--s-6);padding-top:var(--s-5);
+  border-top:1px solid rgb(255 255 255/.22);position:relative}
+.app .sb-foot p{margin:0;font-size:var(--fs-400);color:rgb(255 255 255/.88);max-width:56ch}
+.app .sb-foot p b{color:#fff;font-weight:800}
+.app .sb-script{display:block;margin-top:var(--s-4);
+  font-family:var(--font-display);font-style:italic;font-weight:700;
+  font-size:var(--fs-400);color:rgb(255 255 255/.72);position:relative}
+@media(max-width:760px){
+  .app .stat-band{padding-block:var(--s-6)}
+  .app .sb-foot{flex-direction:column;align-items:stretch}
+  .app .sb-foot .btn{width:100%;justify-content:center}
+  .app .sb-script{text-align:center}
+}
+
+/* `.hero-copy>*+*` further up this sheet puts a flat --s-4 between every child
+   of a hero column. The homepage column sets its own rhythm — the chip row sits
+   tight to the headline, the search sits away from the paragraph — so it opts
+   out rather than fighting the shared rule with margins that cancel it. */
+.app .home-hero .hero-copy>*+*{margin-top:0}

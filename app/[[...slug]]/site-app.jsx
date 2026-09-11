@@ -5,7 +5,7 @@ import {useCatalog,useAllCatalogs} from '@/lib/client/catalog.js';
 import {useApi} from '@/lib/client/api.js';
 import {plainFacts} from '@/lib/content/plain.js';
 import Image from 'next/image';
-import {ArrowRight,ArrowUp,Bookmark,Building2,Check,ChevronRight,Clock3,FileText,GraduationCap,Heart,Home,MapPin,Search,ShieldCheck,Sparkles,Star,Users,X,Bell,UserRound,BookOpen,ExternalLink,TrendingUp,CalendarDays,MessageCircle,RotateCcw,Navigation,LocateFixed,Wifi,Flame,Filter,Stethoscope,Plane,Scale,Award,Briefcase,ScrollText,Laptop,Cog,Calculator,Wrench,Workflow,Paperclip,Upload,Trash2,IndianRupee} from 'lucide-react';
+import {ArrowRight,ArrowUp,Bookmark,Building2,Check,ChevronLeft,ChevronRight,Clock3,FileText,GraduationCap,Heart,Home,MapPin,Search,ShieldCheck,Sparkles,Star,Users,X,Bell,UserRound,BookOpen,ExternalLink,TrendingUp,CalendarDays,MessageCircle,RotateCcw,Navigation,LocateFixed,Wifi,Flame,Filter,Stethoscope,Plane,Scale,Award,Briefcase,ScrollText,Laptop,Cog,Calculator,Wrench,Workflow,Paperclip,Upload,Trash2,IndianRupee} from 'lucide-react';
 import {Plate,CardWash} from '@/components/ui/plate.jsx';
 import {SectionTitle,PageHero,Accordion} from '@/components/ui/primitives.jsx';
 import {MarkVerified,MarkCompared,MarkCounsellor,MarkOpenings,MarkThisWeek,MarkEmployers} from '@/components/ui/proof-marks.jsx';
@@ -32,7 +32,15 @@ const AccountPage=dynamic(()=>import('@/components/account/account.jsx'));
 const ComparePage=dynamic(()=>import('@/components/account/compare.jsx'));
 const AutomationCenter=dynamic(()=>import('@/components/account/automations.jsx'));
 
-const V={distance:{label:'Distance',sub:'Courses Wala',logoAlt:'Distance Courses Wala',legal:'Distance Courses Wala, Patna',mark:'/distance-mark.png',lockup:'/distance-lockup.png',theme:{'--accent':'#1263E0','--accent-deep':'#0A2B5E','--accent-ink':'#1250B8','--accent-solid':'#1263E0','--wash':'#E9F1FE','--spark':'#F7A928','--spark-ink':'#3A2A00','--spark-lift':'#FFD37A','--tint':'#CFE2FB','--mark':"url('/distance-mark.png')"}},colleges:{label:'Colleges',sub:'Colleges Wala',logoAlt:'Colleges Wala',legal:'Colleges Wala, Patna',mark:'/colleges-mark.png',lockup:'/colleges-lockup.png',theme:{'--accent':'#C1272D','--accent-deep':'#8C1A20','--accent-ink':'#C1272D','--accent-solid':'#C1272D','--wash':'#FBEDEC','--spark':'#1B3B78','--spark-ink':'#FFFFFF','--spark-lift':'#F6C9C4','--tint':'#F3C0BC','--mark':"url('/colleges-mark.png')"}},jobs:{label:'Jobs',sub:'Berojgar Bharat',logoAlt:'Berojgar Bharat',legal:'Berojgar Bharat, Patna',mark:'/jobs-mark.png',lockup:'/jobs-lockup.png',theme:{'--accent':'#E2760F','--accent-deep':'#A5520A','--accent-ink':'#A5520A','--accent-solid':'#A5520A','--wash':'#FDF2E5','--spark':'#5AB436','--spark-ink':'#0C2A05','--spark-lift':'#B6EE99','--tint':'#F8D3A6','--mark':"url('/jobs-mark.png')"}}};
+/* `label`/`sub` are the two-word switcher labels the narrow breakpoints need;
+   `navTitle`/`navSub` are the full pair the desktop switcher card shows, and
+   `tagline` is the line under the wordmark in the masthead. They are separate
+   fields rather than one string split at runtime because the mobile segment has
+   room for one short word and the desktop card has room for a sentence. */
+const V={distance:{label:'Distance',sub:'Courses Wala',navTitle:'Distance Courses',navSub:'Flexible Learning',tagline:'Padho. Aage Badho. Apne Dum Par.',logoAlt:'Distance Courses Wala',legal:'Distance Courses Wala, Patna',mark:'/distance-mark.png',lockup:'/distance-lockup.png',theme:{'--accent':'#1263E0','--accent-deep':'#0A2B5E','--accent-ink':'#1250B8','--accent-solid':'#1263E0','--wash':'#E9F1FE','--spark':'#F7A928','--spark-ink':'#3A2A00','--spark-lift':'#FFD37A','--tint':'#CFE2FB','--mark':"url('/distance-mark.png')"}},colleges:{label:'Colleges',sub:'Colleges Wala',navTitle:'Colleges Wala',navSub:'Find Your College',tagline:'Sahi College. Sahi Faisla.',logoAlt:'Colleges Wala',legal:'Colleges Wala, Patna',mark:'/colleges-mark.png',lockup:'/colleges-lockup.png',theme:{'--accent':'#C1272D','--accent-deep':'#8C1A20','--accent-ink':'#C1272D','--accent-solid':'#C1272D','--wash':'#FBEDEC','--spark':'#1B3B78','--spark-ink':'#FFFFFF','--spark-lift':'#F6C9C4','--tint':'#F3C0BC','--mark':"url('/colleges-mark.png')"}},jobs:{label:'Jobs',sub:'Berojgar Bharat',navTitle:'Berojgar Bharat',navSub:'Jobs & Opportunities',tagline:'Kaam Milega. Zindagi Badlegi.',logoAlt:'Berojgar Bharat',legal:'Berojgar Bharat, Patna',mark:'/jobs-mark.png',lockup:'/jobs-lockup.png',theme:{'--accent':'#E2760F','--accent-deep':'#A5520A','--accent-ink':'#A5520A','--accent-solid':'#A5520A','--wash':'#FDF2E5','--spark':'#5AB436','--spark-ink':'#0C2A05','--spark-lift':'#B6EE99','--tint':'#F8D3A6','--mark':"url('/jobs-mark.png')"}}};
+/* Kept out of V because V is spread into `style` as a theme object in places and
+   a React element has no business travelling with the colour tokens. */
+const VERTICAL_ICON={distance:<BookOpen/>,colleges:<Building2/>,jobs:<Briefcase/>};
 /* The universities, colleges and jobs that used to be pasted here now come from
    lib/data via lib/store.js, over /api — see lib/client/catalog.js. A second
    copy in the browser bundle meant a job posted in /admin was invisible to the
@@ -186,63 +194,34 @@ function MotionLayer(){const [progress,setProgress]=useState(0),[showTop,setShow
 /* Where each kind of user lands after signing in. The public site and the
    console share one account system, so the door you come through decides the
    room, not the credentials. */
-const DOORS=[{key:'student',label:'Student',hint:'Applications & counselling',next:'/applications'},{key:'employer',label:'Employer',hint:'Post jobs, screen candidates',next:'/admin/jobs'},{key:'admin',label:'Admin',hint:'Everything across DCW',next:'/admin'}];
 const HOME_FOR={admin:'/admin',employer:'/admin/jobs',student:'/applications'};
 
-/* Utility bar — the upper half of the double nav. It carries the live line on
-   the left and the three front doors on the right, so a student, an employer
-   and an operator each see their own way in without the main nav having to
-   grow a fourth thing to hold. */
-/* The strip is labelled LIVE, so what it says has to be live. It used to read
-   "Aaj 1,240 nayi vacancies · 18 walk-in drives Patna me" under "Updated 12
-   minutes ago" — a count, a second count and a timestamp, none of them measured
-   and none of them changing. It now states what the catalogue request that just
-   returned actually contains, and the timestamp is the moment of that request.
-   Before the rows arrive it says so rather than showing a number. */
-/* "Updated 12 minutes ago" was a string. This is the elapsed time since the
-   fetch that produced the rows on screen, re-read every 30s so a tab left open
-   does not keep claiming the catalogue was read just now. */
-function useAgo(ts){
-  const [,tick]=useState(0);
-  useEffect(()=>{if(!ts)return;const id=setInterval(()=>tick(n=>n+1),30000);return()=>clearInterval(id)},[ts]);
-  if(!ts)return '';
-  const m=Math.floor((Date.now()-ts)/60000);
-  if(m<1)return 'just now';
-  if(m<60)return `${m} min ago`;
-  const h=Math.floor(m/60);
-  return `${h} hr${h===1?'':'s'} ago`;
-}
-function UtilityBar({vertical,auth,go,catalog}){
-  const user=auth?.user;
-  const rows=catalog?.rows??[];
-  const ago=useAgo(catalog?.fetchedAt);
-  const ready=catalog?.state==='ready'&&rows.length>0;
-  const label=!ready
-    ?(catalog?.state==='error'?'Catalogue abhi load nahi ho paaya':'Catalogue load ho raha hai')
-    :vertical==='jobs'
-      ?`${rows.reduce((t,r)=>t+(r.openings??0),0)} openings live \u00b7 ${rows.filter(r=>r.postedDays!=null&&r.postedDays<=7).length} naye is hafte`
-      :vertical==='colleges'
-        ?`${rows.length} colleges \u00b7 cutoff aur total kharcha ek jagah`
-        :`${rows.length} universities \u00b7 approval aur fees ek jagah`;
-  return <div className="ticker utility"><div className="util-row">
-    <p className="util-live"><span>LIVE</span><b>{label}</b><small>{ready?`Catalogue read ${ago}`:'\u2014'}</small></p>
-    {auth?.state==='loading'
-      ? <span className="util-skel" aria-hidden="true"/>
-      : user
-        ? <div className="util-auth signed-in"><span className="util-who"><b>{user.name}</b><small>{user.role}</small></span><button className="util-link strong" onClick={()=>go(HOME_FOR[user.role]||'/')}>Go to my {user.role==='student'?'dashboard':'console'}</button><button className="util-link" onClick={auth.signOut}>Sign out</button></div>
-        : <nav className="util-auth" aria-label="Sign in">
-            <span className="util-label">Sign in as</span>
-            {DOORS.map(d=><a key={d.key} className="util-link util-role" href={`/login?role=${d.key}&next=${encodeURIComponent(d.next)}`} title={d.hint}>{d.label}</a>)}
-            <a className="util-link util-compact" href="/login">Sign in</a>
-          </nav>}
-  </div></div>}
-
+/* One masthead, not two bands. The brand and its tagline, the three verticals
+   as cards, then the utility links and the two account actions. */
 function Header({vertical,cfg,go,setSearchOpen,setLead,auth,catalog}){const user=auth?.user;/* Signed out, this used to read 'AK' — hardcoded initials that belong to a
      real account on this install. A visitor who has never signed in was shown
      somebody else's monogram and an "Open profile" button leading to a profile
      that is not theirs. Signed out there is no one to abbreviate, so the avatar
      becomes a neutral glyph that says what it does: sign in. */
-  const initials=user?user.name.replace(/\(.*\)/,'').trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase():null;return <><UtilityBar vertical={vertical} auth={auth} go={go} catalog={catalog}/><header><button className="brand vertical-brand" onClick={()=>go(`/${vertical}`)} aria-label={`${V[vertical].logoAlt} home`}><VerticalLogo vertical={vertical}/><span><b>{V[vertical].logoAlt}</b><small>Discover · Compare · Decide</small></span></button><nav className="verticals" aria-label="Choose a service">{Object.entries(V).map(([k,v])=><button key={k} aria-current={vertical===k?'page':undefined} className={vertical===k?'active':''} onClick={()=>go(`/${k}`)}><span>{v.label}</span><small>{v.sub}</small></button>)}</nav><button className="header-search" onClick={()=>setSearchOpen(true)}><Search size={18}/><span>Search {cfg.label.toLowerCase()}</span><kbd>⌘ K</kbd></button><div className="header-actions"><button aria-label="Notifications" onClick={()=>go('/notifications')}><Bell size={20}/><i/></button><button aria-label="Saved items" onClick={()=>go('/saved')}><Bookmark size={20}/></button><button className="avatar" aria-label={user?`Open profile — signed in as ${user.name}`:'Sign in'} onClick={()=>go(user?'/profile':'/login')}>{initials||<UserRound size={18} aria-hidden="true"/>}</button><button className="talk" onClick={()=>setLead({title:'Talk to a DCW counsellor',interest:vertical})}><MessageCircle aria-hidden="true"/>Talk to us</button></div></header></>}
+  const initials=user?user.name.replace(/\(.*\)/,'').trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase():null;/* The black live rail that used to sit above this is gone. Everything it
+     carried now has a home inside the masthead or just below it: the signed-in
+     name and the console link are the two controls on the right, the role doors
+     are the tabs on /login, and the live catalogue count is the middle item of
+     the trust strip under the hero. A second full-width band repeating them was
+     the first thing on the page and the least useful. */
+  return <><header><button className="brand vertical-brand" onClick={()=>go(`/${vertical}`)} aria-label={`${V[vertical].logoAlt} home`}><VerticalLogo vertical={vertical}/><span><b>{V[vertical].logoAlt}</b><small>{V[vertical].tagline}</small></span></button>{/* Each vertical is a card with its own mark and its own one-line promise,
+        not a word in a flat list — requirement 2. The active one is outlined in
+        the accent so which house you are standing in is readable without
+        comparing weights. Below 900 the same markup collapses to a three-segment
+        control; the sub-line is dropped there and the two-word title gives way
+        to the one-word one, because three equal segments on a 360px screen
+        cannot hold "Distance Courses" without truncating it mid-word. Both
+        spellings ship and CSS picks one, so `aria-label` carries the full title
+        at every width — the hidden half is excluded from the accessible name,
+        and the name should not change when the viewport does. */}
+    <nav className="verticals" aria-label="Choose a service">{Object.entries(V).map(([k,v])=><button key={k} aria-current={vertical===k?'page':undefined} aria-label={v.navTitle} className={vertical===k?'active':''} onClick={()=>go(`/${k}`)}><i className="vs-icon" aria-hidden="true">{VERTICAL_ICON[k]}</i><span aria-hidden="true"><em className="vs-full">{v.navTitle}</em><em className="vs-abbr">{v.label}</em></span><small>{v.navSub}</small></button>)}</nav><div className="header-actions"><button className="header-icon" aria-label="Search" onClick={()=>setSearchOpen(true)}><Search size={19}/></button><button className="header-link" onClick={()=>go('/about')}>About</button><button className="header-link" onClick={()=>setLead({title:'Talk to a DCW counsellor',interest:vertical})}>Help</button><button className="header-icon" aria-label="Saved items" onClick={()=>go('/saved')}><Bookmark size={19}/></button><button className="header-icon" aria-label="Notifications" onClick={()=>go('/notifications')}><Bell size={19}/><i/></button>{user
+      ?<><button className="avatar" aria-label={`Open profile — signed in as ${user.name}`} onClick={()=>go('/profile')}>{initials}</button><button className="talk" onClick={()=>go(HOME_FOR[user.role]||'/')}>My {user.role==='student'?'dashboard':'console'}<ArrowRight aria-hidden="true"/></button></>
+      :<><button className="btn outline small hd-login" onClick={()=>go('/login')}>Login</button><button className="talk" onClick={()=>setLead({title:`Register with ${V[vertical].logoAlt}`,interest:vertical})}>Register<ArrowRight aria-hidden="true"/></button></>}</div></header></>}
 
 /* useLayoutEffect on the client, useEffect on the server — the standard escape
    from React's SSR warning. It matters here because the counter has to be reset
@@ -329,19 +308,157 @@ function heroProof(vertical,catalog){
     ['1:1','counsellor for life','#counsellor',MarkCounsellor,null,'no cost, no sales pitch']
   ];
 }
-function Hero({vertical,go,setSearchOpen,setLead,catalog}){const copy={distance:{eyebrow:'Approvals, fees and outcomes—side by side',/* Three lines, three colours, ordered cold to warm so the eye is pulled down
-   the stack and lands on the verb. The line break before "move." is explicit
-   because the effect depends on the amber word standing alone — letting it
-   wrap naturally puts "Choose your next move." on two lines at some widths
-   and one at others, and the device only works at three. */
-title:<>See the whole path.<br/><em>Choose your next</em><br/><em className="warm">move.</em></>,body:'Compare recognized online and distance programs with fees, approvals and honest guidance—all in one clear view.',primary:['Find my program','/distance/universities'],secondary:['Compare boards','/distance/boards']},colleges:{eyebrow:'Cutoffs, costs and choices—made clear',title:<>Your right college<br/><em>is within reach.</em></>,body:'Use real decision tools to compare cutoffs, total costs, seats and outcomes across India and abroad.',primary:['Explore colleges','/colleges/search'],secondary:['Predict from NEET rank','/colleges/neet-predictor']},jobs:{eyebrow:'Verified roles. Clear salaries. No noise.',title:<>Less searching.<br/><em>More moving forward.</em></>,body:'Discover fresher-friendly jobs, build a strong resume and apply with confidence in three simple steps.',primary:['Find verified jobs','/jobs/search'],secondary:['Build my resume','/jobs/resume-builder']}}[vertical];const art=vertical==='colleges'?'campus-editorial':vertical==='jobs'?'career-editorial':'dcw-journey-hero';return <section className="hero atlas-hero"><picture><source type="image/webp" media="(max-width:900px)" srcSet={`/${art}-900.webp`}/><source type="image/webp" srcSet={`/${art}-full.webp`}/><img src={`/${art}.png`} alt={vertical==='jobs'?'Young Indian professionals collaborating at work':vertical==='colleges'?'Indian university students walking on campus':'Student looking toward a bright education and career pathway'} fetchPriority="high" decoding="async"/></picture><div className="hero-shade"/><div className="container hero-content"><div className="hero-copy"><span className="eyebrow"><Sparkles size={16}/>{copy.eyebrow}</span><h1>{copy.title}</h1><p>{copy.body}</p><button className="hero-search glass" onClick={()=>setSearchOpen(true)}><Search/><span>{vertical==='jobs'?'Search role, skill or location':vertical==='colleges'?'Search college, course, exam or city':'Search university, course or board'}</span><b>Search</b></button><div className="hero-ctas"><button className="btn primary tactile" onClick={()=>go(copy.primary[1])}>{copy.primary[0]}<ArrowRight/></button><button className="btn ghost" onClick={()=>go(copy.secondary[1])}>{copy.secondary[0]}<ChevronRight/></button></div><div className="proof">{/* The fifth slot is `share`: the proportion the figure actually represents,
-        or null when it is a count rather than a share. Only a real share earns a
-        meter — a recessed track with a filled portion, which is a claim that the
-        rest of the track is the remainder. The counts get a plain rule that
-        draws in on reveal: same rhythm, same motion, no arithmetic implied. */}
-     {heroProof(vertical,catalog).map(([n,l,href,Icon,share,note],i)=><button key={l} onClick={()=>href==='#counsellor'?setLead({title:'Talk to a DCW counsellor',interest:vertical}):go(href)} style={{'--i':i}}><span className="stat-i" aria-hidden="true"><Icon/></span><StatNumber value={n} delay={140+i*110}/><small>{l}</small><span className="stat-note">{note}</span></button>)}</div></div></div></section>}
-function HomePage(ctx){const {vertical,go,catalog}=ctx;const pool=catalog.rows;return <main id="main" tabIndex={-1}><Hero {...ctx}/><section className="trust-strip"><div className="container"><span><ShieldCheck/>Data checked by our research team</span><span><Users/>{catalog.state==='ready'?`${pool.length} ${vertical==='jobs'?'roles':vertical==='colleges'?'colleges':'universities'} on record`:catalog.state==='error'?'Catalogue unavailable':'Catalogue loading'}</span><span><Clock3/>Updated every admission cycle</span></div></section><section className="section container"><SectionTitle kicker="CHOOSE YOUR NEXT MOVE" title={vertical==='jobs'?'Start with what you need today':vertical==='colleges'?'Explore by your ambition':'Learn on your terms'} action="View everything" onAction={()=>go(vertical==='distance'?'/distance/universities':`/${vertical}/search`)}/><div className="path-grid">{categories(vertical).map((x,i,a)=><PathCard key={x.name} item={x} i={i} featured={i===0&&(a.length+1)%3!==1} onClick={()=>go(x.href)}/>)}</div></section><section className="section wash"><div className="container"><SectionTitle kicker="RESEARCHED, NOT RANKED BY ADS" title={vertical==='jobs'?'Fresh opportunities near you':vertical==='colleges'?'Colleges worth comparing':'Popular flexible programs'} action="See all results" onAction={()=>go(vertical==='distance'?'/distance/universities':`/${vertical}/search`)}/><div className="card-grid"><CatalogGrid catalog={catalog} skeleton={3}>{pool.slice(0,3).map(x=><EntityCard key={x.id} item={x} {...ctx}/>)}</CatalogGrid></div></div></section>{vertical!=='distance'&&<section className="section container section-plate"><SectionTitle kicker={vertical==='colleges'?'STUDY ABROAD':'SKILL TO JOB'} title={vertical==='colleges'?'Intake and total cost, country by country':'Short courses that lead to a job'} action={vertical==='colleges'?'Compare countries':'See all courses'} onAction={()=>go(vertical==='colleges'?'/colleges/search':'/jobs/search')}/><div className="path-grid">{(vertical==='colleges'?[{name:'Georgia',kicker:'MBBS',desc:'\u20b924L total \u00b7 September intake \u00b7 NMC-approved universities.',icon:<Plane/>},{name:'Russia',kicker:'MBBS',desc:'\u20b919L total \u00b7 August intake \u00b7 English-medium teaching.',icon:<Plane/>},{name:'Canada',kicker:'PG DIPLOMA',desc:'\u20b918L \u00b7 January intake \u00b7 post-study work pathway.',icon:<Plane/>},{name:'UK',kicker:'MSc \u00b7 1 YEAR',desc:'\u20b922L \u00b7 September intake \u00b7 one-year master\u2019s.',icon:<Plane/>}]:[{name:'Digital Marketing',kicker:'6 WEEKS',desc:'Certificate on completion, portfolio project included.',icon:<TrendingUp/>},{name:'Tally + GST',kicker:'8 WEEKS',desc:'Job assistance for accounts and back-office roles.',icon:<Calculator/>},{name:'Spoken English',kicker:'12 WEEKS',desc:'Live classes with practice partners, not recordings.',icon:<MessageCircle/>},{name:'Interview Prep',kicker:'MOCK + REVIEW',desc:'Mock interviews and a line-by-line resume review.',icon:<Briefcase/>}]).map((x,i,a)=><PathCard key={x.name} item={x} i={i} featured={i===0&&(a.length+1)%3!==1} cta={vertical==='colleges'?'See cost':'See course'} onClick={()=>go(vertical==='colleges'?'/colleges/search':'/jobs/search')}/>)}</div></section>}<DecisionBlock {...ctx}/><section className="section container"><div className="human-cta"><div><span className="kicker">NEED A HUMAN POINT OF VIEW?</span><h2>Talk it through with someone<br/>who knows the details.</h2><p>Free guidance, zero pressure. Our counsellors help you compare the options that fit your goal and budget.</p></div><button className="btn light" onClick={()=>ctx.setLead({title:'Talk to a DCW counsellor',interest:vertical})}>Book a free call<ArrowRight/></button></div></section></main>}
-function categories(v){if(v==='distance')return[{name:'Complete 10th',kicker:'OPEN SCHOOL',desc:'Recognised open boards with flexible exam cycles.',icon:<BookOpen/>,href:'/distance/boards'},{name:'Complete 12th',kicker:'OPEN SCHOOL',desc:'Finish 12th in as little as 45 days, gap years covered.',icon:<ScrollText/>,href:'/distance/boards'},{name:'UG distance',kicker:'BACHELOR\u2019S',desc:'BA, B.Com, BBA and BCA from UGC-DEB universities.',icon:<GraduationCap/>,href:'/distance/universities?path=ug'},{name:'PG distance',kicker:'MASTER\u2019S',desc:'MBA, MCA and MA built around working hours.',icon:<Award/>,href:'/distance/universities?path=pg'},{name:'Online degree',kicker:'100% ONLINE',desc:'Fully online degrees with proctored online exams.',icon:<Laptop/>,href:'/distance/universities?path=online'}];if(v==='colleges')return[{name:'Medical',kicker:'MBBS & BDS',desc:'Cutoffs, seats and the full cost \u2014 not just tuition.',icon:<Stethoscope/>,href:'/colleges/search?stream=Medical'},{name:'Engineering',kicker:'B.TECH',desc:'JEE percentile, branch-wise fees and placement records.',icon:<Cog/>,href:'/colleges/search?stream=Engineering'},{name:'Management',kicker:'BBA & MBA',desc:'Entrance accepted, fee versus average package.',icon:<TrendingUp/>,href:'/colleges/search?stream=Management'},{name:'Law',kicker:'BA LLB',desc:'CLAT and state law entrances with five-year options.',icon:<Scale/>,href:'/colleges/search?stream=Law'},{name:'Study abroad',kicker:'GLOBAL OPTIONS',desc:'Country-wise cost, approvals and intake timelines.',icon:<Plane/>,href:'/colleges/search?abroad=1'},{name:'Commerce',kicker:'B.COM',desc:'Regular and honours streams with CA-friendly timing.',icon:<Calculator/>,href:'/colleges/search?stream=Commerce'}];return[{name:'Jobs near me',kicker:'LOCAL ROLES',desc:'Verified Patna openings with the salary stated upfront.',icon:<MapPin/>,href:'/jobs/search?city=Patna'},{name:'Free resume builder',kicker:'3 SIMPLE STEPS',desc:'Create a clean, recruiter-ready resume in minutes.',icon:<FileText/>,href:'/jobs/resume-builder'},{name:'Skill to job',kicker:'SHORT COURSES',desc:'Job-linked courses from six weeks, with placement help.',icon:<Wrench/>,href:'/jobs/search'},{name:'Sarkari exam alerts',kicker:'BSSC \u00b7 SSC \u00b7 RAILWAY',desc:'Form dates and eligibility, pushed before the deadline.',icon:<Bell/>,href:'/jobs/search'}]}
+/* The homepage hero, in the layout the brief specifies: the promise and the
+   search on the left, the person and the reasons to trust us on the right.
+   Everything visible here does something. The field seeds the same search panel
+   ⌘K opens; the category select and the Popular chips are filters the listing
+   already understands; Start Your Journey opens the enquiry form that creates
+   the CRM record. Nothing here is decoration wearing the costume of a control. */
+const HERO={
+  distance:{
+    chips:['UGC Approved','Flexible','Affordable','For every learner'],
+    line1:'Learn Your Way.',line2:'A Brighter Tomorrow.',
+    body:'Discover distance and online courses from India’s trusted universities. For 10th, 12th, Graduates and Working Professionals.',
+    ph:'Search courses, universities, programs or skills',
+    all:'/distance/universities',
+    cats:[['All Categories',null],['10th / 12th Courses','/distance/boards'],['Graduation','/distance/universities?path=ug'],['Post Graduation','/distance/universities?path=pg'],['Online Degree','/distance/universities?path=online']],
+    popular:[['10th Pass Courses','/distance/boards'],['12th Pass Courses','/distance/boards'],['UG Courses','/distance/universities?path=ug'],['PG Courses','/distance/universities?path=pg'],['Diploma','/distance/universities'],['Online MBA','/distance/universities?path=pg'],['Certification','/distance/universities?path=online']],
+    guided:'1L+ students guided',guidedSub:'and counting, across India',
+    script:'Skills. Knowledge. Confidence.',
+    note:'Same education. More opportunities.',
+    trust:[['Verified universities',<ShieldCheck/>],['Flexible learning',<Clock3/>],['Affordable fees',<IndianRupee/>],['Career guidance',<TrendingUp/>],['Real student reviews',<Star/>]],
+    cta:'Start your journey',
+    alt:'Student looking toward a bright education and career pathway'
+  },
+  colleges:{
+    chips:['Verified data','Real cutoffs','Total cost','No paid ranking'],
+    line1:'Choose With Clarity.',line2:'Not With Guesswork.',
+    body:'Compare cutoffs, total cost, seats and outcomes across Indian and overseas colleges. For 12th pass students and their parents.',
+    ph:'Search college, course, exam or city',
+    all:'/colleges/search',
+    cats:[['All Categories',null],['Medical','/colleges/search?stream=Medical'],['Engineering','/colleges/search?stream=Engineering'],['Management','/colleges/search?stream=Management'],['Commerce','/colleges/search?stream=Commerce'],['Law','/colleges/search?stream=Law'],['Study abroad','/colleges/search?abroad=1']],
+    popular:[['MBBS','/colleges/search?stream=Medical'],['B.Tech','/colleges/search?stream=Engineering'],['BBA & MBA','/colleges/search?stream=Management'],['B.Com','/colleges/search?stream=Commerce'],['BA LLB','/colleges/search?stream=Law'],['NEET predictor','/colleges/neet-predictor'],['Study abroad','/colleges/search?abroad=1']],
+    guided:'1L+ students guided',guidedSub:'and counting, across India',
+    script:'Cutoff. Cost. Outcome.',
+    note:'One shortlist, all the numbers.',
+    trust:[['Verified colleges',<ShieldCheck/>],['Cutoffs on record',<TrendingUp/>],['Total cost, not just fees',<IndianRupee/>],['Free counselling',<MessageCircle/>],['Real student reviews',<Star/>]],
+    cta:'Start your shortlist',
+    alt:'Indian university students walking on campus'
+  },
+  jobs:{
+    chips:['Verified employers','Salary shown','Freshers welcome','Free to apply'],
+    line1:'Less Searching.',line2:'More Moving Forward.',
+    body:'Find fresher-friendly jobs from employers we have checked, build a clean resume and apply in minutes. No fee, ever.',
+    ph:'Search role, skill or location',
+    all:'/jobs/search',
+    cats:[['All Categories',null],['Jobs near me','/jobs/search?city=Patna'],['Work from home','/jobs/search'],['Short courses','/jobs/search'],['Resume builder','/jobs/resume-builder']],
+    popular:[['Jobs in Patna','/jobs/search?city=Patna'],['Work from home','/jobs/search'],['Fresher jobs','/jobs/search'],['Sales & BPO','/jobs/search'],['Free resume builder','/jobs/resume-builder'],['Sarkari alerts','/jobs/search'],['Interview prep','/jobs/search']],
+    guided:'1L+ students guided',guidedSub:'and counting, across India',
+    script:'Skill. Apply. Earn.',
+    note:'A real job beats a long list.',
+    trust:[['Verified employers',<ShieldCheck/>],['Salary stated upfront',<IndianRupee/>],['Freshers welcome',<Users/>],['Free resume builder',<FileText/>],['Never any fee',<Check/>]],
+    cta:'Start your job hunt',
+    alt:'Young Indian professionals collaborating at work'
+  }
+};
+function Hero({vertical,go,setSearchOpen,setLead,query,setQuery}){
+  const h=HERO[vertical];const [cat,setCat]=useState(0);
+  const art=vertical==='colleges'?'campus-editorial':vertical==='jobs'?'career-editorial':'dcw-journey-hero';
+  /* Typed text wins, because the search panel searches all three verticals and a
+     category cannot narrow a word it has not seen. With the field empty the
+     select is the whole instruction, so it navigates to that filter. Either way
+     pressing Search does what the label promises. */
+  const submit=e=>{e.preventDefault();if(query.trim()){setSearchOpen(true);return}go(h.cats[cat][1]??h.all)};
+  return <section className="hero home-hero"><div className="container hero-content">
+    <div className="hero-copy">
+      <p className="hh-chips"><Check size={13} aria-hidden="true"/>{h.chips.map(c=><span key={c}>{c}</span>)}</p>
+      <h1>{h.line1}<br/><em className="hh-grad">{h.line2}</em></h1>
+      <p className="hh-body">{h.body}</p>
+      <form className="hh-search" role="search" onSubmit={submit}>
+        <Search size={18} aria-hidden="true"/>
+        <input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={h.ph} aria-label={h.ph}/>
+        <select value={cat} onChange={e=>setCat(Number(e.target.value))} aria-label="Narrow by category">{h.cats.map((c,i)=><option key={c[0]} value={i}>{c[0]}</option>)}</select>
+        <button type="submit" className="btn primary">Search<ArrowRight/></button>
+      </form>
+      <div className="hh-popular"><span>Popular:</span>{h.popular.map(([t,href])=><button key={t} type="button" onClick={()=>go(href)}>{t}</button>)}</div>
+    </div>
+    <div className="hero-aside">
+      <figure className="hh-photo">
+        <picture><source type="image/webp" media="(max-width:900px)" srcSet={`/${art}-900.webp`}/><source type="image/webp" srcSet={`/${art}-full.webp`}/><img src={`/${art}.png`} alt={h.alt} fetchPriority="high" decoding="async"/></picture>
+        <figcaption className="hh-guided"><span className="hh-faces" aria-hidden="true"><i/><i/><i/><b>+</b></span><span className="hh-guided-t"><b>{h.guided}</b><small>{h.guidedSub}</small></span></figcaption>
+        <span className="hh-script" aria-hidden="true">{h.script}</span>
+      </figure>
+      <div className="hh-trust">
+        <p className="hh-trust-t">{h.note}</p>
+        <ul>{h.trust.map(([label,icon])=><li key={label}><i className="hh-t-i" aria-hidden="true">{icon}</i><span>{label}</span><Check className="hh-tick" size={15} aria-hidden="true"/></li>)}</ul>
+        <button className="btn primary" onClick={()=>setLead({title:h.cta,interest:vertical})}>{h.cta}<ArrowRight/></button>
+        <small>It’s free. No hidden charges.</small>
+      </div>
+    </div>
+  </div></section>;
+}
+/* A horizontal rail with working arrows. It is a real scroller rather than a
+   transform carousel so that a trackpad, a touchscreen and the Tab key all move
+   it the same way; the buttons only nudge scrollLeft, and they disable
+   themselves at each end instead of wrapping, which is what the arrows in the
+   reference are doing. */
+function RailArrows({target,label}){
+  const [at,setAt]=useState({start:true,end:true});
+  const read=useCallback(()=>{const el=target.current;if(!el)return;
+    setAt({start:el.scrollLeft<8,end:el.scrollLeft>=el.scrollWidth-el.clientWidth-8})},[target]);
+  /* The rail is a sibling that renders a skeleton first, so on the render where
+     this mounts `target.current` is still null. Giving up there is how the
+     arrows went missing entirely: nothing re-renders this component when the
+     catalogue lands, so a one-shot effect never saw the element. It waits for
+     it instead, then observes — the ResizeObserver covers the rail changing
+     width, the scroll listener covers it being moved by any other means. */
+  useEffect(()=>{
+    let raf=0,stop=null;
+    const attach=()=>{const el=target.current;
+      if(!el){raf=requestAnimationFrame(attach);return}
+      read();
+      const ro=new ResizeObserver(read);ro.observe(el);
+      el.addEventListener('scroll',read,{passive:true});addEventListener('resize',read);
+      stop=()=>{ro.disconnect();el.removeEventListener('scroll',read);removeEventListener('resize',read)}};
+    attach();
+    return()=>{cancelAnimationFrame(raf);stop?.()}},[read,target]);
+  const nudge=d=>{const el=target.current;if(el)el.scrollBy({left:d*(el.clientWidth*.8),behavior:'smooth'})};
+  if(at.start&&at.end)return null;
+  return <span className="rail-arrows">
+    <button type="button" aria-label={`Scroll ${label} left`} disabled={at.start} onClick={()=>nudge(-1)}><ChevronLeft size={18}/></button>
+    <button type="button" aria-label={`Scroll ${label} right`} disabled={at.end} onClick={()=>nudge(1)}><ChevronRight size={18}/></button>
+  </span>;
+}
+function HomePage(ctx){const {vertical,go,catalog}=ctx;const pool=catalog.rows;
+  const listAll=vertical==='distance'?'/distance/universities':`/${vertical}/search`;
+  const noun=vertical==='jobs'?'roles':vertical==='colleges'?'colleges':'universities';
+  const rail=useRef(null);
+  return <main id="main" tabIndex={-1}><Hero {...ctx}/>
+  <section className="trust-strip"><div className="container"><span><ShieldCheck/>Data checked by our research team</span><span><Users/>{catalog.state==='ready'?`${pool.length} ${noun} on record`:catalog.state==='error'?'Catalogue unavailable':'Catalogue loading'}</span><span><Clock3/>Updated every admission cycle</span></div></section>
+  {/* The six doors of the reference, as one compact strip rather than six tall
+      cards. A category is a turning, not a destination, so it gets one line of
+      explanation and a chevron — the height goes to the listing it opens. */}
+  <section className="section container"><SectionTitle kicker="WHERE DO YOU WANT TO START?" title={vertical==='jobs'?'Start with what you need today':vertical==='colleges'?'Explore by your ambition':'Find the course that fits your life'} sub={vertical==='jobs'?'Pick the one closest to where you are right now.':vertical==='colleges'?'Pick a stream and compare the colleges that teach it.':'Pick where you stopped studying, or where you want to go next.'} action="View everything" onAction={()=>go(listAll)}/>
+    <div className="cat-strip">{categories(vertical).map(x=><button key={x.name} type="button" className="cat-tile" onClick={()=>go(x.href)}><i className="ct-icon" aria-hidden="true">{x.icon}</i><span className="ct-text"><b>{x.name}</b><small>{x.tag??x.kicker}</small></span><ChevronRight className="ct-go" size={18} aria-hidden="true"/></button>)}</div></section>
+  {/* The rail the reference asks for. It shows five rather than three because a
+      carousel that cannot scroll is a grid with extra controls. */}
+  <section className="section wash"><div className="container"><SectionTitle kicker={vertical==='jobs'?'HIRING NOW':vertical==='colleges'?'TOP COLLEGES':'TOP UNIVERSITIES'} title={vertical==='jobs'?'Real Openings, Real Employers.':vertical==='colleges'?'Good Colleges, Honest Numbers.':'Trusted Universities, Real Opportunities.'} sub={vertical==='jobs'?'Every role below states its salary and the employer behind it.':vertical==='colleges'?'Cutoffs, total cost and seats — checked at source, not copied.':'Explore UGC-approved universities offering distance and online programs.'} action={`View all ${noun}`} onAction={()=>go(listAll)}>
+      <RailArrows target={rail} label={noun}/>
+    </SectionTitle>
+    <CatalogGrid catalog={catalog} skeleton={3}><div className="rail" ref={rail}>{pool.slice(0,5).map(x=><EntityCard key={x.id} item={x} {...ctx}/>)}</div></CatalogGrid></div></section>
+  {vertical!=='distance'&&<section className="section container section-plate"><SectionTitle kicker={vertical==='colleges'?'STUDY ABROAD':'SKILL TO JOB'} title={vertical==='colleges'?'Intake and total cost, country by country':'Short courses that lead to a job'} action={vertical==='colleges'?'Compare countries':'See all courses'} onAction={()=>go(vertical==='colleges'?'/colleges/search':'/jobs/search')}/><div className="path-grid">{(vertical==='colleges'?[{name:'Georgia',kicker:'MBBS',desc:'₹24L total · September intake · NMC-approved universities.',icon:<Plane/>},{name:'Russia',kicker:'MBBS',desc:'₹19L total · August intake · English-medium teaching.',icon:<Plane/>},{name:'Canada',kicker:'PG DIPLOMA',desc:'₹18L · January intake · post-study work pathway.',icon:<Plane/>},{name:'UK',kicker:'MSc · 1 YEAR',desc:'₹22L · September intake · one-year master’s.',icon:<Plane/>}]:[{name:'Digital Marketing',kicker:'6 WEEKS',desc:'Certificate on completion, portfolio project included.',icon:<TrendingUp/>},{name:'Tally + GST',kicker:'8 WEEKS',desc:'Job assistance for accounts and back-office roles.',icon:<Calculator/>},{name:'Spoken English',kicker:'12 WEEKS',desc:'Live classes with practice partners, not recordings.',icon:<MessageCircle/>},{name:'Interview Prep',kicker:'MOCK + REVIEW',desc:'Mock interviews and a line-by-line resume review.',icon:<Briefcase/>}]).map((x,i,a)=><PathCard key={x.name} item={x} i={i} featured={i===0&&(a.length+1)%3!==1} cta={vertical==='colleges'?'See cost':'See course'} onClick={()=>go(vertical==='colleges'?'/colleges/search':'/jobs/search')}/>)}</div></section>}
+  <DecisionBlock {...ctx}/>
+  {/* The band that closes the page. The four figures are the ones already
+      computed from the live catalogue for the old hero strip — moved here rather
+      than reinvented, because a number on a homepage should be one somebody can
+      click through and check. */}
+  <section className="stat-band"><div className="container">
+    <div className="proof">{heroProof(vertical,catalog).map(([n,l,href,Icon,share,note],i)=><button key={l} onClick={()=>href==='#counsellor'?ctx.setLead({title:'Talk to a DCW counsellor',interest:vertical}):go(href)} style={{'--i':i}}><span className="stat-i" aria-hidden="true"><Icon/></span><StatNumber value={n} delay={140+i*110}/><small>{l}</small><span className="stat-note">{note}</span></button>)}</div>
+    <div className="sb-foot"><p><b>Need guidance?</b> Talk to our education experts — free, and with nothing to sell you.</p><button className="btn light" onClick={()=>ctx.setLead({title:'Talk to a DCW counsellor',interest:vertical})}>Talk to an expert<ArrowRight/></button></div>
+    <span className="sb-script" aria-hidden="true">Better education. Brighter India.</span>
+  </div></section>
+  </main>}
+function categories(v){if(v==='distance')return[{name:'10th / 12th Courses',tag:'Build your foundation',kicker:'OPEN SCHOOL',desc:'Recognised open boards with flexible exam cycles \u2014 gap years are fine.',icon:<ScrollText/>,href:'/distance/boards'},{name:'Graduation',tag:'BA, B.Com, BSc & more',kicker:'BACHELOR\u2019S',desc:'UG degrees from UGC-DEB universities, built around a job or a family.',icon:<GraduationCap/>,href:'/distance/universities?path=ug'},{name:'Post Graduation',tag:'MA, MBA, MCA & more',kicker:'MASTER\u2019S',desc:'Master\u2019s programmes you can finish without leaving your work.',icon:<Award/>,href:'/distance/universities?path=pg'},{name:'Professional Courses',tag:'Certification & diploma',kicker:'SHORT COURSES',desc:'Job-linked certificates and diplomas, from six weeks.',icon:<Briefcase/>,href:'/jobs/search'},{name:'Government Exams',tag:'Prepare for a better future',kicker:'BSSC \u00b7 SSC \u00b7 RAILWAY',desc:'Form dates and eligibility, pushed before the deadline closes.',icon:<ShieldCheck/>,href:'/jobs/search'},{name:'International Programs',tag:'Global learning options',kicker:'STUDY ABROAD',desc:'Country-wise cost, approvals and intake timelines.',icon:<Plane/>,href:'/colleges/search?abroad=1'}];if(v==='colleges')return[{name:'Medical',kicker:'MBBS & BDS',desc:'Cutoffs, seats and the full cost \u2014 not just tuition.',icon:<Stethoscope/>,href:'/colleges/search?stream=Medical'},{name:'Engineering',kicker:'B.TECH',desc:'JEE percentile, branch-wise fees and placement records.',icon:<Cog/>,href:'/colleges/search?stream=Engineering'},{name:'Management',kicker:'BBA & MBA',desc:'Entrance accepted, fee versus average package.',icon:<TrendingUp/>,href:'/colleges/search?stream=Management'},{name:'Law',kicker:'BA LLB',desc:'CLAT and state law entrances with five-year options.',icon:<Scale/>,href:'/colleges/search?stream=Law'},{name:'Study abroad',kicker:'GLOBAL OPTIONS',desc:'Country-wise cost, approvals and intake timelines.',icon:<Plane/>,href:'/colleges/search?abroad=1'},{name:'Commerce',kicker:'B.COM',desc:'Regular and honours streams with CA-friendly timing.',icon:<Calculator/>,href:'/colleges/search?stream=Commerce'}];return[{name:'Jobs near me',kicker:'LOCAL ROLES',desc:'Verified Patna openings with the salary stated upfront.',icon:<MapPin/>,href:'/jobs/search?city=Patna'},{name:'Free resume builder',kicker:'3 SIMPLE STEPS',desc:'Create a clean, recruiter-ready resume in minutes.',icon:<FileText/>,href:'/jobs/resume-builder'},{name:'Skill to job',kicker:'SHORT COURSES',desc:'Job-linked courses from six weeks, with placement help.',icon:<Wrench/>,href:'/jobs/search'},{name:'Sarkari exam alerts',kicker:'BSSC \u00b7 SSC \u00b7 RAILWAY',desc:'Form dates and eligibility, pushed before the deadline.',icon:<Bell/>,href:'/jobs/search'}]}
 
 function NotFoundPage({go,vertical}){
   return <main id="main" tabIndex={-1} className="state-main"><div className="container">

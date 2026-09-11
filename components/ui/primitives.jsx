@@ -6,7 +6,12 @@ import {ArrowRight,ChevronDown} from 'lucide-react';
    contract every interior page uses, and a disclosure. They are here rather
    than in a domain folder precisely because they must not encode one — a
    heading that knew about jobs would be copied the moment colleges needed it. */
-export function SectionTitle({kicker,title,action,onAction}){return <div className="section-title"><div><span className="kicker">{kicker}</span><h2>{title}</h2></div>{action&&<button onClick={onAction}>{action}<ArrowRight/></button>}</div>}
+/* `sub` and `children` are both optional and both additive: every existing call
+   site passes neither and renders exactly what it did before. `sub` is the line
+   of plain explanation requirement 3 asks for under a heading; `children` is for
+   a section that needs a control next to its action — the universities rail puts
+   its carousel arrows there. */
+export function SectionTitle({kicker,title,sub,action,onAction,children}){return <div className="section-title"><div><span className="kicker">{kicker}</span><h2>{title}</h2>{sub&&<p className="st-sub">{sub}</p>}</div>{(action||children)&&<span className="st-actions">{action&&<button onClick={onAction}>{action}<ArrowRight/></button>}{children}</span>}</div>}
 
 /* One hero contract for every interior page. Content pages get the editorial
    photograph; tool pages get a generated field in the vertical's own palette,
