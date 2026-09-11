@@ -57,7 +57,11 @@ header{height:88px;grid-template-columns:minmax(210px,auto) 1fr minmax(260px,340
 .app{--ink-deep:color-mix(in srgb,var(--accent) 13%,#050c14);--accent-glow:color-mix(in srgb,var(--accent) 26%,transparent)}
 .app .ticker{background:var(--ink-deep)}
 .app .ticker span{background:var(--spark);color:var(--spark-ink)}
-.app .talk,.app .btn.primary{background:var(--accent)}
+/* --accent-ink, not --accent: white on the raw jobs orange is 3.07:1, and this
+   rule was quietly beating design-system.css, which had already chosen the ink
+   token for exactly that reason. Every vertical defines both, so the only
+   visible change elsewhere is distance's primary going one step deeper. */
+.app .talk,.app .btn.primary{background:var(--accent-ink,var(--accent))}
 .app .btn.primary{box-shadow:0 10px 25px var(--accent-glow)}
 .app .header-actions i,.app .notification-list article>span i{background:var(--spark)}
 .app .icon.active{color:var(--accent);background:var(--wash)}

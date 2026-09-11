@@ -2,6 +2,9 @@ import { getAdmission, setStatus, addNote, assignCounsellor, admissionActivity,
   allowedTransitions } from '@/lib/integrations/admissions.js';
 import { planForApplication, outstandingOf, paidOf, nextDue } from '@/lib/fees.js';
 import { sendTemplate } from '@/lib/integrations/whatsapp.js';
+// Admissions are the education side of the business, so their messages file
+// against the shared DCW + Colleges Wala pipeline.
+import { CRM_EDUCATION } from '@/lib/integrations/crm.js';
 import { requireRole } from '@/lib/auth.js';
 import { ensureSeeded } from '@/lib/bootstrap.js';
 import { ok, fail, readJson } from '@/lib/http.js';
@@ -60,7 +63,8 @@ export async function PATCH(request, { params }) {
   // and only when the stage actually moved.
   const notified = moved && body.notify === true
     ? !!sendTemplate({ phone: application.phone, template: 'application_status',
-        vars: { status: moved.to } }).queued
+        crm: CRM_EDUCATION, leadId: application.leadId ?? null,
+        vars: { name: application.name, status: moved.to } }).queued
     : false;
 
   const fresh = getAdmission(application.id);

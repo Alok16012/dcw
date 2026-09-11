@@ -9,14 +9,16 @@
  * Admin only. An employer's console is about their own jobs; the education
  * catalogue is not theirs to edit.
  */
-import { listInstitutions, createInstitution, catalogueStats, INSTITUTION_ENUMS } from '@/lib/institutions-repo.js';
+import { listInstitutions, createInstitution, catalogueStats, publishChecklist, INSTITUTION_ENUMS } from '@/lib/institutions-repo.js';
 import { countsByInstitution } from '@/lib/integrations/admissions.js';
-import { requireRole } from '@/lib/auth.js';
+import { requirePermission } from '@/lib/auth.js';
 import { ensureSeeded } from '@/lib/bootstrap.js';
 import { ok, fail, readJson } from '@/lib/http.js';
 
 export async function GET(request) {
-  const { error } = requireRole(request, ['admin']);
+  // Counselling staff read the catalogue all day — they are the people who get
+  // asked "is this fee current?" — so reading is a capability, not a role.
+  const { error } = requirePermission(request, 'catalogue:read');
   if (error) return error;
   ensureSeeded();
 
@@ -29,26 +31,37 @@ export async function GET(request) {
     rows = rows.filter(i => `${i.name} ${i.city ?? ''} ${i.state ?? ''}`.toLowerCase().includes(n));
   }
   const status = sp.get('status');
+  // 'active'/'inactive' are the switch the console always had. 'draft',
+  // 'published' and 'archived' are the publishing state, which is a different
+  // question — a draft is not an archived listing — so both filters are kept.
   if (status === 'active') rows = rows.filter(i => i.isActive !== false);
-  if (status === 'inactive') rows = rows.filter(i => i.isActive === false);
+  else if (status === 'inactive') rows = rows.filter(i => i.isActive === false);
+  else if (status) rows = rows.filter(i => (i.status ?? 'published') === status);
 
   // Applicant counts travel with the row: an admin deciding whether to retire a
   // listing needs to know how many people are mid-application against it.
   const counts = countsByInstitution();
   return ok({
-    rows: rows.map(i => ({ ...i, applicants: counts.get(i.id) ?? { total: 0, new: 0, enrolled: 0 } })),
+    rows: rows.map(i => ({
+      ...i,
+      applicants: counts.get(i.id) ?? { total: 0, new: 0, enrolled: 0 },
+      // So the list can show "3 things missing" without opening every listing.
+      checklist: publishChecklist(i)
+    })),
     stats: catalogueStats(),
     enums: INSTITUTION_ENUMS
   });
 }
 
 export async function POST(request) {
-  const { error, session } = requireRole(request, ['admin']);
+  const { error, session } = requirePermission(request, 'catalogue:write');
   if (error) return error;
   const body = await readJson(request);
   if (!body) return fail(400, 'BAD_JSON', 'Request body must be JSON.');
 
   const result = createInstitution(body, { actor: session.name });
   if (!result.ok) return fail(422, 'VALIDATION', 'Check the highlighted fields.', { errors: result.errors });
-  return ok({ institution: result.institution }, { status: 201 });
+  // A new listing is a draft. The checklist tells the console what is still
+  // missing before it can go live, which is the whole point of the review step.
+  return ok({ institution: result.institution, checklist: publishChecklist(result.institution) }, { status: 201 });
 }

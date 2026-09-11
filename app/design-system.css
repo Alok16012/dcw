@@ -1979,9 +1979,14 @@
 .app .rp-score>b{display:block;font-family:var(--font-display);font-size:52px;line-height:1;
   letter-spacing:-.04em;font-variant-numeric:tabular-nums}
 .app .rp-score small{display:block;margin-top:8px;font-size:var(--fs-100);color:var(--ink-3)}
+/* A filled star is the only thing carrying the score inside a review card, so
+   it is a meaningful graphic and 1.4.11 wants 3:1 against the card. Raw --spark
+   is 1.97:1 on white. Deepening it towards --ink-1 — rather than a new amber
+   hex — keeps it the vertical's own spark colour and clears the bar. */
+.app{--star-on:color-mix(in srgb,var(--spark) 64%,var(--ink-1))}
 .app .stars{display:inline-flex;gap:2px}
 .app .stars svg{width:15px;height:15px;color:var(--line-2,#D8DEE6);fill:none}
-.app .stars svg.on{color:var(--spark,#F5C93B);fill:var(--spark,#F5C93B)}
+.app .stars svg.on{color:var(--star-on);fill:var(--star-on)}
 .app .stars.big svg{width:19px;height:19px}
 .app .rp-dist{list-style:none;margin:0;padding:0;display:grid;gap:7px}
 .app .rp-dist li{display:grid;grid-template-columns:34px 1fr 24px;align-items:center;gap:10px;
@@ -3342,7 +3347,7 @@ body{overflow-x:visible;overflow-y:visible}
   height:64px;padding:0 8px 0 20px}
 .app .hero-search svg{color:var(--ink-4)}
 .app .hero-search span{color:var(--ink-4)}
-.app .hero-search b{background:var(--accent);border-radius:var(--r-2);
+.app .hero-search b{background:var(--accent-ink,var(--accent));border-radius:var(--r-2);
   height:46px;padding:0 24px;font-size:var(--fs-300);font-weight:700}
 
 /* Both hero CTAs become pills, and the secondary one becomes an outline
@@ -3360,9 +3365,17 @@ body{overflow-x:visible;overflow-y:visible}
    when the items stop fitting, whatever the labels later say. */
 .app .hero-ctas{flex-wrap:wrap}
 .app .hero-ctas .btn{border-radius:var(--r-pill)}
-.app .hero-ctas .btn.primary{background:var(--accent);box-shadow:0 2px 8px rgb(18 99 224/.28)}
+/* Written against the reference, whose accent is the distance blue — hence the
+   raw --accent face and a glow literally the colour of that blue. On jobs the
+   same rule paints white on #E2760F at 3.07:1, and tints every hero CTA in the
+   product blue regardless of vertical. Both follow the accent now: the face
+   sits on --accent-ink (the token that exists because white has to survive on
+   it) and the glow is mixed from --accent, so the blue is still the blue. */
+.app .hero-ctas .btn.primary{background:var(--accent-ink,var(--accent));
+  box-shadow:0 2px 8px color-mix(in srgb,var(--accent) 28%,transparent)}
 .app .hero-ctas .btn.primary:hover:not(:disabled){
-  background:var(--accent-ink);box-shadow:0 4px 14px rgb(18 99 224/.34)}
+  background:color-mix(in srgb,var(--accent-ink,var(--accent)) 88%,#000);
+  box-shadow:0 4px 14px color-mix(in srgb,var(--accent) 34%,transparent)}
 .app .hero-ctas .btn.ghost{background:var(--n-0);color:var(--accent-ink);
   border:1px solid var(--accent);box-shadow:none}
 .app .hero-ctas .btn.ghost:hover:not(:disabled){background:var(--wash)}
@@ -3418,7 +3431,11 @@ body{overflow-x:visible;overflow-y:visible}
   box-shadow:none;transform:none}
 .app .hero .proof b{color:var(--ink-1);font-weight:800;font-size:var(--fs-700)}
 .app .hero .proof small{color:var(--ink-3);font-size:var(--fs-300);font-weight:500}
-.app .hero .proof .stat-note{color:var(--ink-4)}
+/* --ink-4 is 4.93:1 on white, but this line sits on the hero's --n-1 wash,
+   where the same grey measures 4.46:1 — under AA by a hair, at 11px, on the
+   sentence that says where the number came from. --ink-3 keeps the step down
+   from `small` without spending the contrast. */
+.app .hero .proof .stat-note{color:var(--ink-3)}
 .app .hero .proof .stat-bar{display:none}   /* the wash already groups them */
 
 @media(max-width:900px){
@@ -3530,6 +3547,16 @@ body{overflow-x:visible;overflow-y:visible}
 }
 
 .app .section.ink{background:var(--accent-deep)}
+
+/* Text on that band. globals.css picked its two colours when the band was a
+   near-black slate: a --tint kicker and a #AEBDC4 paragraph. Against
+   --accent-deep they measure 3.90:1 and 2.85:1 on the jobs orange — both below
+   AA. Lifting them towards white off the same token that paints the band means
+   each vertical is measured against its own background instead of inheriting a
+   hex that only ever worked on one of them. Jobs lands at 6.4:1 and 7.0:1;
+   distance and colleges, whose --accent-deep is darker still, gain from it. */
+.app .section.ink .kicker{color:color-mix(in srgb,var(--tint) 45%,#fff)}
+.app .section.ink .decision p{color:color-mix(in srgb,#fff 88%,var(--accent-deep))}
 
 /* The counselling panel was a full-width amber wash: --wash into --band-b into
    55% --spark-lift, which on the new palette resolves to a tan slab about a
@@ -3724,7 +3751,7 @@ body{overflow-x:visible;overflow-y:visible}
      three values with a zero bottom — the bar supplies it. */
   .app .path-card .pc-go{margin:auto calc(var(--s-4) * -1) 0;width:auto;
     border-top:0;padding:var(--s-3);justify-content:center;
-    background:var(--accent);color:#fff;font-size:var(--fs-100);font-weight:700}
+    background:var(--accent-ink,var(--accent));color:#fff;font-size:var(--fs-100);font-weight:700}
   .app .path-card .pc-go svg{color:#fff}
 
   /* ── The tab bar ────────────────────────────────────────────────────────
@@ -3738,7 +3765,9 @@ body{overflow-x:visible;overflow-y:visible}
     box-shadow:var(--e-3);padding-bottom:0;
     margin-bottom:calc(env(safe-area-inset-bottom) + var(--s-3))}
   .app .mobile-nav button{color:var(--ink-4)}
-  .app .mobile-nav button.active{color:var(--accent)}
+  /* --accent-text, not --accent: this is the one label on the bar that has to
+     read at 11px, and the jobs orange is 3.07:1 on the bar's white. */
+  .app .mobile-nav button.active{color:var(--accent-text,var(--accent))}
   /* The raised centre circle is ours, not the reference's — its bar is five
      items of equal weight. Flattened to match, which also gets the bar's own
      radius out of the way of a disc that used to hang above it. */
@@ -3818,4 +3847,180 @@ body{overflow-x:visible;overflow-y:visible}
 }
 @media(max-width:900px) and (prefers-reduced-motion:reduce){
   .app>header>.verticals button{transition:none}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   THE EVIDENCE SECTIONS
+   Written for the five client requirements that all landed on the same page:
+   plain language (3), proof of work (8), recognition and approval (9), Google
+   location and rating (10), and reviews reused wherever the thing they are
+   about appears (11).
+
+   Everything here reuses the tokens above — no new colour, no new radius, no
+   new shadow. The one rule the whole block follows: each section has to be
+   readable on a 360px phone without a horizontal scroll, because that is the
+   device the student this content was rewritten for is holding.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Plain language ─────────────────────────────────────────────────────────
+   A definition list, not cards. Six questions in a row of tiles is six boxes
+   the eye has to enter and leave; as a list it is one column you read down,
+   which is what a person with a question actually does. */
+.app .plain-section{background:var(--n-1);border-radius:var(--r-4);
+  padding:var(--s-6);border:1px solid var(--line)}
+.app .plain-lead{font-size:var(--fs-500);line-height:var(--lh-body);
+  color:var(--ink-2);margin:0 0 var(--s-5);max-width:64ch}
+.app .plain-qa{display:grid;gap:var(--s-4);margin:0 0 var(--s-5)}
+.app .plain-qa>div{background:var(--n-0);border:1px solid var(--line);
+  border-radius:var(--r-3);padding:var(--s-4) var(--s-5)}
+.app .plain-qa dt{font-size:var(--fs-500);font-weight:800;color:var(--ink-1);
+  letter-spacing:-.01em;margin-bottom:var(--s-2)}
+.app .plain-qa dd{margin:0;font-size:var(--fs-400);line-height:var(--lh-body);
+  color:var(--ink-2);max-width:66ch}
+
+/* ── Recognition & approval ────────────────────────────────────────────────
+   Rows, because the only question being asked of each one is "is there a
+   document behind this", and a row puts that answer in the same place every
+   time. It used to be a grid of buttons that opened nothing. */
+.app .approval-list{list-style:none;margin:0;padding:0;display:grid;gap:var(--s-3)}
+.app .approval-list li{display:grid;grid-template-columns:auto 1fr auto;
+  align-items:center;gap:var(--s-4);background:var(--n-0);
+  border:1px solid var(--line);border-radius:var(--r-3);padding:var(--s-4) var(--s-5)}
+.app .al-mark{display:grid;place-items:center;width:38px;height:38px;flex:none;
+  border-radius:var(--r-2);background:var(--ok-wash);color:var(--ok)}
+.app .al-mark svg{width:19px;height:19px}
+.app .al-copy b{display:block;font-size:var(--fs-400);color:var(--ink-1)}
+.app .al-copy small{display:block;font-size:var(--fs-200);color:var(--ink-4);
+  margin-top:2px;line-height:var(--lh-ui)}
+.app .al-copy p{margin:var(--s-2) 0 0;font-size:var(--fs-200);
+  color:var(--ink-3);line-height:var(--lh-body)}
+.app .al-none{font-size:var(--fs-200);color:var(--ink-4);text-align:right;max-width:12ch}
+/* The fallback when the full record has not arrived, or carries no structured
+   approvals — static facts rather than controls, since there is nothing to open. */
+.app .proof-tags{display:flex;flex-wrap:wrap;gap:var(--s-2)}
+.app .proof-tags span{display:inline-flex;align-items:center;gap:6px;
+  padding:7px 11px;border-radius:var(--r-1);background:var(--ok-wash);
+  color:var(--ok);font-size:var(--fs-200);font-weight:700}
+.app .proof-tags svg{width:14px;height:14px}
+
+/* ── Proof of work ─────────────────────────────────────────────────────────
+   A gallery, because most of what gets uploaded here is a photograph or a
+   scan and the thing itself is the evidence. */
+.app .pow-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  gap:var(--s-4)}
+.app .pow-card{margin:0;background:var(--n-0);border:1px solid var(--line);
+  border-radius:var(--r-3);overflow:hidden;display:flex;flex-direction:column}
+.app .pow-card img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;
+  background:var(--n-2)}
+.app .pow-icon{display:grid;place-items:center;aspect-ratio:4/3;
+  background:var(--n-2);color:var(--ink-4)}
+.app .pow-icon svg{width:34px;height:34px}
+.app .pow-card figcaption{padding:var(--s-4);display:flex;flex-direction:column;gap:5px}
+.app .pow-card figcaption b{font-size:var(--fs-300);color:var(--ink-1);line-height:var(--lh-ui)}
+.app .pow-card figcaption small{font-size:var(--fs-100);color:var(--ink-4);
+  text-transform:uppercase;letter-spacing:var(--tr-caps)}
+.app .pow-card figcaption p{margin:0;font-size:var(--fs-200);color:var(--ink-3);
+  line-height:var(--lh-body)}
+.app .pow-card figcaption a{display:inline-flex;align-items:center;gap:5px;
+  margin-top:var(--s-1);font-size:var(--fs-200);font-weight:700;
+  color:var(--accent-ink);text-decoration:none}
+.app .pow-card figcaption a svg{width:13px;height:13px}
+
+/* ── Location and Google's rating ──────────────────────────────────────────
+   The rating sits in its own bordered block with Google named on it, and the
+   DCW reviews are a separate section below. That separation is not styling —
+   Google's terms do not allow their number to be averaged into ours. */
+.app .map-frame{width:100%;height:320px;border:1px solid var(--line);
+  border-radius:var(--r-4);display:block;margin-bottom:var(--s-4)}
+.app .map-meta{display:grid;gap:var(--s-4)}
+.app .map-meta>p{display:flex;align-items:flex-start;gap:8px;margin:0;
+  font-size:var(--fs-400);color:var(--ink-2)}
+.app .map-meta>p svg{width:17px;height:17px;flex:none;margin-top:2px;color:var(--accent-ink)}
+.app .map-links{display:flex;flex-wrap:wrap;gap:var(--s-2)}
+.app .google-rating{background:var(--n-1);border:1px solid var(--line);
+  border-radius:var(--r-3);padding:var(--s-4) var(--s-5)}
+.app .google-rating b{display:inline-flex;align-items:center;gap:6px;
+  font-size:var(--fs-700);color:var(--ink-1)}
+.app .google-rating b svg{width:19px;height:19px;color:var(--spark)}
+.app .google-rating span{font-size:var(--fs-300);color:var(--ink-3);margin-left:8px}
+.app .google-rating small{display:block;margin-top:var(--s-3);font-size:var(--fs-200);
+  color:var(--ink-4);line-height:var(--lh-body);max-width:70ch}
+
+/* ── Reviews, on the page of the thing they are about ─────────────────────── */
+.app .rv-summary{display:flex;align-items:baseline;gap:var(--s-3);margin-bottom:var(--s-4)}
+.app .rv-summary b{font-size:var(--fs-800);color:var(--ink-1);line-height:1}
+.app .rv-summary span{display:inline-flex;align-items:center;gap:6px;
+  font-size:var(--fs-300);color:var(--ink-3)}
+.app .rv-summary svg{width:15px;height:15px;color:var(--spark)}
+.app .rv-list{list-style:none;margin:0 0 var(--s-5);padding:0;display:grid;gap:var(--s-3)}
+.app .rv-list li{background:var(--n-0);border:1px solid var(--line);
+  border-radius:var(--r-3);padding:var(--s-4) var(--s-5)}
+.app .rv-top{display:flex;align-items:center;justify-content:space-between;gap:var(--s-3)}
+.app .rv-top b{font-size:var(--fs-300);color:var(--ink-1)}
+.app .rv-stars{color:var(--star-on);font-size:var(--fs-300);letter-spacing:1px}
+.app .rv-stars i{color:var(--n-3);font-style:normal}
+.app .rv-list small{display:block;font-size:var(--fs-100);color:var(--ink-4);margin-top:2px}
+.app .rv-list p{margin:var(--s-3) 0 0;font-size:var(--fs-300);
+  color:var(--ink-2);line-height:var(--lh-body)}
+.app .rv-actions{display:flex;gap:var(--s-2);flex-wrap:wrap}
+
+/* ── /reviews: the narrowed banner and the write form ─────────────────────── */
+.app .rv-narrow{display:flex;align-items:center;justify-content:space-between;
+  gap:var(--s-4);flex-wrap:wrap;background:var(--info-wash);
+  border-radius:var(--r-3);padding:var(--s-3) var(--s-5);margin-bottom:var(--s-5)}
+.app .rv-narrow p{display:flex;align-items:center;gap:8px;margin:0;
+  font-size:var(--fs-300);color:var(--info)}
+.app .rv-narrow svg{width:16px;height:16px;flex:none}
+.app .rv-form{background:var(--n-0);border:1px solid var(--line);
+  border-radius:var(--r-4);padding:var(--s-6);margin-bottom:var(--s-5);
+  display:grid;gap:var(--s-4);box-shadow:var(--e-2)}
+.app .rv-form h2{margin:0;font-size:var(--fs-700);color:var(--ink-1)}
+.app .rv-form-note{margin:0;font-size:var(--fs-300);color:var(--ink-3);
+  line-height:var(--lh-body);max-width:62ch}
+.app .rv-form-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--s-4)}
+.app .rv-form label{display:block;font-size:var(--fs-200);font-weight:800;
+  color:var(--ink-2);margin:0}
+.app .rv-form input,.app .rv-form select,.app .rv-form textarea{
+  width:100%;margin-top:6px;border:1px solid var(--line);border-radius:var(--r-2);
+  padding:11px 12px;font-size:var(--fs-300);background:var(--n-0);color:var(--ink-1)}
+.app .rv-form textarea{resize:vertical;line-height:var(--lh-body)}
+.app .rv-form em{display:block;margin-top:5px;font-size:var(--fs-100);
+  font-style:normal;font-weight:700;color:var(--danger)}
+.app .rv-form.done{display:flex;align-items:center;gap:var(--s-3);
+  background:var(--ok-wash);border-color:transparent;color:var(--ok)}
+.app .rv-form.done svg{width:22px;height:22px;flex:none}
+.app .rv-form.done p{margin:0;font-size:var(--fs-400);font-weight:700}
+.app .rv-skel{height:14px;border-radius:var(--r-1);background:var(--n-2)}
+.app .rv-skel.short{width:55%}
+
+/* ── Listing card: the two counts that say whether anyone checked ─────────── */
+.app .ec-plain{font-size:var(--fs-200)!important;color:var(--ink-3)!important;
+  line-height:var(--lh-body);margin:var(--s-2) 0 0!important}
+.app .ec-signals .rev{background:var(--info-wash);color:var(--info)}
+.app .ec-signals .proof{background:var(--ok-wash);color:var(--ok)}
+
+/* ── Boards: one line of plain language, and a table sized by its data ─────── */
+.app .bc-plain{font-size:var(--fs-200)!important;color:var(--ink-2)!important;
+  line-height:var(--lh-body);margin:var(--s-2) 0 var(--s-3)!important}
+.app .bc-skel{height:180px;border-radius:var(--r-3);background:var(--n-2)}
+/* The grid used to be hardcoded to three boards. It now counts them, so adding
+   a fourth in /admin does not need a stylesheet change. */
+.app .board-row{grid-template-columns:1.3fr repeat(var(--board-cols,3),minmax(0,1fr))}
+
+@media(max-width:760px){
+  .app .plain-section{padding:var(--s-5) var(--s-4);border-radius:var(--r-3)}
+  .app .plain-qa>div{padding:var(--s-4)}
+  .app .plain-qa dt{font-size:var(--fs-400)}
+  .app .plain-qa dd{font-size:var(--fs-300)}
+  /* The approval row loses its third column rather than squeezing it: the
+     document link becomes a full-width control under the text, which is the
+     only way it stays a 44px target on a 360px screen. */
+  .app .approval-list li{grid-template-columns:auto 1fr;row-gap:var(--s-3)}
+  .app .approval-list li>.btn,.app .al-none{grid-column:1/-1;width:100%;
+    text-align:center;max-width:none}
+  .app .map-frame{height:240px;border-radius:var(--r-3)}
+  .app .rv-form{padding:var(--s-5) var(--s-4)}
+  .app .rv-form-row{grid-template-columns:1fr}
+  .app .rv-narrow{padding:var(--s-3) var(--s-4)}
+  .app .pow-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:var(--s-3)}
 }

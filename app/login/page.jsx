@@ -6,10 +6,22 @@ import './login.css';
 import { api, ApiError } from '@/lib/admin-client.js';
 import { IconAlert } from '../admin/icons.jsx';
 
+/**
+ * The five doors. Each one lands somewhere it can actually be used — a student
+ * in a console they cannot read is a dead end, so `home` is part of the role
+ * rather than something the redirect guesses.
+ */
 const ROLES = [
-  { key: 'student', label: 'Student', blurb: 'Track the jobs you applied to and your counselling updates.' },
-  { key: 'employer', label: 'Employer', blurb: 'Post vacancies and move candidates through your hiring pipeline.' },
-  { key: 'admin', label: 'Admin', blurb: 'Manage every posting, candidate and counselling lead across DCW.' }
+  { key: 'student', label: 'Student', home: '/applications',
+    blurb: 'Track your applications, saved courses and counselling updates in one place.' },
+  { key: 'staff', label: 'Staff', home: '/admin',
+    blurb: 'Work counselling leads and keep the course catalogue accurate.' },
+  { key: 'associate', label: 'Associate', home: '/admin/leads',
+    blurb: 'Follow the enquiries your referral code brought in.' },
+  { key: 'employer', label: 'Employer', home: '/admin/jobs',
+    blurb: 'Post vacancies and move candidates through your hiring pipeline.' },
+  { key: 'admin', label: 'Admin', home: '/admin',
+    blurb: 'Manage every listing, board, posting, candidate and lead across DCW.' }
 ];
 
 function LoginForm() {
@@ -41,7 +53,7 @@ function LoginForm() {
   }, []);
 
   // Switching the tab pre-fills that role's demo account, so the reviewer can
-  // sign in as any of the three without hunting for credentials.
+  // sign in as any of the five without hunting for credentials.
   function pick(next) {
     setRole(next);
     setError(null);
@@ -54,9 +66,15 @@ function LoginForm() {
     setBusy(true); setError(null);
     try {
       const d = await api('/auth/login', { method: 'POST', body: { username, passcode } });
-      // A student who arrives with ?next=/admin must not be bounced into a
-      // console they cannot read — send them to the site instead.
-      router.replace(d.role === 'student' && next.startsWith('/admin') ? '/' : next);
+      // Where someone lands is decided by the role the server authenticated, not
+      // by the tab they clicked or the ?next= they arrived with — a student sent
+      // to /admin meets a wall. `next` is honoured only when the role can use
+      // that area at all; otherwise each role goes to its own home. Beyond this
+      // courtesy, the console's pages and every API route do their own checks.
+      const home = ROLES.find(r => r.key === d.role)?.home ?? '/';
+      const wantsConsole = next.startsWith('/admin');
+      const usable = wantsConsole ? d.role !== 'student' && next !== '/admin' : true;
+      router.replace(usable ? next : home);
     } catch (err) {
       setError(err instanceof ApiError && err.status === 401
         ? 'That username and passcode do not match an account.'
@@ -115,6 +133,7 @@ function LoginForm() {
           <button className="lg-go" type="submit" disabled={busy || !username || !passcode}>
             {busy ? 'Signing in…' : `Sign in as ${active.label}`}
           </button>
+          <p className="lg-dest">Takes you to <b>{active.home}</b></p>
 
           {demo.length > 0 && (
             <div className="lg-demo">

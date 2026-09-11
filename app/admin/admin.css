@@ -41,6 +41,9 @@
 .adm-logo small{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:#8FA6BF;font-weight:700}
 .adm-nav{padding:12px 10px;flex:1;overflow-y:auto}
 .adm-nav-label{font-size:9.5px;letter-spacing:.13em;text-transform:uppercase;color:#6E8299;font-weight:750;padding:14px 8px 6px}
+/* The first group sits under the logo rule, so it does not need the separating
+   space the later ones do. */
+.adm-nav-group:first-child .adm-nav-label{padding-top:2px}
 .adm-nav a{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--r-2);color:#C3D2E2;font-size:13.5px;font-weight:600;transition:background var(--t),color var(--t)}
 .adm-nav a:hover{background:#ffffff0f;color:#fff;text-decoration:none}
 .adm-nav a[aria-current=page]{background:var(--a);color:#fff}
@@ -207,6 +210,90 @@
 .adm-toast svg{width:16px;height:16px;color:#7FE3C0}
 .adm-toast.bad svg{color:#FF9E97}
 
+/* ── catalogue: tabs, guided flow, evidence ──────────────────────────────
+   Added for the listing console. Everything here reuses the panel/field/pill
+   vocabulary above rather than introducing a second look for the same thing. */
+
+/* Tabs inside a page. Deliberately quieter than the rail: this is a section
+   switch within one record, not navigation between parts of the business. */
+.adm-tabs{display:flex;gap:2px;margin-bottom:14px;border-bottom:1px solid var(--line);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.adm-tabs button{background:none;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;
+  padding:9px 13px;font:inherit;font-size:13px;font-weight:650;color:var(--ink-3);cursor:pointer;
+  white-space:nowrap;display:inline-flex;align-items:center;gap:7px;min-height:40px;transition:color var(--t)}
+.adm-tabs button:hover{color:var(--ink)}
+.adm-tabs button.on{color:var(--a);border-bottom-color:var(--a)}
+.adm-tabs button span{font-size:11px;font-weight:750;background:var(--line-2);color:var(--ink-3);border-radius:99px;padding:1px 6px}
+.adm-tabs button.on span{background:var(--a-wash);color:var(--a)}
+
+/* Editor body beside its publishing sidebar. */
+.adm-split2{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:14px;align-items:start}
+.adm-side{position:sticky;top:14px}
+
+/* The wizard's progress strip. */
+.adm-steps{display:flex;gap:4px;list-style:none;margin:0;padding:12px 20px;overflow-x:auto;
+  background:var(--bg);border-bottom:1px solid var(--line)}
+.adm-steps li{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:650;color:var(--ink-3);
+  white-space:nowrap;padding:4px 10px 4px 4px;border-radius:99px}
+.adm-steps li span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;flex:none;
+  background:var(--line-2);color:var(--ink-3);font-size:11px;font-weight:750}
+.adm-steps li span svg{width:12px;height:12px}
+.adm-steps li.on{background:var(--a-wash);color:var(--a)}
+.adm-steps li.on span{background:var(--a);color:#fff}
+.adm-steps li.done{color:var(--ok)}
+.adm-steps li.done span{background:var(--ok-w);color:var(--ok)}
+.adm-step-blurb{font-size:13px;color:var(--ink-3);margin:0 0 16px!important}
+.adm-drawer.wide{width:min(720px,100%)}
+
+/* A short list of things already added — courses, approvals, evidence. Rows,
+   not cards: they are records being managed, not content being browsed. */
+.adm-minilist{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r-2);overflow:hidden}
+.adm-minilist:empty{display:none}
+.adm-minirow{display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid var(--line-2);background:var(--panel)}
+.adm-minirow:last-child{border-bottom:0}
+.adm-minirow>div:first-child{flex:1;min-width:0}
+.adm-minirow b{display:block;font-size:13px;font-weight:680}
+.adm-minirow small{display:block;color:var(--ink-3);font-size:11.5px;margin-top:2px;overflow-wrap:anywhere}
+.adm-inline-fee{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--ink-3);flex:none}
+.adm-inline-fee input{width:96px;min-height:34px;border:1px solid var(--line);border-radius:var(--r-1);
+  padding:0 8px;font:inherit;font-size:13px;font-variant-numeric:tabular-nums;background:var(--panel);color:var(--ink)}
+.adm-subform{margin-top:16px;padding:16px;border:1px dashed var(--line);border-radius:var(--r-2);background:var(--panel)}
+.adm-subform .adm-field:last-of-type{margin-bottom:14px}
+
+/* Upload control. */
+.adm-drop{display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;padding:18px;cursor:pointer;
+  border:1px dashed var(--a-line);border-radius:var(--r-2);background:var(--a-wash);color:var(--a);
+  font:inherit;font-size:13px;font-weight:680;transition:background var(--t)}
+.adm-drop:hover{background:#E3EDFA}
+.adm-drop:disabled{opacity:.6;cursor:progress}
+.adm-drop svg{width:20px;height:20px}
+.adm-drop small{color:var(--ink-3);font-size:11.5px;font-weight:600}
+.adm-file{display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid var(--line);
+  border-radius:var(--r-2);background:var(--panel)}
+.adm-file b{flex:1;min-width:0;font-size:13px;font-weight:680;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adm-file small{color:var(--ink-3);font-size:11.5px;flex:none}
+
+/* What is still missing before a listing can face a student. */
+.adm-checklist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.adm-checklist li{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.45;
+  font-weight:600;color:var(--warn)}
+.adm-checklist li svg{width:15px;height:15px;flex:none;margin-top:1px}
+.adm-checklist li.bad{color:var(--bad)}
+.adm-checklist li.ok{color:var(--ok)}
+
+/* The wizard's last step: roughly what the public card will say. */
+.adm-preview{border:1px solid var(--line);border-radius:var(--r-2);padding:14px;background:var(--bg)}
+.adm-preview-card{display:flex;gap:12px;background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--r-2);padding:14px;box-shadow:var(--sh)}
+.adm-preview-card .mark{width:42px;height:42px;flex:none;border-radius:var(--r-2);display:grid;place-items:center;
+  background:var(--a-wash);color:var(--a);font-weight:800;font-size:14px}
+.adm-preview-card b{display:block;font-size:15px;font-weight:720;letter-spacing:-.01em}
+.adm-preview-card small{display:block;color:var(--ink-3);font-size:12px;margin-top:2px}
+.adm-preview-card p{font-size:13px;line-height:1.55;color:var(--ink-2);margin-top:8px!important}
+.adm-preview-card .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.adm-preview-card .tags span{font-size:11px;font-weight:700;background:var(--line-2);color:var(--ink-2);
+  border-radius:99px;padding:3px 9px}
+.adm-preview-note{display:block;color:var(--ink-3);font-size:11.5px;margin-top:8px}
+
 /* ── responsive: recompose, don't shrink ── */
 @media(max-width:1020px){
   /* The rail becomes a two-row header: identity and account on top, the
@@ -226,11 +313,20 @@
   .adm-nav{order:3;flex-basis:100%;display:flex;gap:4px;padding:7px 0 0;
     border-top:1px solid #ffffff14;overflow-x:auto;-webkit-overflow-scrolling:touch}
   .adm-nav-label{display:none}
+  /* The rail becomes one horizontal scroller on small screens, so the grouping
+     wrappers have to stop being boxes and let their links join the same row. */
+  .adm-nav-group{display:contents}
   .adm-nav a{padding:8px 12px;white-space:nowrap;font-size:13px}
   .adm-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
   .adm-top{padding:14px 18px;position:static}
   .adm-body{padding:16px 18px 48px}
   .adm-drawer{width:100%}
+  .adm-drawer.wide{width:100%}
+  /* The publishing sidebar stops being a sidebar and leads instead: on a phone
+     "what is still missing" is the first thing worth reading, not a column
+     pushed below six tabs of form. */
+  .adm-split2{grid-template-columns:minmax(0,1fr)}
+  .adm-side{position:static;order:-1}
   .adm-hide-sm{display:none}
 }
 @media(max-width:620px){
@@ -241,6 +337,12 @@
   .adm-row{grid-template-columns:minmax(0,1fr)}
   .adm-stat b{font-size:23px}
   .adm-filters .adm-input{max-width:none;min-width:0;width:100%}
+  /* A course row is name + fee + delete; below this the fee input and the
+     label crowd the name into two characters, so the row stacks instead. */
+  .adm-minirow{flex-wrap:wrap}
+  .adm-minirow>div:first-child{flex-basis:100%}
+  .adm-inline-fee{margin-left:auto}
+  .adm-steps{padding:10px 14px}
   .adm-funnel{padding:14px 10px;gap:2px}
   .adm-funnel small{font-size:9.5px}
 }

@@ -3,7 +3,9 @@ import { useEffect, useState, useCallback, createContext, useContext } from 'rea
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/admin-client.js';
-import { IconGrid, IconBriefcase, IconUsers, IconSpark, IconOut, IconCheck, IconAlert } from './icons.jsx';
+import { IconGrid, IconBriefcase, IconUsers, IconSpark, IconOut, IconCheck, IconAlert,
+  IconCampus, IconBoard, IconChat, IconStar } from './icons.jsx';
+import { can } from '@/lib/permissions.js';
 
 const Ctx = createContext(null);
 export const useSession = () => useContext(Ctx);
@@ -17,12 +19,27 @@ export function useToast() {
   return c?.toast ?? (() => {});
 }
 
+/**
+ * The rail, grouped by what the work actually is.
+ *
+ * `cap` is the capability the section needs, read from the same table the API
+ * routes enforce (lib/permissions.js) — so the rail cannot drift from what a
+ * role can really do, and adding a role does not mean editing this list.
+ * Hiding a link is a courtesy; the server check is the control.
+ */
 const NAV = [
-  { href: '/admin', label: 'Overview', Icon: IconGrid, roles: ['admin', 'employer'] },
-  { href: '/admin/jobs', label: 'Jobs', Icon: IconBriefcase, roles: ['admin', 'employer'], count: 'jobs' },
-  { href: '/admin/applications', label: 'Candidates', Icon: IconUsers, roles: ['admin', 'employer'], count: 'apps' },
-  { href: '/admin/leads', label: 'Counselling leads', Icon: IconSpark, roles: ['admin'], count: 'leads' }
+  { href: '/admin', label: 'Overview', Icon: IconGrid, group: 'Manage', cap: 'jobs:read:own' },
+  { href: '/admin/catalogue', label: 'Colleges & courses', Icon: IconCampus, group: 'Catalogue', cap: 'catalogue:read', count: 'catalogue' },
+  { href: '/admin/boards', label: 'Open school boards', Icon: IconBoard, group: 'Catalogue', cap: 'boards:read' },
+  { href: '/admin/reviews', label: 'Reviews', Icon: IconStar, group: 'Catalogue', cap: 'catalogue:write', count: 'reviews' },
+  { href: '/admin/jobs', label: 'Jobs', Icon: IconBriefcase, group: 'Manage', cap: 'jobs:read:own', count: 'jobs' },
+  { href: '/admin/applications', label: 'Candidates', Icon: IconUsers, group: 'Manage', cap: 'applications:read:own', count: 'apps' },
+  { href: '/admin/leads', label: 'Counselling leads', Icon: IconSpark, group: 'Manage', cap: 'leads:read:own', count: 'leads' },
+  { href: '/admin/whatsapp', label: 'WhatsApp', Icon: IconChat, group: 'Outreach', cap: 'whatsapp:read' }
 ];
+
+/** Rail order. A group with nothing in it for this role is not rendered at all. */
+const GROUPS = ['Manage', 'Catalogue', 'Outreach'];
 
 export default function AdminShell({ children }) {
   const [session, setSession] = useState(null);
@@ -48,7 +65,13 @@ export default function AdminShell({ children }) {
   // Badge counts are ambient context, not the point of the page — a failure
   // here must never block the console from rendering.
   const loadCounts = useCallback(() => api('/admin/stats')
-    .then(d => setCounts({ jobs: d.jobs?.active, apps: d.pipeline?.inPipeline, leads: d.leads ?? undefined }))
+    .then(d => setCounts({
+      jobs: d.jobs?.active, apps: d.pipeline?.inPipeline, leads: d.leads ?? undefined,
+      // Drafts and pending reviews are queues — things waiting on a person —
+      // so they earn a badge where a plain total would not.
+      catalogue: d.catalogue?.drafts || undefined,
+      reviews: d.reviewsPending || undefined
+    }))
     .catch(() => {}), []);
 
   useEffect(() => {
@@ -78,7 +101,7 @@ export default function AdminShell({ children }) {
     );
   }
 
-  const items = NAV.filter(n => n.roles.includes(session.role));
+  const items = NAV.filter(n => can(session, n.cap));
   const initials = session.name.replace(/\(.*\)/, '').trim().split(/\s+/).map(w => w[0]).join('').slice(0, 2).toUpperCase();
 
   return (
@@ -93,15 +116,23 @@ export default function AdminShell({ children }) {
               </Link>
             </div>
             <nav className="adm-nav" aria-label="Console sections">
-              <div className="adm-nav-label">Manage</div>
-              {items.map(({ href, label, Icon, count }) => {
-                const active = href === '/admin' ? pathname === '/admin' : pathname.startsWith(href);
-                const n = counts[count];
+              {GROUPS.map(group => {
+                const inGroup = items.filter(n => n.group === group);
+                if (!inGroup.length) return null;
                 return (
-                  <Link key={href} href={href} aria-current={active ? 'page' : undefined}>
-                    <Icon /><span>{label}</span>
-                    {typeof n === 'number' && <span className="adm-count">{n}</span>}
-                  </Link>
+                  <div key={group} className="adm-nav-group">
+                    <div className="adm-nav-label">{group}</div>
+                    {inGroup.map(({ href, label, Icon, count }) => {
+                      const active = href === '/admin' ? pathname === '/admin' : pathname.startsWith(href);
+                      const n = counts[count];
+                      return (
+                        <Link key={href} href={href} aria-current={active ? 'page' : undefined}>
+                          <Icon /><span>{label}</span>
+                          {typeof n === 'number' && <span className="adm-count">{n}</span>}
+                        </Link>
+                      );
+                    })}
+                  </div>
                 );
               })}
             </nav>

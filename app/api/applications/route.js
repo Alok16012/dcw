@@ -140,6 +140,7 @@ export async function POST(request) {
   const wa = lead.consent?.whatsapp
     ? sendTemplate({ phone: lead.phone,
         template: kind === 'job' ? 'job_applied' : 'lead_confirmation',
+        crm: lead.crm, leadId: lead.id,
         vars: { name: lead.name, job: application.title, interest: application.title } })
     : { queued: null };
 

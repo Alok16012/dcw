@@ -31,7 +31,8 @@ export async function POST(request, { params }) {
     qualification: body.qualification, experienceYears: body.experienceYears,
     resumeUrl: body.resumeUrl, leadId: lead.id, source: body.source ?? {}
   });
-  const wa = sendTemplate({ phone: lead.phone, template: 'job_applied', vars: { job: job.title } });
+  const wa = sendTemplate({ phone: lead.phone, template: 'job_applied',
+    crm: lead.crm, leadId: lead.id, vars: { name: lead.name, job: job.title } });
 
   return ok({ application: { id: filed.application.id, jobId: job.id, title: job.title,
       status: filed.application.status, appliedAt: filed.application.appliedAt },

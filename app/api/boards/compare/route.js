@@ -1,11 +1,14 @@
-import { boards } from '@/lib/store.js';
+import { listBoards, boardComparison } from '@/lib/boards-repo.js';
 import { ok } from '@/lib/http.js';
 
+/**
+ * The open-school board comparison, read from the editable record rather than
+ * the frozen seed, so a fee corrected in /admin/boards shows here immediately.
+ *
+ * `rows` keeps the shape it always had. It is built by the repository now
+ * because the same seven rows are drawn on /distance/boards, and two lists of
+ * fields that had to agree were two lists that could disagree.
+ */
 export async function GET() {
-  const fields = ['recognition', 'examFrequency', 'resultDays', 'fee', 'tcRequired', 'bestFor'];
-  const rows = fields.map(f => {
-    const values = boards.map(b => b[f]);
-    return { field: f, values, differs: new Set(values.map(String)).size > 1 };
-  });
-  return ok({ boards, rows });
+  return ok({ boards: listBoards(), rows: boardComparison() });
 }

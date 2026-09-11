@@ -1,11 +1,13 @@
-import { findInstitution, updateInstitution, deleteInstitution, addCourse } from '@/lib/institutions-repo.js';
+import { findInstitution, updateInstitution, deleteInstitution, addCourse, publishChecklist } from '@/lib/institutions-repo.js';
 import { listAdmissions, pipelineStats } from '@/lib/integrations/admissions.js';
-import { requireRole } from '@/lib/auth.js';
+import { listDocuments } from '@/lib/document-store.js';
+import { listReviews, summariseReviews } from '@/lib/reviews-repo.js';
+import { requirePermission } from '@/lib/auth.js';
 import { ensureSeeded } from '@/lib/bootstrap.js';
 import { ok, fail, readJson } from '@/lib/http.js';
 
-function resolve(request, id) {
-  const { error, session } = requireRole(request, ['admin']);
+function resolve(request, id, capability = 'catalogue:write') {
+  const { error, session } = requirePermission(request, capability);
   if (error) return { error };
   const institution = findInstitution(id);
   if (!institution) return { error: fail(404, 'NOT_FOUND', `No institution "${id}".`) };
@@ -14,13 +16,20 @@ function resolve(request, id) {
 
 export async function GET(request, { params }) {
   const { id } = await params;
-  const { error, institution } = resolve(request, id);
+  const { error, institution } = resolve(request, id, 'catalogue:read');
   if (error) return error;
   ensureSeeded();
   return ok({
     institution,
+    // Everything the editor screen shows about this one listing, in one request:
+    // the pipeline against it, the files filed under it, the reviews written
+    // about it, and what is still missing before it can be published.
     admissions: listAdmissions({ institutionId: institution.id }),
-    pipeline: pipelineStats({ institutionId: institution.id })
+    pipeline: pipelineStats({ institutionId: institution.id }),
+    documents: listDocuments({ institutionId: institution.id, includeInternal: true }),
+    reviews: listReviews({ institutionId: institution.id, includeUnpublished: true }),
+    reviewSummary: summariseReviews({ institutionId: institution.id }),
+    checklist: publishChecklist(institution)
   });
 }
 

@@ -1,5 +1,14 @@
-/** PRD §8.2 — the single reusable lead endpoint. Forwards to Sky-High. */
-import { upsertLead, listLeads } from '@/lib/integrations/crm.js';
+/**
+ * PRD §8.2 — the single reusable lead endpoint. Routes to the CRM that owns the
+ * vertical: distance and colleges to the shared education pipeline, jobs to
+ * Berojgar Bharat's own.
+ *
+ * POST only. This route used to also export a GET that returned every lead in
+ * the business — name, phone number, qualification — to any unauthenticated
+ * caller. Reading leads now goes through /api/admin/leads, which checks the
+ * session and applies the pipeline scope.
+ */
+import { upsertLead } from '@/lib/integrations/crm.js';
 import { sendTemplate } from '@/lib/integrations/whatsapp.js';
 import { isValidPhone, isPhoneVerified } from '@/lib/integrations/otp.js';
 import { ok, fail, readJson, VERTICAL_SET } from '@/lib/http.js';
@@ -21,7 +30,7 @@ export async function POST(request) {
     return fail(422, 'CONSENT_REQUIRED', 'Tick the contact permission before submitting.');
   }
 
-  const { lead, duplicate, assignedTo } = upsertLead({
+  const { lead, duplicate, assignedTo, crm } = upsertLead({
     vertical: body.vertical, name: body.name.trim(), phone: body.phone,
     // One source of truth for the channel: the permission the person gave.
     whatsappSame: body.consent.whatsapp === true,
@@ -46,14 +55,12 @@ export async function POST(request) {
   // does not license a message on a channel they declined.
   const wa = lead.consent?.whatsapp
     ? sendTemplate({ phone: lead.phone, template: 'lead_confirmation',
+        // The message is filed against the lead in the pipeline that produced
+        // it, so the conversation history stays on the right side of the wall.
+        crm, leadId: lead.id,
         vars: { name: lead.name, interest: lead.course ?? lead.interestId ?? lead.interestType } })
     : { queued: false, skipped: 'no_whatsapp_consent' };
 
-  return ok({ lead: { id: lead.id, crmLeadId: lead.crmLeadId, status: lead.status, assignedTo, enquiryCount: lead.enquiryCount },
+  return ok({ lead: { id: lead.id, crmLeadId: lead.crmLeadId, crm, status: lead.status, assignedTo, enquiryCount: lead.enquiryCount },
     duplicate, whatsapp: wa.queued });
-}
-
-/** Read-only mirror for the admin/leads view. Sky-High stays the source of truth. */
-export async function GET() {
-  return ok({ leads: listLeads(), note: 'Demo mirror. Sky-High CRM is the system of record.' });
 }

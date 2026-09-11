@@ -14,6 +14,7 @@ export async function POST(request) {
   const res = applyStatusChange({ crmLeadId: body.crmLeadId, status: body.status, note: body.note });
   if (!res.ok) return fail(res.error === 'UNKNOWN_LEAD' ? 404 : 422, res.error, 'Could not apply status change.', res.allowed ? { allowed: res.allowed } : {});
 
-  const wa = sendTemplate({ phone: res.lead.phone, template: 'application_status', vars: { status: res.lead.status } });
+  const wa = sendTemplate({ phone: res.lead.phone, template: 'application_status',
+    crm: res.lead.crm, leadId: res.lead.id, vars: { name: res.lead.name, status: res.lead.status } });
   return ok({ lead: { id: res.lead.id, status: res.lead.status }, whatsapp: wa.queued });
 }

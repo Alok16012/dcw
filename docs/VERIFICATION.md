@@ -175,12 +175,12 @@ job is):
 | `lib/format.js` | `fmt` — one money format for the product | static |
 | `lib/content/courses.js` | `COURSES`, `coursesOf` | static |
 | `components/discovery/entity-card.jsx` | `PathCard`, `EntityCard` | static (core routes) |
-| `components/tools/boards.jsx` | `BOARDS`, `Boards` | `next/dynamic` |
+| `components/tools/boards.jsx` | `Boards` (board rows now come from `/api/boards`) | `next/dynamic` |
 | `components/tools/predictor.jsx` | `BUCKETS`, `BUDGET_BANDS`, `Predictor` | `next/dynamic` |
 | `components/tools/resume-builder.jsx` | `RESUME_*`, `ResumeDoc`, `ResumeBuilder` | `next/dynamic` |
 | `components/editorial/about.jsx` | `MILESTONES`, `PRINCIPLES`, `AboutPage` | `next/dynamic` |
 | `components/editorial/blog.jsx` | `POSTS`, `PostCard`, `BlogPage` | `next/dynamic` |
-| `components/editorial/reviews.jsx` | `REVIEWS`, `ReviewsPage` | `next/dynamic` |
+| `components/editorial/reviews.jsx` | `ReviewsPage` (rows now come from `/api/reviews`) | `next/dynamic` |
 | `components/account/saved.jsx` | `SavedPage` | `next/dynamic` |
 | `components/account/applications.jsx` | `ApplicationsPage` | `next/dynamic` |
 | `components/account/account.jsx` | `AccountPage` (profile + notifications) | `next/dynamic` |

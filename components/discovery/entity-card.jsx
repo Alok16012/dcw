@@ -1,7 +1,8 @@
 'use client';
-import {ArrowRight,Heart,MapPin,Star,Navigation,Wifi,Flame} from 'lucide-react';
+import {ArrowRight,Heart,MapPin,Star,Navigation,Wifi,Flame,FileText,MessageCircle} from 'lucide-react';
 import {Plate,CardWash} from '@/components/ui/plate.jsx';
 import {coursesOf,matchesPath,PATHS} from '@/lib/content/courses.js';
+import {plainLine} from '@/lib/content/plain.js';
 import {fmt} from '@/lib/format.js';
 /* The two card families the discovery surfaces are built from. A PathCard is a
    route into the catalogue; an EntityCard is one row of it, with the fee, the
@@ -66,6 +67,16 @@ export function EntityCard({item,vertical,go,saved,toggleSave,compare,toggleComp
     <div className="ec-body">
       <h3><button type="button" className="ec-link" onClick={()=>go(href)}>{item.name}</button></h3>
       <p><MapPin/>{item.place} · {item.type}</p>
+      {/* One plain sentence before the numbers (requirement 3), and the two
+          counts that say whether anyone has actually checked this listing:
+          reviews students wrote on DCW, and evidence an admin has uploaded.
+          Both are omitted at zero — "0 reviews" is noise, and a card that says
+          nothing about proof is more honest than one that advertises none. */}
+      {!isJob&&item.plainSummary&&<p className="ec-plain">{plainLine(item)}</p>}
+      {!isJob&&(item.dcwReviews>0||item.proofCount>0)&&<div className="ec-signals">
+        {item.dcwReviews>0&&<span className="sig rev"><MessageCircle/>{item.dcwRating} from {item.dcwReviews} DCW review{item.dcwReviews===1?'':'s'}</span>}
+        {item.proofCount>0&&<span className="sig proof"><FileText/>{item.proofCount} proof{item.proofCount===1?'':'s'} on file</span>}
+      </div>}
           {isJob&&<div className="ec-signals">
             {item.km!=null&&<span className="sig near"><Navigation/>{item.km<1?'<1':Math.round(item.km)} km away</span>}
             {item.wfh&&<span className="sig wfh"><Wifi/>Work from home</span>}

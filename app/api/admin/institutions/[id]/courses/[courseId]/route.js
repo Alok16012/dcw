@@ -1,9 +1,12 @@
 import { findInstitution, updateCourse, deleteCourse } from '@/lib/institutions-repo.js';
-import { requireRole } from '@/lib/auth.js';
+import { requirePermission } from '@/lib/auth.js';
 import { ok, fail, readJson } from '@/lib/http.js';
 
+/* Same capability the rest of the catalogue uses. Counselling staff are the
+   people who get told a fee has changed, so the guard is `catalogue:write`
+   rather than the admin role this route was originally pinned to. */
 function resolve(request, id) {
-  const { error, session } = requireRole(request, ['admin']);
+  const { error, session } = requirePermission(request, 'catalogue:write');
   if (error) return { error };
   const institution = findInstitution(id);
   if (!institution) return { error: fail(404, 'NOT_FOUND', `No institution "${id}".`) };
