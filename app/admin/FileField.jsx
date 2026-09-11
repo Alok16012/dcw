@@ -17,7 +17,8 @@ import { IconUpload, IconClose, IconEye, IconAlert } from './icons.jsx';
  */
 export default function FileField({
   label, hint, purpose = 'other', institutionId = null, boardId = null,
-  courseName = null, title = null, internal = false, value, onUploaded, onCleared
+  courseName = null, vertical = null, title = null, internal = false,
+  value, onUploaded, onCleared
 }) {
   const input = useRef(null);
   const [busy, setBusy] = useState(false);
@@ -40,7 +41,7 @@ export default function FileField({
         method: 'POST',
         body: {
           fileName: file.name, mimeType: file.type, dataBase64,
-          purpose, institutionId, boardId, courseName, internal,
+          purpose, institutionId, boardId, courseName, vertical, internal,
           title: title || file.name
         }
       });

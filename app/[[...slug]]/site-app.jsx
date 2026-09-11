@@ -716,12 +716,17 @@ function Detail(ctx){
   const {entity,vertical,setLead,toggleSave,saved,toggleCompare,compare,go}=ctx;
   const isJob=vertical==='jobs';
   const {data:full}=useApi(isJob?null:`/api/${vertical}/institutions/${entity.slug??entity.id}`);
+  /* A job's evidence hangs off the employer, not the posting — see
+     lib/jobs-repo.js — so it is a second small fetch rather than a field on the
+     job. It stays out of `full` because the institution record shapes the plain
+     facts and the approvals, and an employer has neither. */
+  const {data:emp}=useApi(isJob&&entity.companyId?`/api/companies/${encodeURIComponent(entity.companyId)}`:null);
   const {data:rv}=useApi(isJob
     ?(entity.companyId?`/api/reviews?companyId=${encodeURIComponent(entity.companyId)}&limit=4`:null)
     :`/api/reviews?institutionId=${encodeURIComponent(entity.id)}&limit=4`);
   const facts=full?plainFacts(full):[];
   const approvals=full?.approvals??[];
-  const proof=full?.proofOfWork??[];
+  const proof=(isJob?emp?.proofOfWork:full?.proofOfWork)??[];
   const google=full?.googleRating??null;
   const map=full?.map??null;
   const reviews=rv?.rows??[];
@@ -757,7 +762,7 @@ function Detail(ctx){
     :<span className="al-none">No document uploaded yet</span>}</li>})}</ul>
   :<div className="proof-tags">{(entity.approval??[]).map(x=><span key={x}><ShieldCheck/>{x}</span>)}{!(entity.approval??[]).length&&<p className="note">Nothing on record for this listing yet. Ask a counsellor before you pay anything.</p>}</div>}
 {!isJob&&approvals.length>0&&<p className="note"><ShieldCheck/> An approval is a permission to run the course. A grade — NAAC A++, for example — is a quality rating, and is not the same thing.</p>}</section>
-{proof.length>0&&<section id="work" className="detail-section"><span className="kicker">PROOF OF WORK</span><h2>Evidence from this institution</h2><div className="pow-grid">{proof.map(p=>{const img=/^image\//.test(p.mimeType??'');return <figure key={p.id} className="pow-card">{img&&p.url?<img src={p.url} alt={p.title} loading="lazy"/>:<span className="pow-icon"><FileText/></span>}<figcaption><b>{p.title}</b><small>{[p.kind,p.courseName,p.year].filter(Boolean).join(' · ')}</small>{p.summary&&<p>{p.summary}</p>}{p.url&&<a href={p.url} target="_blank" rel="noopener noreferrer">{img?'View full size':'Open document'}<ExternalLink/></a>}</figcaption></figure>})}</div></section>}
+{proof.length>0&&<section id="work" className="detail-section"><span className="kicker">PROOF OF WORK</span><h2>{isJob?'Evidence from this employer':'Evidence from this institution'}</h2><div className="pow-grid">{proof.map(p=>{const img=/^image\//.test(p.mimeType??'');return <figure key={p.id} className="pow-card">{img&&p.url?<img src={p.url} alt={p.title} loading="lazy"/>:<span className="pow-icon"><FileText/></span>}<figcaption><b>{p.title}</b><small>{[p.kind,p.courseName,p.year].filter(Boolean).join(' · ')}</small>{p.summary&&<p>{p.summary}</p>}{p.url&&<a href={p.url} target="_blank" rel="noopener noreferrer">{img?'View full size':'Open document'}<ExternalLink/></a>}</figcaption></figure>})}</div></section>}
 {map?.mapped&&<section id="location" className="detail-section"><span className="kicker">WHERE IT IS</span><h2>Location, and what Google says</h2>{map.embed&&<iframe className="map-frame" src={map.embed} title={`Map showing ${entity.name}`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen/>}<div className="map-meta"><p><MapPin/>{map.address??entity.place}</p><div className="map-links">{map.place&&<a className="btn outline small" href={map.place} target="_blank" rel="noopener noreferrer">Open in Google Maps<ExternalLink/></a>}{map.directions&&<a className="btn outline small" href={map.directions} target="_blank" rel="noopener noreferrer">Get directions<Navigation/></a>}</div>{google?.available
   ?<div className="google-rating"><b><Star/>{google.rating}</b><span>on Google, from {google.total.toLocaleString('en-IN')} rating{google.total===1?'':'s'}</span><small>This is Google&rsquo;s figure, shown as Google reports it. It is deliberately kept apart from the DCW reviews below — the two count different things, and averaging them would produce a number neither of us stands behind.</small></div>
   :<p className="note">Google has no rating on record for this place yet.</p>}</div></section>}

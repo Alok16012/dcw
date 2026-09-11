@@ -3,7 +3,9 @@ import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { PageTop, useSession, useToast, useRefreshCounts } from '../AdminShell.jsx';
 import JobForm from './JobForm.jsx';
+import EmployerProof from './EmployerProof.jsx';
 import { api, fmtSalary, fmtWhen, fmtDate } from '@/lib/admin-client.js';
+import { can } from '@/lib/permissions.js';
 import { IconPlus, IconSearch, IconEmpty, IconAlert, IconEdit, IconTrash } from '../icons.jsx';
 
 function JobsInner() {
@@ -18,6 +20,7 @@ function JobsInner() {
   const [q, setQ] = useState('');
   const [status, setStatus] = useState('');
   const [editing, setEditing] = useState(null);   // job object, or 'new'
+  const [proofFor, setProofFor] = useState(null); // company whose evidence is open
   const [confirming, setConfirming] = useState(null);
   const [busyId, setBusyId] = useState(null);
 
@@ -60,7 +63,12 @@ function JobsInner() {
   }
 
   const rows = data?.rows ?? [];
-  const companyName = id => data?.companies.find(c => c.id === id)?.name ?? id;
+  const company = id => data?.companies.find(c => c.id === id) ?? null;
+  const companyName = id => company(id)?.name ?? id;
+  /* Proof is admin-and-staff work, so an employer sees a plain company name
+     rather than a control that would 403. The route checks the same capability;
+     this only saves them the click. */
+  const mayProof = can(session, 'proof:write');
 
   return (
     <>
@@ -136,7 +144,19 @@ function JobsInner() {
                       <b>{j.title}</b>
                       <span className="adm-sub">{j.location}{j.wfh ? ' · Work from home' : ''} · {j.jobType}</span>
                     </td>
-                    <td>{companyName(j.companyId)}</td>
+                    <td>
+                      {mayProof && company(j.companyId)
+                        ? <button type="button" className="adm-linkish" onClick={() => setProofFor(company(j.companyId))}
+                            title={`Proof of work for ${companyName(j.companyId)}`}>
+                            {companyName(j.companyId)}
+                            <span className="adm-sub">
+                              {company(j.companyId).proofOfWork?.length
+                                ? `${company(j.companyId).proofOfWork.length} proof on file`
+                                : 'Add proof of work'}
+                            </span>
+                          </button>
+                        : companyName(j.companyId)}
+                    </td>
                     <td style={{ whiteSpace: 'nowrap' }}>{fmtSalary(j.salaryMin, j.salaryMax)}</td>
                     <td className="adm-num">{j.openings}</td>
                     <td className="adm-num">
@@ -183,6 +203,10 @@ function JobsInner() {
             refreshCounts();
           }}
         />
+      )}
+
+      {proofFor && (
+        <EmployerProof company={proofFor} onClose={() => setProofFor(null)} onChanged={load} />
       )}
 
       {confirming && (
