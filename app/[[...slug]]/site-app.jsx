@@ -375,7 +375,7 @@ function Hero({vertical,go,setSearchOpen,setLead,query,setQuery}){
   return <section className="hero home-hero"><div className="container hero-content">
     <div className="hero-copy">
       <p className="hh-chips"><Check size={13} aria-hidden="true"/>{h.chips.map(c=><span key={c}>{c}</span>)}</p>
-      <h1>{h.line1}<br/><em className="hh-grad">{h.line2}</em></h1>
+      <h1>{h.line1}<br/><em>{h.line2}</em></h1>
       <p className="hh-body">{h.body}</p>
       <form className="hh-search" role="search" onSubmit={submit}>
         <Search size={18} aria-hidden="true"/>

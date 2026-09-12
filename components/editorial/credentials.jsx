@@ -50,9 +50,17 @@ function basis(a,vertical){
   return parts.join(' · ');
 }
 
-function Recognition({data,vertical,go,notify,listAll}){
-  const list=data.approvals;
-  if(!list.length)return null;
+/* Six placeholders at the height the real cards occupy. The headings above them
+   are not placeholders — they are the same words either way — so the only thing
+   the page is waiting on is the counts, and the two sections stop appearing out
+   of nowhere halfway down a scroll. */
+const Holding=({n,className})=><ul className={className} aria-hidden="true">
+  {Array.from({length:n},(_,i)=><li className="is-loading" key={i}/>)}
+</ul>;
+
+function Recognition({data,vertical,go,notify,listAll,loading}){
+  const list=data?.approvals??[];
+  if(!loading&&!list.length)return null;
   /* Every chip is a real filter, not a badge. The listing reads `approval` from
      the query string, so pressing one lands on the rows that actually carry it
      — and the address bar keeps it, so the result can be shared or reloaded. */
@@ -61,9 +69,11 @@ function Recognition({data,vertical,go,notify,listAll}){
       title={vertical==='jobs'?'What we check before a job goes live':'The approvals these listings rest on'}
       sub={vertical==='jobs'
         ?'Every employer is checked against its own registration documents before it can post. Press any one to see the roles that carry it.'
-        :`Counted from the catalogue, not typed into this page — ${data.covered} of ${data.listings} listings carry at least one approval on file.`}
+        :loading
+          ?'Counted from the catalogue, not typed into this page.'
+          :`Counted from the catalogue, not typed into this page — ${data.covered} of ${data.listings} listings carry at least one approval on file.`}
       action="View everything" onAction={()=>go(listAll)}/>
-    <ul className="cred-grid">
+    {loading?<Holding n={6} className="cred-grid"/>:<ul className="cred-grid">
       {list.map(a=><li key={a.key}>
         <button type="button" onClick={()=>go(`${listAll}?approval=${encodeURIComponent(a.filter)}`)}>
           <span className="cr-mark" aria-hidden="true"><ShieldCheck/></span>
@@ -75,7 +85,7 @@ function Recognition({data,vertical,go,notify,listAll}){
           <ArrowRight className="cr-go" aria-hidden="true"/>
         </button>
       </li>)}
-    </ul>
+    </ul>}
     {/* The honest footnote. "On file" means we hold the letter; it is not the
         same as the institution having claimed the approval, and the two are
         counted separately above for exactly that reason. */}
@@ -87,9 +97,9 @@ function Recognition({data,vertical,go,notify,listAll}){
   </section>;
 }
 
-function Proof({data,vertical,go,listAll}){
-  const rows=data.proof;
-  if(!rows.length)return null;
+function Proof({data,vertical,go,listAll,loading}){
+  const rows=data?.proof??[];
+  if(!loading&&!rows.length)return null;
   return <section className="section wash proof-of-work">
     <div className="container">
       <SectionTitle kicker="PROOF OF WORK"
@@ -97,9 +107,9 @@ function Proof({data,vertical,go,listAll}){
         sub={vertical==='jobs'
           ?'Evidence collected from employers who hire through us — offer letters, attendance registers, registration documents.'
           :'Result sheets, allotment letters and approval documents, filed against the listing they belong to.'}
-        action={data.proofTotal>rows.length?`All ${data.proofTotal} records`:'Browse listings'}
+        action={!loading&&data.proofTotal>rows.length?`All ${data.proofTotal} records`:'Browse listings'}
         onAction={()=>go(listAll)}/>
-      <ul className="pow-grid">
+      {loading?<Holding n={6} className="pow-grid"/>:<ul className="pow-grid">
         {rows.map(p=><li key={p.id}>
           <span className="pw-kind">{p.kind}{p.year?` · ${p.year}`:''}</span>
           <b>{p.title}</b>
@@ -116,7 +126,7 @@ function Proof({data,vertical,go,listAll}){
               :<span className="pw-held"><Lock aria-hidden="true"/>On file</span>}
           </footer>
         </li>)}
-      </ul>
+      </ul>}
       <p className="cred-note"><FileCheck2 aria-hidden="true"/>Names, marks and phone numbers are removed before anything is
         filed here. Records marked “on file” are held at our Patna office and shown on request.</p>
     </div>
@@ -125,11 +135,16 @@ function Proof({data,vertical,go,listAll}){
 
 export function Credentials({vertical,go,notify}){
   const {data,state}=useApi(`/api/credentials/${vertical}`);
-  if(state!=='ready'||!data)return null;
+  /* An error is the one case that renders nothing. These two sections are
+     supporting evidence, not the page's job — a reader who came to compare fees
+     is not helped by a red panel telling them a summary of approvals could not
+     be counted, and the same approvals are on every listing they open next. */
+  if(state==='error')return null;
+  const loading=state!=='ready'||!data;
   const listAll=vertical==='distance'?'/distance/universities':`/${vertical}/search`;
   return <>
-    <Recognition data={data} vertical={vertical} go={go} notify={notify} listAll={listAll}/>
-    <Proof data={data} vertical={vertical} go={go} listAll={listAll}/>
+    <Recognition data={data} vertical={vertical} go={go} notify={notify} listAll={listAll} loading={loading}/>
+    <Proof data={data} vertical={vertical} go={go} listAll={listAll} loading={loading}/>
   </>;
 }
 

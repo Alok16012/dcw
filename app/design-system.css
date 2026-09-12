@@ -424,7 +424,12 @@
 
 .app .proof b{grid-area:num;font-family:var(--font-display);font-weight:900;
   font-size:var(--fs-700);line-height:1.05;letter-spacing:-.02em;color:#fff}
-.app .proof small{grid-area:label;font-size:var(--fs-200);color:rgb(255 255 255/.78);
+/* Solid white, like everything else on the band. The label and the note were set
+   by eye at .93 and .66 and measured 3.91:1 and 3.23:1; stepping them to .93 and
+   .88 was still not enough once the white circle over the gradient's light stop
+   was counted. See the note on `.sb-foot p` for the measurements and for why
+   size and weight, not opacity, are what carry the tiers here. */
+.app .proof small{grid-area:label;font-size:var(--fs-200);color:#fff;
   font-weight:600;line-height:1.2}
 
 /* Magnitude. --fill is set per stat in the markup; the track is always full
@@ -443,7 +448,7 @@
   transform-origin:left;animation:dcw-fill var(--t-spatial) var(--ease-out) both}
 .app .proof .stat-note{
   grid-area:note;margin-top:var(--s-2);font-size:var(--fs-100);font-weight:600;
-  color:rgb(255 255 255/.66);display:flex;align-items:center;gap:5px}
+  color:#fff;display:flex;align-items:center;gap:5px}
 .app .proof .stat-note svg{width:13px;height:13px;flex:none}
 
 @keyframes dcw-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
@@ -4165,15 +4170,21 @@ body{overflow-x:visible;overflow-y:visible}
    has to hold on one line, which is the whole point of colouring it. */
 .app .home-hero h1{font-size:clamp(34px,3.7vw,52px);line-height:1.06;
   letter-spacing:-.03em;margin:0 0 var(--s-4);color:var(--ink-1);max-width:none}
-/* The one gradient on the page, and it is on four words. Anything wider than a
-   single line of display type turns into a wash and stops reading as emphasis.
-   The fallback colour is set first so a browser without background-clip shows
-   accent ink rather than transparent text. */
-.app .home-hero h1 em{font-style:normal;font-weight:800;color:var(--accent-ink)}
-.app .home-hero h1 em.hh-grad{
-  background:linear-gradient(96deg,var(--accent) 8%,#7A3FD4 92%);
-  -webkit-background-clip:text;background-clip:text;
-  -webkit-text-fill-color:transparent}
+/* The second line was blue-to-purple gradient text. It is now the accent, flat.
+
+   Two things were wrong with the gradient and only one of them was taste. The
+   purple end was #7A3FD4, a literal that appears nowhere else in the system: the
+   accent moves per vertical — civic blue on Distance and Colleges, orange on
+   Berojgar Bharat — and the far end of the headline did not move with it, so the
+   jobs home ran orange into a purple that belonged to no brand on the page. The
+   other is that a fade across twenty characters is decoration, not emphasis;
+   emphasis is the colour change itself, and it survives intact without it.
+
+   `-webkit-text-fill-color` is reset rather than deleted because the property is
+   inherited, and a stale `transparent` from anywhere above would render the
+   headline invisible rather than merely unstyled. */
+.app .home-hero h1 em{font-style:normal;font-weight:800;color:var(--accent-ink);
+  -webkit-text-fill-color:currentColor}
 .app .home-hero .hh-body{color:var(--ink-3);font-size:var(--fs-500);
   line-height:var(--lh-body);max-width:50ch;margin:0 0 var(--s-5)}
 
@@ -4223,7 +4234,10 @@ body{overflow-x:visible;overflow-y:visible}
 .app .hh-faces i:nth-child(1){background:var(--tint)}
 .app .hh-faces i:nth-child(2){background:var(--spark-lift,#FFD37A)}
 .app .hh-faces i:nth-child(3){background:var(--wash)}
-.app .hh-faces b{background:var(--accent);color:#fff;margin-right:0;font-style:normal}
+/* --accent-solid, for the same reason the stat band uses it: this is a 26px disc
+   with 11px white type in it, and the jobs orange gives that 3.07:1. The two
+   tokens are identical on distance and colleges, so only jobs moves. */
+.app .hh-faces b{background:var(--accent-solid,var(--accent));color:#fff;margin-right:0;font-style:normal}
 .app .hh-guided-t b{display:block;font-size:var(--fs-200);font-weight:800;
   color:var(--ink-1);line-height:1.2}
 .app .hh-guided-t small{display:block;font-size:var(--fs-050);color:var(--ink-3)}
@@ -4378,8 +4392,18 @@ body{overflow-x:visible;overflow-y:visible}
    catalogue and every one of them is a link to the rows it counted. `.proof`
    is already written for white-on-dark further up this sheet, which is why the
    band only has to supply the ground. */
+/* The light end is --accent-solid, not --accent. They are the same colour on
+   distance and colleges; on jobs --accent is #E2760F, which gives pure white
+   3.07:1 — no opacity, no font size and no amount of care with the text fixes a
+   ground that light, and --accent-solid is the token the sheet already uses
+   everywhere a fill has to carry white (chips, stepper discs, filled buttons).
+   The band is the one place that had reached past it for the brighter shade.
+
+   The decorative circle below is part of the same sum: white at .06 lightens
+   whatever stop it sits over, which is why the worst case here is measured on
+   the composite (#206CE2 / #C5343A / #AA5C19) and not on the stop itself. */
 .app .stat-band{position:relative;overflow:hidden;
-  background:linear-gradient(115deg,var(--accent-deep) 0%,var(--accent-ink) 55%,var(--accent) 100%);
+  background:linear-gradient(115deg,var(--accent-deep) 0%,var(--accent-ink) 55%,var(--accent-solid,var(--accent)) 100%);
   color:#fff;padding-block:var(--s-6)}
 .app .stat-band:before{content:"";position:absolute;inset:auto -8% -60% auto;
   width:480px;height:480px;border-radius:50%;background:#fff;opacity:.06;pointer-events:none}
@@ -4387,11 +4411,25 @@ body{overflow-x:visible;overflow-y:visible}
 .app .sb-foot{display:flex;align-items:center;justify-content:space-between;
   flex-wrap:wrap;gap:var(--s-4);margin-top:var(--s-5);padding-top:var(--s-4);
   border-top:1px solid rgb(255 255 255/.22);position:relative}
-.app .sb-foot p{margin:0;font-size:var(--fs-400);color:rgb(255 255 255/.88);max-width:56ch}
+/* Every line on this band is solid white, and the opacity ramp that used to run
+   100 / .93 / .9 / .88 down the hierarchy is gone.
+
+   It was never buying much and it was costing the thing it sat on. Composited
+   over the lightest part of the band — the gradient's last stop with the white
+   circle over it — .88 measures 4.14 on distance, 4.48 on colleges and 4.19 on
+   jobs. All three are below 4.5, and that is with the light stop already pulled
+   back to --accent-solid; the ramp, not the ground, is what fails there.
+
+   Solid white measures 4.86 / 5.36 / 4.91 on the same three grounds, and the
+   hierarchy survives intact because it was never the opacity doing that work:
+   the figure is 28px at 900, the label 14px at 600, the note 12px at 600, the
+   pledge 16px, the script 16px italic. Size, weight and style say "lesser". A
+   fade only says "dimmer", which is a different thing and a worse one. */
+.app .sb-foot p{margin:0;font-size:var(--fs-400);color:#fff;max-width:56ch}
 .app .sb-foot p b{color:#fff;font-weight:800}
 .app .sb-script{display:block;margin-top:var(--s-4);
   font-family:var(--font-display);font-style:italic;font-weight:700;
-  font-size:var(--fs-400);color:rgb(255 255 255/.72);position:relative}
+  font-size:var(--fs-400);color:#fff;position:relative}
 @media(max-width:760px){
   .app .stat-band{padding-block:var(--s-6)}
   .app .sb-foot{flex-direction:column;align-items:stretch}
@@ -4462,6 +4500,20 @@ body{overflow-x:visible;overflow-y:visible}
   transition:transform var(--t-micro) var(--ease-out),color var(--t-micro) var(--ease-out)}
 .app .cred-grid button:hover .cr-go{transform:translateX(3px);color:var(--accent)}
 
+/* Both grids while the count is still in flight. The headings are real from the
+   first paint — they do not depend on the answer — so only the cards are held,
+   and they are held at the height the real ones occupy: six of these reserve the
+   same two rows, which is what stops the rest of the page jumping when the
+   numbers land. Same sweep as .skeleton-card, same reduced-motion behaviour. */
+.app .cred-grid>li.is-loading,.app .pow-grid>li.is-loading{
+  display:block;min-height:98px;border:1px solid var(--line);border-radius:var(--r-3);
+  background:linear-gradient(90deg,var(--n-2) 0%,var(--n-1) 40%,var(--n-2) 80%);
+  background-size:280% 100%;animation:sk-sweep 1.35s var(--ease-std) infinite}
+.app .pow-grid>li.is-loading{min-height:186px}
+@media(prefers-reduced-motion:reduce){
+  .app .cred-grid>li.is-loading,.app .pow-grid>li.is-loading{animation:none;background:var(--n-2)}
+}
+
 /* The footnote both sections share. */
 .app .cred-note{display:flex;align-items:flex-start;gap:var(--s-2);flex-wrap:wrap;
   margin:var(--s-4) 0 0;font-size:var(--fs-100);line-height:1.6;color:var(--ink-3);max-width:78ch}
@@ -4482,9 +4534,14 @@ body{overflow-x:visible;overflow-y:visible}
   display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:var(--s-3)}
 .app .pow-grid>li{display:flex;flex-direction:column;gap:var(--s-2);
   background:var(--n-0);border:1px solid var(--line);border-radius:var(--r-3);padding:var(--s-4)}
+/* --wash, not --tint. --tint is the saturated end of the accent's light pair and
+   it is a background for shapes, not for 11px type: --accent-ink on it measures
+   3.64:1 on colleges and 3.90:1 on jobs. --wash is the pale one the sheet
+   already pairs with accent text elsewhere, and the same label clears 4.5 on all
+   three verticals there (6.45 / 5.12 / 4.99). */
 .app .pw-kind{align-self:flex-start;font-size:var(--fs-050);font-weight:800;
   letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink);
-  background:var(--tint);border-radius:var(--r-pill);padding:4px var(--s-2)}
+  background:var(--wash);border-radius:var(--r-pill);padding:4px var(--s-2)}
 .app .pow-grid>li b{font-family:var(--font-display);font-size:var(--fs-300);font-weight:800;
   letter-spacing:-.012em;color:var(--ink-1);line-height:1.32}
 .app .pow-grid>li p{margin:0;font-size:var(--fs-100);line-height:1.6;color:var(--ink-2)}
