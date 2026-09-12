@@ -71,9 +71,15 @@
   --s-6:32px; --s-7:48px; --s-8:64px; --s-9:96px;
 
   /* Section rhythm: two beats, not one. Every band being --s-9 is what makes
-     a long page feel padded out rather than composed. */
-  --band:clamp(48px,6vw,80px);
-  --band-tight:clamp(32px,4vw,52px);
+     a long page feel padded out rather than composed.
+
+     Retuned down from 80/52. At 1440 the category section was 476px tall to
+     carry 316px of content — a third of the band was padding, and the page read
+     as spaced out rather than spacious. A band should be read as the gap
+     *between* two sections; once it approaches the height of the section's own
+     content it stops separating anything and just costs scroll. */
+  --band:clamp(40px,4.2vw,60px);
+  --band-tight:clamp(28px,3.2vw,42px);
 
   /* ── RADIUS ──────────────────────────────────────────────────────────────
      A hierarchy, so nesting reads as nesting. Replaces 26 ad-hoc values.
@@ -373,7 +379,7 @@
    note was pointing at rather than flattening everything. */
 .app section.section,.app .detail-section{padding-block:var(--band)}
 .app section.section.wash,.app section.section.ink{padding-block:var(--band-tight)}
-.app .section-title{margin-bottom:var(--s-5)}
+.app .section-title{margin-bottom:var(--s-4)}
 .app .section-title h2{margin-bottom:var(--s-1)}
 .app .hero-copy>*+*{margin-top:var(--s-4)}
 .app .hero-ctas{gap:var(--s-3)}
@@ -4126,11 +4132,15 @@ body{overflow-x:visible;overflow-y:visible}
    which could not hold a panel over it without either hiding the subject or
    dropping the contrast. */
 .app .home-hero{position:relative;overflow:hidden;min-height:0;
-  padding-block:var(--s-8) var(--s-7);display:block}
+  padding-block:var(--s-7) var(--s-6);display:block}
 .app .home-hero .hero-content{
   display:grid;grid-template-columns:minmax(0,1.16fr) minmax(0,.84fr);
-  gap:var(--s-7);align-items:center;position:relative;z-index:1}
-.app .home-hero .hero-copy{width:100%;max-width:none}
+  gap:var(--s-6) var(--s-7);align-items:center;position:relative;z-index:1}
+/* padding:0 is not cosmetic. `.hero-copy` further up this sheet is the interior
+   heroes' copy panel and carries 34px of its own block padding, which here is
+   34px of nothing at the top and bottom of a column that already sits centred
+   in a taller well — the emptiest 68px on the page. */
+.app .home-hero .hero-copy{width:100%;max-width:none;padding:0}
 /* A grid item's automatic minimum is its min-content contribution, and a
    photograph contributes its intrinsic width (900px) no matter how narrow the
    column is told to be. Without these three the aside refuses to go under the
@@ -4196,11 +4206,11 @@ body{overflow-x:visible;overflow-y:visible}
 
 /* The right column. The photograph is a framed panel rather than a bleed, so
    the floating card and the panel under it have something to sit against. */
-.app .hero-aside{display:grid;gap:var(--s-4);position:relative;z-index:1}
+.app .hero-aside{display:grid;gap:var(--s-3);position:relative;z-index:1}
 .app .hh-photo{position:relative;margin:0;border-radius:var(--r-5);overflow:visible}
 .app .hh-photo picture{display:block;border-radius:var(--r-5);overflow:hidden;
   background:var(--wash);box-shadow:var(--e-3)}
-.app .hh-photo img{display:block;width:100%;height:clamp(240px,29vw,330px);
+.app .hh-photo img{display:block;width:100%;height:clamp(220px,23vw,282px);
   object-fit:cover;object-position:center 22%}
 .app .hh-guided{position:absolute;left:calc(var(--s-4)*-1);bottom:var(--s-4);
   display:flex;align-items:center;gap:var(--s-3);
@@ -4228,12 +4238,21 @@ body{overflow-x:visible;overflow-y:visible}
   box-shadow:var(--e-2);transform:rotate(-2.5deg)}
 
 .app .hh-trust{background:var(--n-0);border:1px solid var(--line);
-  border-radius:var(--r-4);padding:var(--s-5);box-shadow:var(--e-2)}
-.app .hh-trust-t{margin:0 0 var(--s-4);font-family:var(--font-display);
+  border-radius:var(--r-4);padding:var(--s-4) var(--s-5);box-shadow:var(--e-2)}
+.app .hh-trust-t{margin:0 0 var(--s-3);font-family:var(--font-display);
   font-size:var(--fs-400);font-weight:800;letter-spacing:-.015em;color:var(--ink-1)}
-.app .hh-trust ul{list-style:none;margin:0 0 var(--s-5);padding:0;display:grid;gap:var(--s-3)}
+/* Two columns, not four rows. Four one-line reassurances stacked made the card
+   200px of list under a 24px heading, which is what forced the right column
+   250px past the left one and left the headline floating in the middle of an
+   empty well. Paired, they read as one block of four rather than a queue. */
+.app .hh-trust ul{list-style:none;margin:0 0 var(--s-4);padding:0;display:grid;
+  grid-template-columns:1fr 1fr;gap:var(--s-3) var(--s-4)}
 .app .hh-trust li{display:grid;grid-template-columns:auto 1fr auto;align-items:center;
   gap:var(--s-3);font-size:var(--fs-200);font-weight:600;color:var(--ink-2)}
+/* An odd count leaves the last item alone in column one with a hole beside it.
+   Span it instead, so the block closes on a full line. Keyed off :nth-child(odd)
+   rather than hardcoded, so a four-item list still pairs cleanly. */
+.app .hh-trust li:last-child:nth-child(odd){grid-column:1/-1}
 .app .hh-t-i{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;
   background:var(--wash);color:var(--accent-ink)}
 .app .hh-t-i svg{width:15px;height:15px}
@@ -4288,8 +4307,12 @@ body{overflow-x:visible;overflow-y:visible}
   .app .hh-popular>span{flex:0 0 auto;scroll-snap-align:start}
   .app .hh-guided{left:var(--s-3);bottom:var(--s-3);padding:9px var(--s-3)}
   .app .hh-script{font-size:var(--fs-200);right:var(--s-3);top:calc(var(--s-3)*-1)}
-  .app .hh-trust ul{grid-template-columns:1fr}
+  /* Back to one column — two would wrap every label at 375 — but tighter
+     between the rows. Five ticks stacked is a list, and a list does not need a
+     paragraph's leading between its items. */
+  .app .hh-trust ul{grid-template-columns:1fr;gap:var(--s-2)}
   .app .hh-trust{padding:var(--s-4)}
+  .app .home-hero .hero-content{gap:var(--s-5)}
 }
 
 /* ── 3. SECTION HEADS ──────────────────────────────────────────────────────
@@ -4357,12 +4380,12 @@ body{overflow-x:visible;overflow-y:visible}
    band only has to supply the ground. */
 .app .stat-band{position:relative;overflow:hidden;
   background:linear-gradient(115deg,var(--accent-deep) 0%,var(--accent-ink) 55%,var(--accent) 100%);
-  color:#fff;padding-block:var(--s-7)}
+  color:#fff;padding-block:var(--s-6)}
 .app .stat-band:before{content:"";position:absolute;inset:auto -8% -60% auto;
   width:480px;height:480px;border-radius:50%;background:#fff;opacity:.06;pointer-events:none}
 .app .stat-band .proof{margin:0}
 .app .sb-foot{display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:wrap;gap:var(--s-4);margin-top:var(--s-6);padding-top:var(--s-5);
+  flex-wrap:wrap;gap:var(--s-4);margin-top:var(--s-5);padding-top:var(--s-4);
   border-top:1px solid rgb(255 255 255/.22);position:relative}
 .app .sb-foot p{margin:0;font-size:var(--fs-400);color:rgb(255 255 255/.88);max-width:56ch}
 .app .sb-foot p b{color:#fff;font-weight:800}
@@ -4375,6 +4398,16 @@ body{overflow-x:visible;overflow-y:visible}
   .app .sb-foot .btn{width:100%;justify-content:center}
   .app .sb-script{text-align:center}
 }
+
+/* ── 7. THE FOOTER'S CLEARANCE ─────────────────────────────────────────────
+   globals.css sets `.footer{padding:70px 0 25px}` and then, unconditionally,
+   `.footer{padding-bottom:90px}` — clearance for the fixed tab bar. That bar
+   only exists below 760, where globals also already puts 70px on the body for
+   the same reason, so above 760 the 90px is 90px of dark nothing under the last
+   link and below it the clearance is being paid twice. Set to the section
+   rhythm here and let the body padding do the job on mobile. */
+.app .footer{padding-top:var(--s-7);padding-bottom:var(--s-6)}
+.app .footer-bottom{margin-top:var(--s-6);padding-top:var(--s-4)}
 
 /* `.hero-copy>*+*` further up this sheet puts a flat --s-4 between every child
    of a hero column. The homepage column sets its own rhythm — the chip row sits
