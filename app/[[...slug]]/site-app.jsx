@@ -15,7 +15,7 @@ import dynamic from 'next/dynamic';
 import {coursesOf,matchesPath,PATHS} from '@/lib/content/courses.js';
 import {STREAMS,ABROAD_LABEL,readStream,matchesStream,isAbroad} from '@/lib/content/streams.js';
 import {fmt,phoneDigits} from '@/lib/format.js';
-import {CONTACT,officePlaceUrl} from '@/lib/contact.js';
+import {CONTACT,officePlaceUrl,officeDirectionsUrl,officeEmbedUrl} from '@/lib/contact.js';
 import {ReviewMarquee} from '@/components/editorial/review-marquee.jsx';
 import {Credentials} from '@/components/editorial/credentials.jsx';
 import {PathCard,EntityCard} from '@/components/discovery/entity-card.jsx';
@@ -190,7 +190,7 @@ let page;if(path==='/about')page=<AboutPage {...ctx}/>;else if(path?.startsWith(
     :isDetailRoute?<NotFoundPage go={go} vertical={vertical}/>
     :<HomePage {...ctx}/>;
 }
-return <div className={`app app-${vertical}`} style={cfg.theme}><MotionLayer/><a className="skip-link" href="#main">Skip to main content</a><Header {...ctx}/>{page}<Footer go={go} vertical={vertical}/>{compare[vertical].length>0&&!path?.endsWith('/compare')&&<CompareTray {...ctx}/>}<MobileNav {...ctx}/><AskDCW open={botOpen} setOpen={setBotOpen} {...ctx}/>{searchOpen&&<SearchPanel {...ctx}/>} {lead&&<LeadFlow lead={lead} vertical={vertical} go={go} close={()=>setLead(null)} notify={notify}/>} {toast&&<div className="toast" role="status"><Check size={17}/>{toast}</div>}</div>}
+return <div className={`app app-${vertical}`} style={cfg.theme}><MotionLayer/><a className="skip-link" href="#main">Skip to main content</a><Header {...ctx}/>{page}<Footer go={go} vertical={vertical} path={path}/>{compare[vertical].length>0&&!path?.endsWith('/compare')&&<CompareTray {...ctx}/>}<MobileNav {...ctx}/><AskDCW open={botOpen} setOpen={setBotOpen} {...ctx}/>{searchOpen&&<SearchPanel {...ctx}/>} {lead&&<LeadFlow lead={lead} vertical={vertical} go={go} close={()=>setLead(null)} notify={notify}/>} {toast&&<div className="toast" role="status"><Check size={17}/>{toast}</div>}</div>}
 
 function MotionLayer(){const [progress,setProgress]=useState(0),[showTop,setShowTop]=useState(false);useEffect(()=>{const reveal=()=>{document.querySelectorAll('main section,.entity-card,.path-card,.detail-section,.automation-grid section').forEach((el,i)=>{if(!el.classList.contains('motion-ready')){el.classList.add('motion-ready');el.style.setProperty('--delay',`${Math.min(i%6,5)*55}ms`)}})};reveal();const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in-view');observer.unobserve(e.target)}}),{threshold:.04,rootMargin:'0px 0px 120px'});const observe=()=>document.querySelectorAll('.motion-ready').forEach(el=>observer.observe(el));observe();const mutation=new MutationObserver(()=>{reveal();observe()});mutation.observe(document.body,{childList:true,subtree:true});const onScroll=()=>{const max=document.documentElement.scrollHeight-innerHeight;setProgress(max>0?scrollY/max*100:0);setShowTop(scrollY>650)};addEventListener('scroll',onScroll,{passive:true});onScroll();return()=>{observer.disconnect();mutation.disconnect();removeEventListener('scroll',onScroll)}},[]);return <><div className="scroll-progress" aria-hidden="true"><i style={{width:`${progress}%`}}/></div><button className={`scroll-top ${showTop?'show':''}`} aria-label="Scroll to top" tabIndex={showTop?0:-1} aria-hidden={!showTop} onClick={()=>scrollTo({top:0,behavior:'smooth'})}><ArrowUp/></button></>}
 
@@ -1070,7 +1070,7 @@ return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget&&
 {applying&&<button className="btn outline" onClick={()=>{close();go('/applications')}}>Track this application<ArrowRight/></button>}</div></div>}</div></div>}
 function CompareTray({vertical,compare,go}){return <div className="compare-tray glass-dark"><span><b>{compare[vertical].length} of 3 selected</b><small>{compare[vertical].length<2?'Add one more for a useful comparison':'Ready to compare side by side'}</small></span><button disabled={compare[vertical].length<2} onClick={()=>go(`/${vertical}/compare`)}>Compare now<ArrowRight/></button></div>}
 function MobileNav({vertical,go,setSearchOpen,path}){return <nav className="mobile-nav" aria-label="Mobile navigation"><button className={path===`/${vertical}`?'active':''} onClick={()=>go(`/${vertical}`)}><Home/>Home</button><button className={path?.includes('search')||path?.includes('universities')?'active':''} onClick={()=>go(vertical==='distance'?'/distance/universities':`/${vertical}/search`)}><Search/>Explore</button><button className="mobile-main" onClick={()=>setSearchOpen(true)}><Search/>Search</button><button className={path==='/saved'?'active':''} onClick={()=>go('/saved')}><Heart/>Saved</button><button className={path==='/profile'?'active':''} onClick={()=>go('/profile')}><UserRound/>Profile</button></nav>}
-function Footer({go,vertical}){const brand=V[vertical];return <footer className="footer"><div className="container"><div><div className="brand inverse"><BrandLockup vertical={vertical}/><span><b>{brand.logoAlt}</b><small>Your next move, made visible.</small></span></div><p>Clear education and career decisions for students across India.</p><button className="automation-link" onClick={()=>go('/automations')}><Workflow/>Automation centre</button></div><div><b>Distance</b><button onClick={()=>go('/distance/universities')}>Universities</button><button onClick={()=>go('/distance/boards')}>Board comparison</button></div><div><b>Colleges</b><button onClick={()=>go('/colleges/search')}>Find colleges</button><button onClick={()=>go('/colleges/neet-predictor')}>NEET predictor</button></div><div><b>Jobs</b><button onClick={()=>go('/jobs/search')}>Find jobs</button><button onClick={()=>go('/jobs/resume-builder')}>Resume builder</button></div><div><b>Company</b><button onClick={()=>go('/about')}>About us</button><button onClick={()=>go('/blog')}>Blog</button><button onClick={()=>go('/reviews')}>Reviews</button></div></div>
+function Footer({go,vertical,path}){const brand=V[vertical];return <footer className="footer"><div className="container"><div><div className="brand inverse"><BrandLockup vertical={vertical}/><span><b>{brand.logoAlt}</b><small>Your next move, made visible.</small></span></div><p>Clear education and career decisions for students across India.</p><button className="automation-link" onClick={()=>go('/automations')}><Workflow/>Automation centre</button></div><div><b>Distance</b><button onClick={()=>go('/distance/universities')}>Universities</button><button onClick={()=>go('/distance/boards')}>Board comparison</button></div><div><b>Colleges</b><button onClick={()=>go('/colleges/search')}>Find colleges</button><button onClick={()=>go('/colleges/neet-predictor')}>NEET predictor</button></div><div><b>Jobs</b><button onClick={()=>go('/jobs/search')}>Find jobs</button><button onClick={()=>go('/jobs/resume-builder')}>Resume builder</button></div><div><b>Company</b><button onClick={()=>go('/about')}>About us</button><button onClick={()=>go('/blog')}>Blog</button><button onClick={()=>go('/reviews')}>Reviews</button></div></div>
   {/* One contact row, in the footer, because the footer is the only thing that
       renders on every page of all three verticals — Distance Courses Wala,
       Colleges Wala and Berojgar Bharat share this component, so the office
@@ -1081,5 +1081,36 @@ function Footer({go,vertical}){const brand=V[vertical];return <footer className=
     <a href={CONTACT.email.href}><i aria-hidden="true"><Mail/></i><span><b>Email Us</b><small>{CONTACT.email.display}</small></span></a>
     <a href={officePlaceUrl()} target="_blank" rel="noopener noreferrer"><i aria-hidden="true"><MapPin/></i><span><b>Visit Us</b><small>{CONTACT.address.full}</small></span></a>
   </div>
+  {/* The office drawn, not just written out. It lives beside the contact row for
+      the same reason that row is here at all — this footer is the only thing
+      every page of all three verticals renders — so "where are you actually
+      based" is answered at the bottom of the home page, a search result and a
+      university detail alike, without three copies of an address or a map.
+
+      `loading="lazy"` matters more than usual here: this is below the fold on
+      every page it appears on, so the embed costs nothing until somebody
+      scrolls to the end. The two links are the same ones the About page uses
+      and go to the real Maps app, because an iframe cannot give directions.
+
+      Everywhere except /about, which already gives the office a section of its
+      own with a taller map in it. Two maps of the same pin on one page is the
+      kind of repetition that makes a site feel generated rather than written. */}
+  {path!=='/about'&&<div className="container footer-map">
+    <iframe src={officeEmbedUrl()} title={`Map showing the ${brand.logoAlt} office at Kankarbagh, Patna`}
+      loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen/>
+    <div className="fm-side">
+      {/* Deliberately not the address again. The "Visit Us" cell three rows up
+          already carries it in full and the map is between the two — printing
+          it a second time here made the footer say one thing twice and pushed
+          the buttons off a phone screen. What this panel adds is the part the
+          address cannot: when the door is open, and two ways to set off. */}
+      <b>Visit the Patna office</b>
+      <small>{CONTACT.hours}</small>
+      <div className="fm-links">
+        <a href={officeDirectionsUrl()} target="_blank" rel="noopener noreferrer">Get directions<Navigation/></a>
+        <a href={officePlaceUrl()} target="_blank" rel="noopener noreferrer">Open in Maps<ExternalLink/></a>
+      </div>
+    </div>
+  </div>}
   <div className="container footer-bottom">© 2026 {brand.legal} <span>Prototype with indicative dummy data</span></div></footer>}
 export default App;

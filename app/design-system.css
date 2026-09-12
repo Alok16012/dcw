@@ -4445,7 +4445,13 @@ body{overflow-x:visible;overflow-y:visible}
    link and below it the clearance is being paid twice. Set to the section
    rhythm here and let the body padding do the job on mobile. */
 .app .footer{padding-top:var(--s-7);padding-bottom:var(--s-6)}
-.app .footer-bottom{margin-top:var(--s-6);padding-top:var(--s-4)}
+/* globals.css sets this row to flex with space-between and no wrap, which is
+   fine until the copyright line — brand name plus city — is longer than half a
+   phone. Below about 420 the two children were overlapping mid-word. Wrapping
+   drops the prototype note onto its own line instead; space-between still does
+   the right thing on the one line it fits on. */
+.app .footer-bottom{margin-top:var(--s-6);padding-top:var(--s-4);
+  flex-wrap:wrap;gap:var(--s-1) var(--s-4)}
 
 /* The office, on every page of all three verticals. Three equal cells rather
    than a paragraph: "Call Us" and "Email Us" are one tap each on a phone, and a
@@ -4469,6 +4475,43 @@ body{overflow-x:visible;overflow-y:visible}
   /* Two cells would leave the address — the longest of the three by far — alone
      on a half-width second row. One column, full width each. */
   .app .footer-contact{grid-template-columns:1fr;gap:var(--s-3)}
+}
+
+/* The office map, at the bottom of every page on all three verticals.
+
+   Map left, address right, rather than a full-bleed strip: a map that wide is a
+   lot of bright rectangle to drop into a dark footer, and the panel beside it
+   gives the two links somewhere to sit. 1.35fr keeps the map the larger half
+   without letting it dominate the band. Below 860 it stacks, map first, because
+   a map under its own address reads as a caption for it. */
+.app .footer-map{display:grid;grid-template-columns:1.35fr minmax(0,1fr);
+  gap:var(--s-4);margin-top:var(--s-5);align-items:stretch}
+.app .footer-map iframe{display:block;width:100%;height:100%;min-height:216px;border:0;
+  border-radius:var(--r-3);background:rgb(255 255 255/.07)}
+/* The panel is a lightened pane of the footer itself rather than a white card:
+   a card here would read as a third thing floating on the band, and the footer
+   already has one border language — hairlines in low-opacity white. */
+.app .fm-side{display:flex;flex-direction:column;gap:var(--s-2);
+  padding:var(--s-4);border-radius:var(--r-3);
+  background:rgb(255 255 255/.05);border:1px solid rgb(255 255 255/.13)}
+.app .fm-side b{font-family:var(--font-display);font-size:var(--fs-300);
+  font-weight:800;letter-spacing:-.01em;color:#fff}
+.app .fm-side p{display:flex;flex-direction:column;margin:0;
+  font-size:var(--fs-200);line-height:1.5;color:rgb(255 255 255/.82)}
+.app .fm-side small{font-size:var(--fs-100);font-weight:700;color:rgb(255 255 255/.6)}
+.app .fm-links{display:flex;flex-wrap:wrap;gap:var(--s-2);margin-top:auto;padding-top:var(--s-2)}
+/* 40px tall, not the 24 the audit tolerates: these are the two controls in the
+   footer somebody presses while standing on a street. */
+.app .fm-links a{display:inline-flex;align-items:center;gap:6px;min-height:40px;
+  padding:0 var(--s-3);border-radius:var(--r-2);border:1px solid rgb(255 255 255/.24);
+  font-size:var(--fs-100);font-weight:700;color:#fff;text-decoration:none;
+  transition:background var(--t-micro) var(--ease-out),border-color var(--t-micro) var(--ease-out)}
+.app .fm-links a:hover{background:rgb(255 255 255/.12);border-color:rgb(255 255 255/.4)}
+.app .fm-links a svg{width:14px;height:14px;flex:none}
+@media(max-width:860px){
+  .app .footer-map{grid-template-columns:1fr;gap:var(--s-3)}
+  .app .footer-map iframe{min-height:190px}
+  .app .fm-links a{flex:1 1 0;justify-content:center}
 }
 
 /* ── RECOGNITION & APPROVAL ────────────────────────────────────────────────
