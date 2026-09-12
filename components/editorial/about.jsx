@@ -1,5 +1,6 @@
 'use client';
-import {ArrowRight,ShieldCheck,Star,UserRound,MessageCircle,Scale,IndianRupee} from 'lucide-react';
+import {ArrowRight,ShieldCheck,Star,UserRound,MessageCircle,Scale,IndianRupee,Phone,Mail,MapPin,Navigation,ExternalLink} from 'lucide-react';
+import {CONTACT,officeEmbedUrl,officePlaceUrl,officeDirectionsUrl} from '@/lib/contact.js';
 /* One of the three pages a stranger checks before trusting a site with their
    marks, their money or their phone number. Everything below is placeholder
    content for the prototype — the numbers are marked indicative wherever they
@@ -94,14 +95,34 @@ export function AboutPage({go,notify}){
         <p>If a fee on this site is wrong, a listing is stale, or a posting asked you for money, tell us and we will fix it or take it down.</p>
       </div>
       <dl>
-        <div><dt>Office</dt><dd>Boring Road, Patna, Bihar 800001</dd></div>
-        <div><dt>Corrections</dt><dd>corrections@dcw.example</dd></div>
-        <div><dt>Counselling</dt><dd>Mon–Sat, 9am–7pm IST</dd></div>
+        <div><dt>Call us</dt><dd><a href={CONTACT.phone.href}>{CONTACT.phone.display}</a></dd></div>
+        <div><dt>Email us</dt><dd><a href={CONTACT.email.href}>{CONTACT.email.display}</a></dd></div>
+        <div><dt>Counselling</dt><dd>{CONTACT.hours}</dd></div>
       </dl>
       <div className="ac-actions">
         <button className="btn primary" onClick={()=>notify('Counselling request noted — a counsellor will call you back')}><MessageCircle/>Request a callback</button>
         <button className="btn outline" onClick={()=>go('/blog')}>Read the blog<ArrowRight/></button>
       </div>
+    </section>
+
+    {/* The office, on a map. An address is a string somebody has to copy into
+        another app; a map is the thing they actually wanted. The frame is the
+        keyless embed — see lib/contact.js for why this one does not go through
+        the Places adapter the institution pages use. */}
+    <section className="container about-map">
+      <div className="am-head">
+        <div>
+          <span className="kicker">VISIT US</span>
+          <h2 className="about-h2">K - 212, Kankarbagh.</h2>
+          <p><MapPin/>{CONTACT.address.full}</p>
+        </div>
+        <div className="am-links">
+          <a className="btn outline small" href={officeDirectionsUrl()} target="_blank" rel="noopener noreferrer">Get directions<Navigation/></a>
+          <a className="btn outline small" href={officePlaceUrl()} target="_blank" rel="noopener noreferrer">Open in Google Maps<ExternalLink/></a>
+        </div>
+      </div>
+      <iframe className="map-frame" src={officeEmbedUrl()} title="Map showing the Distance Courses Wala office at Kankarbagh, Patna"
+        loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen/>
     </section>
   </main>;
 }

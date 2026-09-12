@@ -4409,6 +4409,185 @@ body{overflow-x:visible;overflow-y:visible}
 .app .footer{padding-top:var(--s-7);padding-bottom:var(--s-6)}
 .app .footer-bottom{margin-top:var(--s-6);padding-top:var(--s-4)}
 
+/* The office, on every page of all three verticals. Three equal cells rather
+   than a paragraph: "Call Us" and "Email Us" are one tap each on a phone, and a
+   label above a value is what makes that obvious without an instruction. */
+.app .footer-contact{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:var(--s-4);margin-top:var(--s-6);padding-top:var(--s-5);
+  border-top:1px solid rgb(255 255 255/.13)}
+.app .footer-contact a{display:grid;grid-template-columns:auto minmax(0,1fr);
+  align-items:start;gap:var(--s-3);text-decoration:none;color:inherit;
+  border-radius:var(--r-2);padding:var(--s-1);margin:calc(var(--s-1)*-1)}
+.app .footer-contact i{display:grid;place-items:center;width:34px;height:34px;flex:none;
+  border-radius:var(--r-2);background:rgb(255 255 255/.09);color:#fff}
+.app .footer-contact i svg{width:16px;height:16px}
+.app .footer-contact b{display:block;font-size:var(--fs-050);font-weight:800;
+  letter-spacing:.1em;text-transform:uppercase;color:rgb(255 255 255/.58)}
+.app .footer-contact small{display:block;margin-top:3px;font-size:var(--fs-200);
+  font-weight:600;color:#fff;line-height:1.4}
+.app .footer-contact a:hover small{text-decoration:underline}
+.app .footer-contact a:hover i{background:rgb(255 255 255/.18)}
+@media(max-width:860px){
+  /* Two cells would leave the address — the longest of the three by far — alone
+     on a half-width second row. One column, full width each. */
+  .app .footer-contact{grid-template-columns:1fr;gap:var(--s-3)}
+}
+
+/* ── RECOGNITION & APPROVAL ────────────────────────────────────────────────
+   Six credentials, each a button that filters the listing. Cards rather than a
+   badge row because each one carries three lines — what it is, how many
+   listings hold it, and which — and a badge cannot hold a basis. */
+.app .cred-grid{list-style:none;margin:0;padding:0;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(272px,1fr));gap:var(--s-3)}
+.app .cred-grid>li{display:flex}
+.app .cred-grid button{flex:1;display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:start;gap:var(--s-3);text-align:left;cursor:pointer;
+  background:var(--n-0);border:1px solid var(--line);border-radius:var(--r-3);
+  padding:var(--s-4);transition:border-color var(--t-micro) var(--ease-out),
+    box-shadow var(--t-micro) var(--ease-out),transform var(--t-micro) var(--ease-out)}
+.app .cred-grid button:hover{border-color:var(--accent);box-shadow:var(--e-2)}
+.app .cred-grid button:active{transform:translateY(1px)}
+.app .cr-mark{display:grid;place-items:center;width:36px;height:36px;flex:none;
+  border-radius:var(--r-2);background:var(--tint);color:var(--accent-ink)}
+.app .cr-mark svg{width:18px;height:18px}
+.app .cr-copy{min-width:0;display:grid;gap:3px}
+.app .cr-copy b{font-family:var(--font-display);font-size:var(--fs-300);font-weight:800;
+  letter-spacing:-.01em;color:var(--ink-1)}
+.app .cr-copy small{font-size:var(--fs-100);font-weight:600;color:var(--ink-2)}
+/* The example names, which are the longest line and the least important. One
+   line, clipped — the count above is the fact; these are only reassurance. */
+.app .cr-copy em{font-style:normal;font-size:var(--fs-050);color:var(--ink-3);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app .cr-go{width:16px;height:16px;color:var(--ink-3);margin-top:9px;
+  transition:transform var(--t-micro) var(--ease-out),color var(--t-micro) var(--ease-out)}
+.app .cred-grid button:hover .cr-go{transform:translateX(3px);color:var(--accent)}
+
+/* The footnote both sections share. */
+.app .cred-note{display:flex;align-items:flex-start;gap:var(--s-2);flex-wrap:wrap;
+  margin:var(--s-4) 0 0;font-size:var(--fs-100);line-height:1.6;color:var(--ink-3);max-width:78ch}
+.app .cred-note svg{width:15px;height:15px;flex:none;margin-top:3px;color:var(--accent)}
+.app .cred-note .linkish{background:none;border:0;padding:0;cursor:pointer;
+  font:inherit;font-weight:700;color:var(--accent-text);text-decoration:underline;text-underline-offset:2px}
+
+/* ── PROOF OF WORK ─────────────────────────────────────────────────────────
+   The evidence behind the approvals above. Each card is a record, not a
+   thumbnail: the two states it can be in — a document anyone can open, and one
+   held at the office — are the whole point, and a picture of a file would blur
+   them. */
+/* 320 rather than the 272 above, which is what holds this to three columns at
+   1440. Six records across four columns left the second row two cards wide
+   against two empty ones; three columns is 2 x 3, and the extra width is worth
+   having on a card that carries a sentence of summary. */
+.app .pow-grid{list-style:none;margin:0;padding:0;
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:var(--s-3)}
+.app .pow-grid>li{display:flex;flex-direction:column;gap:var(--s-2);
+  background:var(--n-0);border:1px solid var(--line);border-radius:var(--r-3);padding:var(--s-4)}
+.app .pw-kind{align-self:flex-start;font-size:var(--fs-050);font-weight:800;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--accent-ink);
+  background:var(--tint);border-radius:var(--r-pill);padding:4px var(--s-2)}
+.app .pow-grid>li b{font-family:var(--font-display);font-size:var(--fs-300);font-weight:800;
+  letter-spacing:-.012em;color:var(--ink-1);line-height:1.32}
+.app .pow-grid>li p{margin:0;font-size:var(--fs-100);line-height:1.6;color:var(--ink-2)}
+/* margin-top:auto pins the footer to the bottom, so a two-line summary and a
+   four-line one still line their owner rows up across the row of cards. */
+.app .pow-grid>li footer{display:flex;align-items:center;justify-content:space-between;
+  gap:var(--s-2);margin-top:auto;padding-top:var(--s-3);border-top:1px solid var(--line)}
+.app .pw-owner{display:inline-flex;align-items:center;gap:var(--s-2);min-width:0;
+  background:none;border:0;padding:0;cursor:pointer;font:inherit;
+  font-size:var(--fs-100);font-weight:700;color:var(--ink-1);text-align:left}
+.app .pw-owner i{display:grid;place-items:center;width:24px;height:24px;flex:none;
+  border-radius:var(--r-1);background:var(--wash);color:var(--ink-2)}
+.app .pw-owner i svg{width:13px;height:13px}
+.app .pw-owner:hover{color:var(--accent-text);text-decoration:underline;text-underline-offset:2px}
+.app .pw-open,.app .pw-held{display:inline-flex;align-items:center;gap:5px;flex:none;
+  font-size:var(--fs-050);font-weight:700}
+.app .pw-open{color:var(--accent-text);text-decoration:none}
+.app .pw-open:hover{text-decoration:underline;text-underline-offset:2px}
+.app .pw-held{color:var(--ink-3)}
+.app .pw-open svg,.app .pw-held svg{width:13px;height:13px}
+
+@media(max-width:640px){
+  /* One column. At 375 a 272px minimum still fits, but two of these side by
+     side never do, and auto-fit would otherwise leave the second card of a row
+     alone on its own line at the awkward widths in between. */
+  .app .cred-grid,.app .pow-grid{grid-template-columns:1fr}
+  .app .cred-grid button,.app .pow-grid>li{padding:var(--s-3)}
+}
+
+/* ── THE RUNNING REVIEW BAND ───────────────────────────────────────────────
+   A marquee that is also a real scroller. The animation moves the track, the
+   viewport keeps `overflow-x:auto`, and a finger or a trackpad can take it over
+   at any point — a promotional strip nobody can stop is one people wait out. */
+.app .review-marquee{overflow:hidden}
+.app .review-marquee .rm-head{display:flex;align-items:flex-end;
+  justify-content:space-between;flex-wrap:wrap;gap:var(--s-4);margin-bottom:var(--s-4)}
+.app .review-marquee .rm-head h2{margin:var(--s-1) 0 0;font-family:var(--font-display);
+  font-size:var(--fs-700);font-weight:800;letter-spacing:-.025em;color:var(--ink-1)}
+/* Full-bleed: the cards run off both edges, which is what says "this continues"
+   without an arrow. The gutter is restored as scroll-padding so a card the
+   person has dragged into view still lands on the column, not the screen edge. */
+.app .review-marquee .rm-viewport{overflow-x:auto;scrollbar-width:none;
+  padding-inline:var(--gutter);scroll-padding-inline:var(--gutter);
+  margin-inline:0;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
+.app .review-marquee .rm-viewport::-webkit-scrollbar{display:none}
+.app .review-marquee .rm-track{display:flex;gap:var(--s-4);width:max-content;
+  animation:rm-run var(--rm-seconds,120s) linear infinite}
+/* Both, and both matter: hover is the mouse asking to read one, focus-within is
+   the same request arriving by keyboard. */
+.app .review-marquee .rm-viewport:hover .rm-track,
+.app .review-marquee .rm-viewport:focus-within .rm-track{animation-play-state:paused}
+@keyframes rm-run{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50%,0,0)}}
+/* The band is decoration built out of real content, so with motion turned off
+   it keeps the content and drops the motion — it does not disappear. */
+@media(prefers-reduced-motion:reduce){
+  .app .review-marquee .rm-track{animation:none}
+}
+
+.app .rm-card{flex:0 0 auto;width:320px;scroll-snap-align:start;
+  display:flex;flex-direction:column;gap:var(--s-3);
+  background:var(--n-0);border:1px solid var(--line);border-radius:var(--r-3);
+  padding:var(--s-4);box-shadow:var(--e-1)}
+.app .rm-stars{display:inline-flex;gap:2px}
+.app .rm-stars svg{width:15px;height:15px;color:var(--n-3);fill:var(--n-3)}
+.app .rm-stars svg.on{color:var(--spark);fill:var(--spark)}
+/* Four lines, then it stops. A review that runs to nine lines in a moving band
+   cannot be read at all, and the page it links to has the whole thing. */
+.app .rm-text{margin:0;font-size:var(--fs-200);line-height:1.6;color:var(--ink-2);
+  display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.app .rm-card footer{display:flex;align-items:center;gap:var(--s-3);margin-top:auto}
+.app .rm-mark{display:grid;place-items:center;width:34px;height:34px;flex:none;
+  border-radius:50%;background:var(--wash);color:var(--accent-ink);
+  font-size:var(--fs-050);font-weight:800}
+.app .rm-who{min-width:0}
+.app .rm-who b{display:block;font-size:var(--fs-200);font-weight:700;color:var(--ink-1);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.app .rm-who small{display:block;font-size:var(--fs-050);color:var(--ink-3)}
+.app .rm-check{margin-left:auto;flex:none;color:#127A45}
+.app .rm-check svg{width:16px;height:16px;display:block}
+@media(max-width:640px){
+  .app .rm-card{width:270px}
+  .app .review-marquee .rm-head h2{font-size:var(--fs-600)}
+}
+
+/* ── THE OFFICE MAP ────────────────────────────────────────────────────────
+   Same `.map-frame` the institution detail pages use, so the height, radius and
+   narrow-screen treatment are already written and there is one map style on the
+   site rather than two. */
+.app .about-map{display:grid;gap:var(--s-4);padding-bottom:var(--band)}
+.app .about-map .am-head{display:flex;align-items:flex-end;justify-content:space-between;
+  flex-wrap:wrap;gap:var(--s-4)}
+.app .about-map .about-h2{margin-bottom:var(--s-2)}
+.app .about-map .am-head p{margin:0;display:flex;align-items:center;gap:var(--s-2);
+  color:var(--ink-2);font-size:var(--fs-300);font-weight:600}
+.app .about-map .am-head p svg{width:16px;height:16px;color:var(--accent);flex:none}
+.app .about-map .am-links{display:flex;gap:var(--s-2);flex-wrap:wrap}
+@media(max-width:640px){
+  .app .about-map .am-links{width:100%}
+  .app .about-map .am-links .btn{flex:1 1 0;justify-content:center}
+}
+
 /* `.hero-copy>*+*` further up this sheet puts a flat --s-4 between every child
    of a hero column. The homepage column sets its own rhythm — the chip row sits
    tight to the headline, the search sits away from the paragraph — so it opts

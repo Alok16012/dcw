@@ -5,7 +5,7 @@ import {useCatalog,useAllCatalogs} from '@/lib/client/catalog.js';
 import {useApi} from '@/lib/client/api.js';
 import {plainFacts} from '@/lib/content/plain.js';
 import Image from 'next/image';
-import {ArrowRight,ArrowUp,Bookmark,Building2,Check,ChevronLeft,ChevronRight,Clock3,FileText,GraduationCap,Heart,Home,MapPin,Search,ShieldCheck,Sparkles,Star,Users,X,Bell,UserRound,BookOpen,ExternalLink,TrendingUp,CalendarDays,MessageCircle,RotateCcw,Navigation,LocateFixed,Wifi,Flame,Filter,Stethoscope,Plane,Scale,Award,Briefcase,ScrollText,Laptop,Cog,Calculator,Wrench,Workflow,Paperclip,Upload,Trash2,IndianRupee} from 'lucide-react';
+import {ArrowRight,ArrowUp,Bookmark,Building2,Check,ChevronLeft,ChevronRight,Clock3,FileText,GraduationCap,Heart,Home,MapPin,Search,ShieldCheck,Sparkles,Star,Users,X,Bell,UserRound,BookOpen,ExternalLink,TrendingUp,CalendarDays,MessageCircle,RotateCcw,Navigation,LocateFixed,Wifi,Flame,Filter,Stethoscope,Plane,Scale,Award,Briefcase,ScrollText,Laptop,Cog,Calculator,Wrench,Workflow,Paperclip,Upload,Trash2,IndianRupee,Phone,Mail} from 'lucide-react';
 import {Plate,CardWash} from '@/components/ui/plate.jsx';
 import {SectionTitle,PageHero,Accordion} from '@/components/ui/primitives.jsx';
 import {MarkVerified,MarkCompared,MarkCounsellor,MarkOpenings,MarkThisWeek,MarkEmployers} from '@/components/ui/proof-marks.jsx';
@@ -15,6 +15,9 @@ import dynamic from 'next/dynamic';
 import {coursesOf,matchesPath,PATHS} from '@/lib/content/courses.js';
 import {STREAMS,ABROAD_LABEL,readStream,matchesStream,isAbroad} from '@/lib/content/streams.js';
 import {fmt,phoneDigits} from '@/lib/format.js';
+import {CONTACT,officePlaceUrl} from '@/lib/contact.js';
+import {ReviewMarquee} from '@/components/editorial/review-marquee.jsx';
+import {Credentials} from '@/components/editorial/credentials.jsx';
 import {PathCard,EntityCard} from '@/components/discovery/entity-card.jsx';
 /* One of these renders per URL, so each ships as its own chunk rather than
    riding along in the shell every visitor downloads. Server rendering stays on:
@@ -446,8 +449,20 @@ function HomePage(ctx){const {vertical,go,catalog}=ctx;const pool=catalog.rows;
       <RailArrows target={rail} label={noun}/>
     </SectionTitle>
     <CatalogGrid catalog={catalog} skeleton={3}><div className="rail" ref={rail}>{pool.slice(0,5).map(x=><EntityCard key={x.id} item={x} {...ctx}/>)}</div></CatalogGrid></div></section>
+  {/* Recognition & Approval, then Proof of Work — both on all three verticals,
+      both counted out of the catalogue rather than written into this page, so
+      the console is what changes them. Straight after the rail because they are
+      the answer to the question the rail provokes: on whose say-so? */}
+  <Credentials vertical={vertical} go={go} notify={ctx.notify}/>
   {vertical!=='distance'&&<section className="section container section-plate"><SectionTitle kicker={vertical==='colleges'?'STUDY ABROAD':'SKILL TO JOB'} title={vertical==='colleges'?'Intake and total cost, country by country':'Short courses that lead to a job'} action={vertical==='colleges'?'Compare countries':'See all courses'} onAction={()=>go(vertical==='colleges'?'/colleges/search':'/jobs/search')}/><div className="path-grid">{(vertical==='colleges'?[{name:'Georgia',kicker:'MBBS',desc:'₹24L total · September intake · NMC-approved universities.',icon:<Plane/>},{name:'Russia',kicker:'MBBS',desc:'₹19L total · August intake · English-medium teaching.',icon:<Plane/>},{name:'Canada',kicker:'PG DIPLOMA',desc:'₹18L · January intake · post-study work pathway.',icon:<Plane/>},{name:'UK',kicker:'MSc · 1 YEAR',desc:'₹22L · September intake · one-year master’s.',icon:<Plane/>}]:[{name:'Digital Marketing',kicker:'6 WEEKS',desc:'Certificate on completion, portfolio project included.',icon:<TrendingUp/>},{name:'Tally + GST',kicker:'8 WEEKS',desc:'Job assistance for accounts and back-office roles.',icon:<Calculator/>},{name:'Spoken English',kicker:'12 WEEKS',desc:'Live classes with practice partners, not recordings.',icon:<MessageCircle/>},{name:'Interview Prep',kicker:'MOCK + REVIEW',desc:'Mock interviews and a line-by-line resume review.',icon:<Briefcase/>}]).map((x,i,a)=><PathCard key={x.name} item={x} i={i} featured={i===0&&(a.length+1)%3!==1} cta={vertical==='colleges'?'See cost':'See course'} onClick={()=>go(vertical==='colleges'?'/colleges/search':'/jobs/search')}/>)}</div></section>}
   <DecisionBlock {...ctx}/>
+  {/* Distance only. The reviews store is shared across the three verticals, so
+      the band would run the same eight cards on Colleges Wala and Berojgar
+      Bharat — promotion for DCW, on somebody else's home page. Placed between
+      the ink block and the blue stat band so the page reads ink · wash · blue,
+      and renders nothing at all until /api/reviews has rows, so a cold
+      catalogue shows one less section instead of an empty promotional band. */}
+  {vertical==='distance'&&<ReviewMarquee go={go}/>}
   {/* The band that closes the page. The four figures are the ones already
       computed from the live catalogue for the old hero strip — moved here rather
       than reinvented, because a number on a homepage should be one somebody can
@@ -531,6 +546,12 @@ function Listing(ctx){
      An unrecognised city filters to nothing and the empty state offers Reset,
      which clears the query string too. */
   const cityParam=isJobs?params.get('city'):null;
+  /* The Recognition & Approval band sends people here with the body they
+     pressed — ?approval=UGC-DEB, ?approval=NMC. Matched against the card's own
+     approval labels, which is the same field /api/[vertical]/institutions
+     filters on server-side, so the two agree. URL-borne rather than state for
+     the same reason `path` and `stream` are: reload, share and Back keep it. */
+  const approvalParam=params.get('approval');
   const [city,setCity]=useState(cityParam||'All'),[sector,setSector]=useState('All');
   /* geo.state: idle -> asking -> ok | denied | unsupported | error.
      Nothing is requested until the person presses the button — the browser
@@ -540,7 +561,7 @@ function Listing(ctx){
   const reset=()=>{setType('All');setSort('Recommended');setMax(limit);setMust(isJobs?[]:['Verified data']);setCity('All');setSector('All');
     // The URL-borne filters are not state, so clearing state alone would leave
     // the address bar — and a reload, or a shared link — still filtered.
-    if(coursePath||stream||abroad||cityParam)go(`/${vertical}/${vertical==='distance'?'universities':'search'}`);};
+    if(coursePath||stream||abroad||cityParam||approvalParam)go(`/${vertical}/${vertical==='distance'?'universities':'search'}`);};
 
   function askLocation(){
     if(typeof navigator==='undefined'||!navigator.geolocation){setGeo({state:'unsupported'});return}
@@ -574,6 +595,7 @@ function Listing(ctx){
          card leads with and what Apply preselects. */
       &&(!coursePath||coursesOf(x).some(c=>matchesPath(c,coursePath)))
       &&matchesStream(x,stream)
+      &&(!approvalParam||(x.approval??[]).some(a=>a.toLowerCase().includes(approvalParam.toLowerCase())))
       &&(!abroad||isAbroad(x))
       &&(!isJobs||city==='All'||x.city===city)
       &&(!isJobs||sector==='All'||x.sector===sector)
@@ -594,7 +616,7 @@ function Listing(ctx){
       sort==='Price: high to low'||sort==='Salary: high to low'?b.fee-a.fee:
       sort==='Rating'?b.rating-a.rating:
       (b.featured?1:0)-(a.featured?1:0)),
-  [type,sort,max,must,initial,isJobs,city,sector,here,coursePath,stream,abroad]);
+  [type,sort,max,must,initial,isJobs,city,sector,here,coursePath,stream,abroad,approvalParam]);
 
   /* Non-null when the emptiness is the catalogue's rather than the filters'.
      Measured against `initial` — every row the vertical holds, before a single
@@ -628,7 +650,7 @@ function Listing(ctx){
   const allCities=useMemo(()=>isJobs?jobCities(initial):[],[isJobs,initial]);
   const allSectors=useMemo(()=>isJobs?jobSectors(initial):[],[isJobs,initial]);
   const cityChips=useMemo(()=>['All',...(isJobs?topJobCities(initial).slice(0,6):[])],[isJobs,initial]);
-  const activeFilters=[type!=='All'&&type,city!=='All'&&city,sector!=='All'&&sector,...must].filter(Boolean);
+  const activeFilters=[type!=='All'&&type,city!=='All'&&city,sector!=='All'&&sector,approvalParam,...must].filter(Boolean);
   /* What the collapsed filter summary reports. `activeFilters` is the jobs
      chip row and deliberately omits the cost ceiling because there is no chip
      for it; the summary must not, or a closed panel could be filtering on a
@@ -1048,5 +1070,16 @@ return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget&&
 {applying&&<button className="btn outline" onClick={()=>{close();go('/applications')}}>Track this application<ArrowRight/></button>}</div></div>}</div></div>}
 function CompareTray({vertical,compare,go}){return <div className="compare-tray glass-dark"><span><b>{compare[vertical].length} of 3 selected</b><small>{compare[vertical].length<2?'Add one more for a useful comparison':'Ready to compare side by side'}</small></span><button disabled={compare[vertical].length<2} onClick={()=>go(`/${vertical}/compare`)}>Compare now<ArrowRight/></button></div>}
 function MobileNav({vertical,go,setSearchOpen,path}){return <nav className="mobile-nav" aria-label="Mobile navigation"><button className={path===`/${vertical}`?'active':''} onClick={()=>go(`/${vertical}`)}><Home/>Home</button><button className={path?.includes('search')||path?.includes('universities')?'active':''} onClick={()=>go(vertical==='distance'?'/distance/universities':`/${vertical}/search`)}><Search/>Explore</button><button className="mobile-main" onClick={()=>setSearchOpen(true)}><Search/>Search</button><button className={path==='/saved'?'active':''} onClick={()=>go('/saved')}><Heart/>Saved</button><button className={path==='/profile'?'active':''} onClick={()=>go('/profile')}><UserRound/>Profile</button></nav>}
-function Footer({go,vertical}){const brand=V[vertical];return <footer className="footer"><div className="container"><div><div className="brand inverse"><BrandLockup vertical={vertical}/><span><b>{brand.logoAlt}</b><small>Your next move, made visible.</small></span></div><p>Clear education and career decisions for students across India.</p><button className="automation-link" onClick={()=>go('/automations')}><Workflow/>Automation centre</button></div><div><b>Distance</b><button onClick={()=>go('/distance/universities')}>Universities</button><button onClick={()=>go('/distance/boards')}>Board comparison</button></div><div><b>Colleges</b><button onClick={()=>go('/colleges/search')}>Find colleges</button><button onClick={()=>go('/colleges/neet-predictor')}>NEET predictor</button></div><div><b>Jobs</b><button onClick={()=>go('/jobs/search')}>Find jobs</button><button onClick={()=>go('/jobs/resume-builder')}>Resume builder</button></div><div><b>Company</b><button onClick={()=>go('/about')}>About us</button><button onClick={()=>go('/blog')}>Blog</button><button onClick={()=>go('/reviews')}>Reviews</button></div></div><div className="container footer-bottom">© 2026 {brand.legal} <span>Prototype with indicative dummy data</span></div></footer>}
+function Footer({go,vertical}){const brand=V[vertical];return <footer className="footer"><div className="container"><div><div className="brand inverse"><BrandLockup vertical={vertical}/><span><b>{brand.logoAlt}</b><small>Your next move, made visible.</small></span></div><p>Clear education and career decisions for students across India.</p><button className="automation-link" onClick={()=>go('/automations')}><Workflow/>Automation centre</button></div><div><b>Distance</b><button onClick={()=>go('/distance/universities')}>Universities</button><button onClick={()=>go('/distance/boards')}>Board comparison</button></div><div><b>Colleges</b><button onClick={()=>go('/colleges/search')}>Find colleges</button><button onClick={()=>go('/colleges/neet-predictor')}>NEET predictor</button></div><div><b>Jobs</b><button onClick={()=>go('/jobs/search')}>Find jobs</button><button onClick={()=>go('/jobs/resume-builder')}>Resume builder</button></div><div><b>Company</b><button onClick={()=>go('/about')}>About us</button><button onClick={()=>go('/blog')}>Blog</button><button onClick={()=>go('/reviews')}>Reviews</button></div></div>
+  {/* One contact row, in the footer, because the footer is the only thing that
+      renders on every page of all three verticals — Distance Courses Wala,
+      Colleges Wala and Berojgar Bharat share this component, so the office
+      appears on all three without three copies of the address. Read from
+      lib/contact.js; the About page and the office map read the same module. */}
+  <div className="container footer-contact">
+    <a href={CONTACT.phone.href}><i aria-hidden="true"><Phone/></i><span><b>Call Us</b><small>{CONTACT.phone.display}</small></span></a>
+    <a href={CONTACT.email.href}><i aria-hidden="true"><Mail/></i><span><b>Email Us</b><small>{CONTACT.email.display}</small></span></a>
+    <a href={officePlaceUrl()} target="_blank" rel="noopener noreferrer"><i aria-hidden="true"><MapPin/></i><span><b>Visit Us</b><small>{CONTACT.address.full}</small></span></a>
+  </div>
+  <div className="container footer-bottom">© 2026 {brand.legal} <span>Prototype with indicative dummy data</span></div></footer>}
 export default App;
