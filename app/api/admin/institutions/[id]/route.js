@@ -1,4 +1,5 @@
-import { findInstitution, updateInstitution, deleteInstitution, addCourse, publishChecklist } from '@/lib/institutions-repo.js';
+import { findInstitution, updateInstitution, deleteInstitution, addCourse, publishChecklist,
+  INSTITUTION_ENUMS } from '@/lib/institutions-repo.js';
 import { listAdmissions, pipelineStats } from '@/lib/integrations/admissions.js';
 import { listDocuments } from '@/lib/document-store.js';
 import { listReviews, summariseReviews } from '@/lib/reviews-repo.js';
@@ -29,7 +30,13 @@ export async function GET(request, { params }) {
     documents: listDocuments({ institutionId: institution.id, includeInternal: true }),
     reviews: listReviews({ institutionId: institution.id, includeUnpublished: true }),
     reviewSummary: summariseReviews({ institutionId: institution.id }),
-    checklist: publishChecklist(institution)
+    checklist: publishChecklist(institution),
+    /* The vocabularies the course editor's selects are drawn from. Sent rather
+       than hard-coded in the JSX, so a level added under Dropdowns & lists is
+       offered here without a deploy — and so a course already holding a value
+       the list no longer carries still renders its own value as selected.
+       INSTITUTION_ENUMS is a getter object; spreading it reads the live lists. */
+    enums: { ...INSTITUTION_ENUMS }
   });
 }
 

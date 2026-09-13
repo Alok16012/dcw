@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { api } from '@/lib/admin-client.js';
 import { IconGrid, IconBriefcase, IconUsers, IconSpark, IconOut, IconCheck, IconAlert,
-  IconCampus, IconBoard, IconChat, IconStar } from './icons.jsx';
+  IconCampus, IconBoard, IconChat, IconStar, IconCap, IconSliders } from './icons.jsx';
 import { can } from '@/lib/permissions.js';
 
 const Ctx = createContext(null);
@@ -33,13 +33,21 @@ const NAV = [
   { href: '/admin/boards', label: 'Open school boards', Icon: IconBoard, group: 'Catalogue', cap: 'boards:read' },
   { href: '/admin/reviews', label: 'Reviews', Icon: IconStar, group: 'Catalogue', cap: 'catalogue:write', count: 'reviews' },
   { href: '/admin/jobs', label: 'Jobs', Icon: IconBriefcase, group: 'Manage', cap: 'jobs:read:own', count: 'jobs' },
+  /* Students sits above Candidates deliberately: they are the two halves of the
+     same rail — one admission pipeline, one hiring pipeline — and the education
+     side is the larger of the two. `students` counts files still in the funnel,
+     not everyone ever enrolled, so the badge means "waiting on somebody". */
+  { href: '/admin/students', label: 'Students', Icon: IconCap, group: 'Manage', cap: 'catalogue:read', count: 'students' },
   { href: '/admin/applications', label: 'Candidates', Icon: IconUsers, group: 'Manage', cap: 'applications:read:own', count: 'apps' },
   { href: '/admin/leads', label: 'Counselling leads', Icon: IconSpark, group: 'Manage', cap: 'leads:read:own', count: 'leads' },
-  { href: '/admin/whatsapp', label: 'WhatsApp', Icon: IconChat, group: 'Outreach', cap: 'whatsapp:read' }
+  { href: '/admin/whatsapp', label: 'WhatsApp', Icon: IconChat, group: 'Outreach', cap: 'whatsapp:read' },
+  /* The dropdown vocabularies. Same capability as editing a course, because
+     that is what editing them does. */
+  { href: '/admin/settings', label: 'Dropdowns & lists', Icon: IconSliders, group: 'Settings', cap: 'catalogue:write' }
 ];
 
 /** Rail order. A group with nothing in it for this role is not rendered at all. */
-const GROUPS = ['Manage', 'Catalogue', 'Outreach'];
+const GROUPS = ['Manage', 'Catalogue', 'Outreach', 'Settings'];
 
 export default function AdminShell({ children }) {
   const [session, setSession] = useState(null);
@@ -67,6 +75,9 @@ export default function AdminShell({ children }) {
   const loadCounts = useCallback(() => api('/admin/stats')
     .then(d => setCounts({
       jobs: d.jobs?.active, apps: d.pipeline?.inPipeline, leads: d.leads ?? undefined,
+      // Students still moving through the funnel, not everyone ever enrolled —
+      // the badge is meant to read as "files waiting on somebody".
+      students: d.admissions?.inPipeline,
       // Drafts and pending reviews are queues — things waiting on a person —
       // so they earn a badge where a plain total would not.
       catalogue: d.catalogue?.drafts || undefined,

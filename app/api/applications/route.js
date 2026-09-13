@@ -73,9 +73,53 @@ export async function POST(request) {
     }
   }
 
-  const course = kind === 'course' && institution
-    ? findCourse(institution.id, body.course) : null;
-  const courseName = course?.name ?? (typeof body.course === 'string' && body.course.trim() ? body.course.trim() : null);
+  /**
+   * One application, or several.
+   *
+   * The form used to send a single `course` string because the dialog offered a
+   * single `<select>`. It now offers a multi-select with a "select all", because
+   * somebody comparing BA, B.Com and BBA at the same university is applying to a
+   * university, not to one of three courses, and making them run the OTP three
+   * times to say so was the reason most of them ran it once.
+   *
+   * `course` is still accepted and still means exactly what it meant, so nothing
+   * that posts the old shape — including the admin console and any saved form —
+   * changes behaviour. What comes out the other end is one admission per course,
+   * because that is what the pipeline already models: one file per (institution,
+   * course, phone), each with its own stage and its own fee schedule. Folding
+   * three courses into one row would give a counsellor a file they cannot move,
+   * since the three will not be verified or offered on the same day.
+   *
+   * The cap is the number of live courses at the institution: a request asking
+   * for more than exist is either a mistake or an attempt to fan out the fee
+   * module, and neither deserves the benefit of the doubt.
+   */
+  const asked = Array.isArray(body.courses) && body.courses.length ? body.courses
+    : body.course != null ? [body.course] : [];
+  const live = institution ? institution.courses.filter(c => c.isActive !== false) : [];
+  if (kind === 'course' && institution && asked.length > Math.max(live.length, 1)) {
+    return fail(422, 'TOO_MANY_COURSES',
+      `${institution.name} lists ${live.length} course${live.length === 1 ? '' : 's'}. Pick from those.`);
+  }
+
+  const picked = [];
+  for (const raw of asked) {
+    const row = kind === 'course' && institution ? findCourse(institution.id, raw) : null;
+    const name = row?.name ?? (typeof raw === 'string' && raw.trim() ? raw.trim() : null);
+    if (!name) continue;
+    // Case-insensitively unique: the multi-select cannot produce a duplicate,
+    // but a hand-built request can, and two identical rows would be one
+    // application and one confusing "already applied" toast.
+    if (picked.some(p => p.name.toLowerCase() === name.toLowerCase())) continue;
+    picked.push({ row, name });
+  }
+  // A board application, or an enquiry-shaped post with no course at all, still
+  // files one admission — that has always been allowed and the pipeline handles
+  // a null course.
+  if (!picked.length) picked.push({ row: null, name: null });
+
+  const course = picked[0].row;
+  const courseName = picked.map(p => p.name).filter(Boolean).join(', ') || null;
 
   const { lead, duplicate: leadDuplicate, assignedTo } = upsertLead({
     vertical: body.vertical, name: body.name.trim(), phone: body.phone,
@@ -96,6 +140,8 @@ export async function POST(request) {
   });
 
   let application, fee = null, duplicate = leadDuplicate;
+  /** One entry per course applied to. Empty for a job application. */
+  const filedCourses = [];
 
   if (kind === 'job') {
     const filed = fileJobApplication({
@@ -109,30 +155,46 @@ export async function POST(request) {
       title: job.title, where: job.company?.name ?? null, appliedAt: filed.application.appliedAt,
       resumeUrl: filed.application.resumeUrl };
   } else {
-    const filed = fileAdmission({
-      vertical: body.vertical === 'colleges' ? 'colleges' : 'distance',
-      institutionId: institution?.id ?? body.interestId ?? null,
-      institutionName: institution?.name ?? body.where ?? null,
-      course: courseName, courseFee: course?.totalFee ?? 0,
-      name: body.name.trim(), phone: body.phone, email: body.email, city: body.city,
-      qualification: body.qualification, documentUrl: resume?.url ?? null,
-      leadId: lead.id, counsellor: assignedTo, source: body.source ?? {}
-    });
-    duplicate = duplicate || filed.duplicate;
-    // The schedule is only meaningful once there is a fee to schedule. A board
-    // application, or a course whose fee the catalogue does not carry, gets an
-    // application without a plan rather than a plan full of zeroes.
-    if (course?.totalFee) {
-      const { plan } = createPlan({ applicationId: filed.application.id, phone: body.phone,
-        name: body.name.trim(), institutionId: institution.id, institutionName: institution.name,
-        course: course.name, totalFee: course.totalFee });
-      fee = { planId: plan.id, totalFee: plan.totalFee, instalments: plan.instalments.length,
-        first: plan.instalments[0] ?? null };
+    // One pass per chosen course. Each gets its own admission and its own fee
+    // schedule, for the reason set out where `picked` is built.
+    for (const { row, name } of picked) {
+      const filed = fileAdmission({
+        vertical: body.vertical === 'colleges' ? 'colleges' : 'distance',
+        institutionId: institution?.id ?? body.interestId ?? null,
+        institutionName: institution?.name ?? body.where ?? null,
+        course: name, courseFee: row?.totalFee ?? 0,
+        // The branch travels with the student from here on. See the note on
+        // `branch` in lib/integrations/admissions.js.
+        branch: row?.stream ?? null,
+        name: body.name.trim(), phone: body.phone, email: body.email, city: body.city,
+        qualification: body.qualification, documentUrl: resume?.url ?? null,
+        leadId: lead.id, counsellor: assignedTo, source: body.source ?? {}
+      });
+      duplicate = duplicate || filed.duplicate;
+      // The schedule is only meaningful once there is a fee to schedule. A board
+      // application, or a course whose fee the catalogue does not carry, gets an
+      // application without a plan rather than a plan full of zeroes.
+      let planSummary = null;
+      if (row?.totalFee && !filed.duplicate) {
+        const { plan } = createPlan({ applicationId: filed.application.id, phone: body.phone,
+          name: body.name.trim(), institutionId: institution.id, institutionName: institution.name,
+          course: row.name, totalFee: row.totalFee });
+        planSummary = { planId: plan.id, totalFee: plan.totalFee, instalments: plan.instalments.length,
+          first: plan.instalments[0] ?? null };
+      }
+      filedCourses.push({
+        kind: 'course', id: filed.application.id, status: filed.application.status,
+        title: name ?? institution?.name ?? 'Application',
+        where: institution?.name ?? body.where ?? null, appliedAt: filed.application.appliedAt,
+        resumeUrl: filed.application.documentUrl, branch: filed.application.branch,
+        duplicate: filed.duplicate, fee: planSummary
+      });
+      if (!fee) fee = planSummary;
     }
-    application = { kind: 'course', id: filed.application.id, status: filed.application.status,
-      title: courseName ?? institution?.name ?? 'Application',
-      where: institution?.name ?? body.where ?? null, appliedAt: filed.application.appliedAt,
-      resumeUrl: filed.application.documentUrl };
+    // `application` stays singular and stays first, so every existing reader —
+    // the success screen, the localStorage copy, the WhatsApp template — keeps
+    // working unchanged. `applications` beside it is the whole set.
+    application = { ...filedCourses[0], title: courseName ?? institution?.name ?? 'Application' };
   }
 
   // WhatsApp is a separate opt-in. Confirming an application the person made
@@ -145,7 +207,7 @@ export async function POST(request) {
     : { queued: null };
 
   const res = envelope({
-    application, fee, duplicate,
+    application, applications: filedCourses, fee, duplicate,
     lead: { id: lead.id, crmLeadId: lead.crmLeadId, status: lead.status, assignedTo },
     whatsapp: !!wa.queued
   }, { status: 201 });

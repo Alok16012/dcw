@@ -67,8 +67,13 @@ export default function AddWizard({ enums, onClose, onPublished }) {
   const [google, setGoogle] = useState({ placeId: '', mapsUrl: '', address: '', lat: '', lng: '' });
   const [checklist, setChecklist] = useState(null);
 
+  /* All four lists are editable under Dropdowns & lists; the literals below are
+     only what the wizard falls back to if the catalogue response is older than
+     this file. */
   const levels = enums?.levels ?? ['10th', '12th', 'Diploma', 'UG', 'PG'];
   const modes = enums?.modes ?? ['Online', 'Distance', 'Regular'];
+  const streams = enums?.streams ?? ['General'];
+  const types = enums?.types ?? [];
 
   const setB = (k, v) => {
     setBasics(p => ({ ...p, [k]: v }));
@@ -205,8 +210,11 @@ export default function AddWizard({ enums, onClose, onPublished }) {
                   </select>
                 </Field>
                 <Field error={errors.type} label="Type *" hint="Shown under the name on the card.">
-                  <input value={basics.type} onChange={e => setB('type', e.target.value)}
-                    placeholder="e.g. Private University" />
+                  <select value={basics.type} onChange={e => setB('type', e.target.value)}>
+                    <option value="">Choose a type…</option>
+                    {types.map(t => <option key={t}>{t}</option>)}
+                    {basics.type && !types.includes(basics.type) && <option>{basics.type}</option>}
+                  </select>
                 </Field>
               </div>
               <div className="adm-row">
@@ -267,6 +275,13 @@ export default function AddWizard({ enums, onClose, onPublished }) {
                     </select>
                   </Field>
                 </div>
+                <Field error={errors.stream} label="Stream / branch"
+                  hint="Carried onto every student who applies to this course.">
+                  <select value={course.stream} onChange={e => setCourse(p => ({ ...p, stream: e.target.value }))}>
+                    {streams.map(s => <option key={s}>{s}</option>)}
+                    {course.stream && !streams.includes(course.stream) && <option>{course.stream}</option>}
+                  </select>
+                </Field>
                 <div className="adm-row">
                   <Field error={errors.durationMonths} label="Duration (months)">
                     <input type="number" min="1" value={course.durationMonths}

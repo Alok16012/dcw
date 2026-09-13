@@ -28,6 +28,11 @@ export const IconPin = p => <S {...p}><path d="M10 17.5s5.5-4.9 5.5-9a5.5 5.5 0 
 export const IconUpload = p => <S {...p}><path d="M10 13.5V3.6m0 0L6.6 7M10 3.6 13.4 7"/><path d="M3.5 12.5V15a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-2.5"/></S>;
 export const IconEye = p => <S {...p}><path d="M1.8 10S4.8 4.7 10 4.7 18.2 10 18.2 10 15.2 15.3 10 15.3 1.8 10 1.8 10Z"/><circle cx="10" cy="10" r="2.4"/></S>;
 export const IconSend = p => <S {...p}><path d="M17.3 2.7 8.9 11.1M17.3 2.7l-5.4 14.6-3-6.2-6.2-3 14.6-5.4Z"/></S>;
+/* Students and settings. IconUsers was already spoken for by Candidates, and two
+   sections sharing one glyph in the same rail is how a rail stops being
+   scannable — so students get the cap they are actually studying for. */
+export const IconCap = p => <S {...p}><path d="M10 3.2 18 7l-8 3.8L2 7l8-3.8Z"/><path d="M5.2 8.7v4.4c0 1.5 2.1 2.7 4.8 2.7s4.8-1.2 4.8-2.7V8.7"/><path d="M17.4 7.4v4.3"/></S>;
+export const IconSliders = p => <S {...p}><path d="M3.5 6.2h13M3.5 13.8h13"/><circle cx="7.6" cy="6.2" r="2"/><circle cx="12.9" cy="13.8" r="2"/></S>;
 export const IconStar = ({ filled, ...p }) => (
   <svg viewBox="0 0 20 20" fill={filled ? 'currentColor' : 'none'} stroke="currentColor"
     strokeWidth="1.5" strokeLinejoin="round" aria-hidden="true" {...p}>

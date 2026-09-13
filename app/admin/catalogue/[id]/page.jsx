@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { PageTop, useToast, useRefreshCounts } from '../../AdminShell.jsx';
 import FileField from '../../FileField.jsx';
 import { api, ApiError, fmtDate, fmtWhen } from '@/lib/admin-client.js';
-import { IconAlert, IconCheck, IconTrash, IconPlus, IconShield, IconPin, IconImage, IconStar, IconEye } from '../../icons.jsx';
+import { IconAlert, IconCheck, IconTrash, IconPlus, IconShield, IconPin, IconImage, IconStar, IconEye, IconEdit } from '../../icons.jsx';
 
 /** Hoisted for the same reason it is hoisted in JobForm: a component defined in
  *  the render body remounts its inputs on every keystroke. */
@@ -30,8 +30,116 @@ const TABS = [
 
 const blankCourse = {
   name: '', level: 'UG', stream: 'General', mode: 'Online',
-  durationMonths: 36, totalFee: '', eligibility: '10+2 from a recognised board'
+  durationMonths: 36, totalFee: '', mrpFee: '', seats: '',
+  eligibility: '10+2 from a recognised board', deadline: 'Rolling',
+  examAccepted: '', note: ''
 };
+
+/** The course as the form holds it: every value a string or number an input can
+ *  own, arrays flattened to the comma list the field shows. */
+const draftFromCourse = c => ({
+  name: c.name ?? '', level: c.level ?? 'UG', stream: c.stream ?? 'General',
+  mode: c.mode ?? 'Online', durationMonths: c.durationMonths ?? 12,
+  totalFee: c.totalFee ?? '', mrpFee: c.mrpFee ?? '', seats: c.seats ?? '',
+  eligibility: c.eligibility ?? '', deadline: c.deadline ?? 'Rolling',
+  examAccepted: (c.examAccepted ?? []).join(', '), note: c.note ?? ''
+});
+
+/** …and back, in the shape validateCourse() expects. Blank optional numbers go
+ *  as null rather than 0, because "no seat cap" and "nought seats" are different
+ *  answers and only one of them is true. */
+const coursePayload = d => ({
+  name: String(d.name).trim(), level: d.level, stream: String(d.stream).trim(),
+  mode: d.mode, durationMonths: Number(d.durationMonths) || 12,
+  totalFee: Number(d.totalFee) || 0,
+  mrpFee: d.mrpFee === '' || d.mrpFee == null ? null : Number(d.mrpFee),
+  seats: d.seats === '' || d.seats == null ? null : Number(d.seats),
+  eligibility: String(d.eligibility).trim(),
+  deadline: String(d.deadline).trim() || 'Rolling',
+  examAccepted: String(d.examAccepted).split(',').map(s => s.trim()).filter(Boolean),
+  note: String(d.note).trim() || null
+});
+
+/**
+ * A select drawn from an editable list.
+ *
+ * If the record holds a value the list no longer carries — renamed under
+ * Dropdowns & lists, or seeded before the list existed — that value is offered
+ * too. Otherwise the select renders with nothing selected and the first save
+ * silently rewrites a field nobody touched.
+ */
+function OptionSelect({ value, options, ...rest }) {
+  const list = options ?? [];
+  const all = value && !list.some(o => String(o).toLowerCase() === String(value).toLowerCase())
+    ? [value, ...list] : list;
+  return <select value={value ?? ''} {...rest}>{all.map(o => <option key={o}>{o}</option>)}</select>;
+}
+
+/**
+ * One course, whole.
+ *
+ * This tab used to offer the fee and nothing else, so fixing a typo in a course
+ * name meant retiring the course and adding it again — which loses its id, and
+ * with it every application already filed against it. The same form now backs
+ * both the edit and the add, so a course created here and one edited here
+ * cannot end up in different shapes.
+ */
+function CourseForm({ draft, set, enums, errors, children }) {
+  return (
+    <>
+      <Field error={errors.name} label="Course name">
+        <input value={draft.name} onChange={e => set('name', e.target.value)} placeholder="e.g. BBA" />
+      </Field>
+      <div className="adm-row">
+        <Field error={errors.level} label="Level">
+          <OptionSelect value={draft.level} options={enums.levels} onChange={e => set('level', e.target.value)} />
+        </Field>
+        <Field error={errors.stream} label="Stream / branch" hint="Shown as the branch against every student on this course.">
+          <OptionSelect value={draft.stream} options={enums.streams} onChange={e => set('stream', e.target.value)} />
+        </Field>
+      </div>
+      <div className="adm-row">
+        <Field error={errors.mode} label="Mode">
+          <OptionSelect value={draft.mode} options={enums.modes} onChange={e => set('mode', e.target.value)} />
+        </Field>
+        <Field error={errors.durationMonths} label="Duration (months)">
+          <input type="number" min="1" value={draft.durationMonths}
+            onChange={e => set('durationMonths', e.target.value)} />
+        </Field>
+      </div>
+      <div className="adm-row">
+        <Field error={errors.totalFee} label="Total fee (₹)">
+          <input type="number" min="0" step="500" value={draft.totalFee}
+            onChange={e => set('totalFee', e.target.value)} />
+        </Field>
+        <Field error={errors.mrpFee} label="List fee (₹)"
+          hint="Optional. Struck through on the card; cannot be below the payable fee.">
+          <input type="number" min="0" step="500" value={draft.mrpFee}
+            onChange={e => set('mrpFee', e.target.value)} />
+        </Field>
+      </div>
+      <div className="adm-row">
+        <Field error={errors.seats} label="Seats" hint="Leave blank if there is no cap.">
+          <input type="number" min="0" value={draft.seats} onChange={e => set('seats', e.target.value)} />
+        </Field>
+        <Field label="Applications close">
+          <input value={draft.deadline} onChange={e => set('deadline', e.target.value)} placeholder="Rolling" />
+        </Field>
+      </div>
+      <Field error={errors.eligibility} label="Who can apply">
+        <input value={draft.eligibility} onChange={e => set('eligibility', e.target.value)} />
+      </Field>
+      <Field label="Entrance exams accepted" hint="Comma separated. Blank if there is no entrance test.">
+        <input value={draft.examAccepted} onChange={e => set('examAccepted', e.target.value)}
+          placeholder="CUET, CAT" />
+      </Field>
+      <Field label="Note" hint="Optional. One line, shown under the course on the listing.">
+        <input value={draft.note} onChange={e => set('note', e.target.value)} />
+      </Field>
+      {children}
+    </>
+  );
+}
 const blankApproval = { body: '', grade: '', scope: '', validTill: '', documentId: null, documentName: null };
 const blankProof = { kind: 'Result', title: '', summary: '', year: '', courseName: '', documentId: null, documentName: null };
 
@@ -57,6 +165,11 @@ export default function InstitutionEditor({ params }) {
 
   const [form, setForm] = useState(null);
   const [course, setCourse] = useState(blankCourse);
+  /* Which course row is open for editing, and the draft it is holding. One at a
+     time on purpose: two half-finished course edits on screen is how the wrong
+     one gets saved. */
+  const [editingId, setEditingId] = useState(null);
+  const [draft, setDraft] = useState(null);
   const [approval, setApproval] = useState(blankApproval);
   const [proof, setProof] = useState(blankProof);
   const [google, setGoogle] = useState({ placeId: '', mapsUrl: '', address: '', lat: '', lng: '' });
@@ -110,10 +223,7 @@ export default function InstitutionEditor({ params }) {
   async function addCourse() {
     setBusy(true); setErrors({});
     try {
-      await api(`/admin/institutions/${id}`, {
-        method: 'POST',
-        body: { ...course, totalFee: Number(course.totalFee), durationMonths: Number(course.durationMonths) }
-      });
+      await api(`/admin/institutions/${id}`, { method: 'POST', body: coursePayload(course) });
       setCourse(blankCourse);
       await load();
       toast('Course added.');
@@ -127,16 +237,37 @@ export default function InstitutionEditor({ params }) {
       await api(`/admin/institutions/${id}/courses/${c.id}`, { method: 'PATCH', body });
       await load();
       if (message) toast(message);
-    } catch (e) { handle(e); }
-    setBusy(false);
+      return true;
+    } catch (e) { handle(e); return false; }
+    finally { setBusy(false); }
   }
 
-  async function dropCourse(c) {
+  function startEdit(c) {
+    setErrors({});
+    setEditingId(c.id);
+    setDraft(draftFromCourse(c));
+  }
+
+  async function saveEdit(c) {
+    setErrors({});
+    if (await patchCourse(c, coursePayload(draft), `“${draft.name.trim() || c.name}” saved.`)) {
+      setEditingId(null); setDraft(null);
+    }
+  }
+
+  /**
+   * Retiring a course, or removing one that never ran.
+   *
+   * `hard` is offered only where the row shows no applications against it — a
+   * soft retire keeps the id, and the pipeline needs the id to stay readable.
+   */
+  async function dropCourse(c, hard = false) {
     setBusy(true);
     try {
-      await api(`/admin/institutions/${id}/courses/${c.id}`, { method: 'DELETE' });
+      await api(`/admin/institutions/${id}/courses/${c.id}${hard ? '?hard=true' : ''}`, { method: 'DELETE' });
+      if (editingId === c.id) { setEditingId(null); setDraft(null); }
       await load();
-      toast(`“${c.name}” is no longer offered.`);
+      toast(hard ? `“${c.name}” deleted.` : `“${c.name}” is no longer offered.`);
     } catch (e) { handle(e); }
     setBusy(false);
   }
@@ -232,7 +363,16 @@ export default function InstitutionEditor({ params }) {
   const inst = data.institution;
   const live = (inst.status ?? 'published') === 'published' && inst.isActive !== false;
   const courses = inst.courses.filter(c => c.isActive !== false);
+  const retired = inst.courses.filter(c => c.isActive === false);
   const publicPath = `/${inst.vertical === 'distance' ? 'distance' : 'colleges'}/${inst.slug}`;
+  // The lists the course selects are drawn from, with the old literals as the
+  // fallback for an older response that predates `enums`.
+  const enums = data.enums ?? { levels: ['10th', '12th', 'Diploma', 'UG', 'PG'], streams: ['General'],
+    modes: ['Online', '100% online', 'Distance', 'Open school', 'Regular'],
+    types: [], proofKinds: ['Other'] };
+  // How many students are on each course, so "delete permanently" is only
+  // offered where there is genuinely nothing to lose.
+  const filedAgainst = name => (data.admissions ?? []).filter(a => a.course === name).length;
 
   return (
     <>
@@ -269,8 +409,9 @@ export default function InstitutionEditor({ params }) {
                   <input value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
                 </Field>
                 <div className="adm-row">
-                  <Field error={errors.type} label="Type">
-                    <input value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value }))} />
+                  <Field error={errors.type} label="Type" hint="Add a missing type under Dropdowns & lists.">
+                    <OptionSelect value={form.type} options={enums.types}
+                      onChange={e => setForm(p => ({ ...p, type: e.target.value }))} />
                   </Field>
                   <Field error={errors.established} label="Established">
                     <input type="number" min="1800" max="2100" value={form.established}
@@ -309,55 +450,84 @@ export default function InstitutionEditor({ params }) {
                 )}
                 <div className="adm-minilist">
                   {courses.map(c => (
-                    <div key={c.id} className="adm-minirow">
-                      <div>
-                        <b>{c.name}</b>
-                        <small>{c.level} · {c.mode} · {c.durationMonths} months · {c.eligibility}</small>
+                    <div key={c.id}>
+                      <div className="adm-minirow">
+                        <div>
+                          <b>{c.name}</b>
+                          <small>
+                            {[c.level, c.stream, c.mode, `${c.durationMonths} months`, money(c.totalFee)]
+                              .filter(Boolean).join(' · ')}
+                            {filedAgainst(c.name) > 0 && ` · ${filedAgainst(c.name)} student${filedAgainst(c.name) === 1 ? '' : 's'}`}
+                          </small>
+                        </div>
+                        <button type="button" className="adm-btn sm"
+                          onClick={() => (editingId === c.id ? (setEditingId(null), setDraft(null)) : startEdit(c))}
+                          disabled={busy} aria-expanded={editingId === c.id}>
+                          <IconEdit />{editingId === c.id ? 'Close' : 'Edit'}
+                        </button>
+                        <button type="button" className="adm-btn sm ghost" onClick={() => dropCourse(c)}
+                          disabled={busy} aria-label={`Stop offering ${c.name}`} title="Stop offering this course">
+                          <IconTrash />
+                        </button>
                       </div>
-                      <label className="adm-inline-fee">
-                        <span>Fee</span>
-                        <input type="number" min="0" step="500" defaultValue={c.totalFee}
-                          onBlur={e => Number(e.target.value) !== c.totalFee
-                            && patchCourse(c, { totalFee: Number(e.target.value) }, `${c.name} fee updated.`)}
-                          aria-label={`Total fee for ${c.name}`} />
-                      </label>
-                      <button type="button" className="adm-btn sm ghost" onClick={() => dropCourse(c)}
-                        disabled={busy} aria-label={`Stop offering ${c.name}`}><IconTrash /></button>
+                      {editingId === c.id && draft && (
+                        <div className="adm-course-edit">
+                          <CourseForm draft={draft} enums={enums} errors={errors}
+                            set={(k, v) => setDraft(p => ({ ...p, [k]: v }))}>
+                            <div className="adm-course-actions">
+                              <button className="adm-btn pri" onClick={() => saveEdit(c)}
+                                disabled={busy || !draft.name.trim()}>{busy ? 'Saving…' : 'Save course'}</button>
+                              <button className="adm-btn" onClick={() => { setEditingId(null); setDraft(null); setErrors({}); }}
+                                disabled={busy}>Cancel</button>
+                              <span className="adm-course-hint">
+                                Fee schedules already issued keep the figures the student agreed to.
+                              </span>
+                            </div>
+                          </CourseForm>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
 
-                <details className="adm-more" style={{ marginTop: 16 }}>
+                {retired.length > 0 && (
+                  <details className="adm-more" style={{ marginTop: 16 }}>
+                    <summary>Retired courses ({retired.length})</summary>
+                    <p className="adm-more-note" style={{ marginTop: 0 }}>
+                      Off the public site, but still readable by every application filed against them.
+                      Deleting one permanently is offered only where no student is on it.
+                    </p>
+                    <div className="adm-minilist">
+                      {retired.map(c => (
+                        <div key={c.id} className="adm-minirow">
+                          <div>
+                            <b>{c.name}</b>
+                            <small>{[c.level, c.stream, c.mode].filter(Boolean).join(' · ')} · {filedAgainst(c.name)} student(s)</small>
+                          </div>
+                          <button type="button" className="adm-btn sm" disabled={busy}
+                            onClick={() => patchCourse(c, { isActive: true }, `“${c.name}” is being offered again.`)}>
+                            Restore
+                          </button>
+                          {filedAgainst(c.name) === 0 && (
+                            <button type="button" className="adm-btn sm danger" disabled={busy}
+                              onClick={() => dropCourse(c, true)} aria-label={`Delete ${c.name} permanently`}>
+                              <IconTrash />Delete
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                )}
+
+                <details className="adm-more" style={{ marginTop: 16 }} open={courses.length === 0}>
                   <summary>Add another course</summary>
-                  <Field error={errors.name} label="Course name">
-                    <input value={course.name} onChange={e => setCourse(p => ({ ...p, name: e.target.value }))} placeholder="e.g. BBA" />
-                  </Field>
-                  <div className="adm-row">
-                    <Field error={errors.level} label="Level">
-                      <select value={course.level} onChange={e => setCourse(p => ({ ...p, level: e.target.value }))}>
-                        {['10th', '12th', 'Diploma', 'UG', 'PG'].map(l => <option key={l}>{l}</option>)}
-                      </select>
-                    </Field>
-                    <Field error={errors.mode} label="Mode">
-                      <select value={course.mode} onChange={e => setCourse(p => ({ ...p, mode: e.target.value }))}>
-                        {['Online', '100% online', 'Distance', 'Open school', 'Regular'].map(m => <option key={m}>{m}</option>)}
-                      </select>
-                    </Field>
-                  </div>
-                  <div className="adm-row">
-                    <Field error={errors.durationMonths} label="Duration (months)">
-                      <input type="number" min="1" value={course.durationMonths}
-                        onChange={e => setCourse(p => ({ ...p, durationMonths: e.target.value }))} />
-                    </Field>
-                    <Field error={errors.totalFee} label="Total fee (₹)">
-                      <input type="number" min="0" step="500" value={course.totalFee}
-                        onChange={e => setCourse(p => ({ ...p, totalFee: e.target.value }))} />
-                    </Field>
-                  </div>
-                  <Field error={errors.eligibility} label="Who can apply">
-                    <input value={course.eligibility} onChange={e => setCourse(p => ({ ...p, eligibility: e.target.value }))} />
-                  </Field>
-                  <button className="adm-btn" onClick={addCourse} disabled={busy || !course.name.trim()}><IconPlus />Add course</button>
+                  <CourseForm draft={course} enums={enums} errors={editingId ? {} : errors}
+                    set={(k, v) => setCourse(p => ({ ...p, [k]: v }))}>
+                    <button className="adm-btn" onClick={addCourse} disabled={busy || !course.name.trim()}>
+                      <IconPlus />Add course
+                    </button>
+                  </CourseForm>
                 </details>
               </>
             )}
@@ -447,9 +617,8 @@ export default function InstitutionEditor({ params }) {
                   <summary>Add evidence</summary>
                   <div className="adm-row">
                     <Field error={errors.kind} label="What is it">
-                      <select value={proof.kind} onChange={e => setProof(p => ({ ...p, kind: e.target.value }))}>
-                        {['Result', 'Placement', 'Admission letter', 'Certificate', 'Event', 'Press', 'Other'].map(k => <option key={k}>{k}</option>)}
-                      </select>
+                      <OptionSelect value={proof.kind} options={enums.proofKinds}
+                        onChange={e => setProof(p => ({ ...p, kind: e.target.value }))} />
                     </Field>
                     <Field label="Year">
                       <input type="number" min="1900" max="2100" value={proof.year}

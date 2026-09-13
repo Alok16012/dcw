@@ -1337,6 +1337,21 @@
 .app .lead-modal label.resume-option small{display:block;margin-top:2px;
   font-size:var(--fs-050);color:var(--ink-4)}
 
+/* ---- picking more than one course in the same application -----------------
+   Reuses .resume-option for the rows: the two lists do the same job — a set of
+   equally weighted choices with a tick — and shipping a second look for that
+   would only make the modal feel assembled from parts. */
+.app .lead-modal .course-pick{margin-top:var(--s-4);margin-bottom:var(--s-4)}
+.app .lead-modal .cp-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--s-3)}
+.app .lead-modal .cp-head .field-legend{margin:0}
+.app .lead-modal .cp-head .text-btn{flex:none;font-size:var(--fs-100)}
+/* Six courses is common and twenty is not unheard of; the list scrolls so the
+   name and number fields stay reachable without a long scroll past it. */
+.app .lead-modal .cp-list{max-height:236px;overflow-y:auto;margin-top:var(--s-2);
+  padding-right:2px;overscroll-behavior:contain}
+.app .lead-modal .cp-list label.resume-option{min-height:48px;padding:10px 14px}
+.app .lead-modal .cp-note{margin:var(--s-2) 0 0;font-size:var(--fs-050);color:var(--ink-4)}
+
 .app .lead-modal .resume-picked{display:flex;align-items:center;gap:var(--s-3);
   margin-top:var(--s-4);padding:12px 8px 12px 14px;
   border:1px solid var(--ok);border-radius:var(--r-2);background:var(--ok-wash)}
