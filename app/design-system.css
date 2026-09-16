@@ -4908,8 +4908,13 @@ body{overflow-x:visible;overflow-y:visible}
    the same photograph height: the four-step ladder tightens its gap so both
    verticals end level with the bottom of the picture instead of one of them
    leaving a 90px shelf of empty wash. */
+/* stretch, not center. A fixed photograph height left the four-step ladder
+   160px shorter than the picture beside it and centred the difference as two
+   bands of empty wash. The picture takes whatever height the steps come to
+   instead, with a floor for the three-step verticals, so both columns end on
+   the same line whichever vertical is rendering. */
 .app .proc-split{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr);
-  gap:var(--s-6) var(--s-7);align-items:center}
+  gap:var(--s-6) var(--s-7);align-items:stretch}
 .app .proc-grid{list-style:none;margin:0;padding:0;display:grid;gap:var(--s-3)}
 .app .proc-grid.steps-4{gap:var(--s-2)}
 /* The rung. A hairline on each step but the last draws the ladder without a
@@ -4938,9 +4943,9 @@ body{overflow-x:visible;overflow-y:visible}
 /* The photograph. Its height is declared rather than left to the asset so the
    box is reserved before the file lands — the band sits mid-page and a picture
    that arrives late must not shove the FAQ down under somebody's cursor. */
-.app .proc-photo{position:relative;margin:0}
-.app .proc-photo img{display:block;width:100%;height:clamp(320px,38vw,470px);
-  object-fit:cover;border-radius:var(--r-5);border:1px solid var(--line)}
+.app .proc-photo{position:relative;margin:0;height:100%}
+.app .proc-photo img{display:block;width:100%;height:100%;min-height:clamp(300px,30vw,380px);
+  object-fit:cover;object-position:center 30%;border-radius:var(--r-5);border:1px solid var(--line)}
 /* The reference's floating pill, with a claim we can stand behind in it. It
    overhangs the bottom-left corner so the photograph is read as a photograph
    and not as a card with a caption. */
@@ -4960,8 +4965,8 @@ body{overflow-x:visible;overflow-y:visible}
      process is a picture nobody reaches; above them it is the thing that makes
      the paragraphs look worth starting. */
   .app .proc-split{grid-template-columns:1fr;gap:var(--s-5)}
-  .app .proc-photo{order:-1}
-  .app .proc-photo img{height:clamp(230px,40vw,300px);border-radius:var(--r-4)}
+  .app .proc-photo{order:-1;height:auto}
+  .app .proc-photo img{height:clamp(230px,40vw,300px);min-height:0;border-radius:var(--r-4)}
 }
 @media(max-width:560px){
   .app .proc-step{padding:var(--s-3) 0 var(--s-3)}
