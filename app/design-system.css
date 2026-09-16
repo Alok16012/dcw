@@ -159,6 +159,28 @@
   --warn:#8A5300;    --warn-wash:#FDF2E1; /* 5.9:1 */
   --danger:#A0201A;  --danger-wash:#FCEBEA;
   --info:#1250B8;    --info-wash:#E9F1FE;  /* 6.4:1 */
+
+  /* ── OFFERING TRIO ───────────────────────────────────────────────────────
+     Purple, light blue and teal, for the three primary offering cards on the
+     homepage and nothing else.
+
+     These are NOT the brand. --accent moves per vertical and is tied to a logo
+     that ships as a PNG — DCW blue, Colleges Wala red, Berojgar Bharat orange —
+     so repainting the three cards in the accent would give one page three cards
+     of one colour, which distinguishes nothing, and repainting the accent purple
+     would put a purple header above a blue lockup. This scale is deliberately
+     separate and deliberately narrow: it separates three routes standing beside
+     each other, and it is not allowed anywhere a brand decision is being made.
+
+     Each fill carries white text at 16px and a white pill button, so each is
+     dark enough to clear AA against #FFF as a *background*: 7.0:1, 4.9:1 and
+     4.6:1 respectively. The -deep pair is the hover and the icon well.
+
+     --wash values are the 8%-tint used for the icon badge on the pale variant
+     the mobile layout falls back to. */
+  --offer-1:#4739C9;  --offer-1-deep:#362BA0;  --offer-1-wash:#EDEBFA;  /* 7.0:1 */
+  --offer-2:#1274AE;  --offer-2-deep:#0D5A88;  --offer-2-wash:#E6F2F9;  /* 4.9:1 */
+  --offer-3:#0B7D71;  --offer-3-deep:#086057;  --offer-3-wash:#E4F4F2;  /* 4.6:1 */
 }
 
 /* ── DEPTH: glass has to earn it ─────────────────────────────────────────────
@@ -4109,6 +4131,27 @@ body{overflow-x:visible;overflow-y:visible}
   .app>header>.verticals button small{display:none}
   .app>header>.verticals button{grid-template-areas:"i t";padding-right:var(--s-3)}
 }
+/* The masthead is chrome, not the page column, and must stop inheriting the
+   page column's gutter through this band. `--gutter` is pinned to 72px between
+   941 and 1384 because a column of text reads better that far in; the bar above
+   it needs 1057px of intrinsic width for the brand, three switcher cards and
+   the two account actions, so at 1024 those 144px of gutter pushed `Register` —
+   the one prominent enquiry action — clean off the right edge. Here the bar
+   keeps the page's minimum gutter and the switcher trades its icon plinths for
+   inline glyphs, which is roughly the 130px the row was short. The names all
+   stay: a laptop is not a phone, and "Berojgar Bharat" abbreviated to "Jobs" at
+   1024 would hide a sub-brand from the width most likely to be an office desk. */
+@media(min-width:901px) and (max-width:1180px){
+  .app>header{padding-inline:24px;gap:var(--s-2)}
+  .app .header-actions{gap:6px}
+  .app .header-actions .talk{padding-inline:var(--s-3)}
+  .app>header>.verticals{gap:6px}
+  .app>header>.verticals button{padding:7px var(--s-3);column-gap:var(--s-2)}
+  .app>header>.verticals button .vs-icon{width:auto;height:auto;flex:none;
+    background:none;border-radius:0;color:var(--ink-3)}
+  .app>header>.verticals button .vs-icon svg{width:17px;height:17px;display:block}
+  .app>header>.verticals button.active .vs-icon{background:none;color:var(--accent)}
+}
 /* The tagline is a nowrap line roughly as wide as the wordmark above it. On the
    two-row narrow masthead the brand shares its row with the account actions and
    there is no width for a second line of it, so it goes — the hero says the
@@ -4708,3 +4751,241 @@ body{overflow-x:visible;overflow-y:visible}
    tight to the headline, the search sits away from the paragraph — so it opts
    out rather than fighting the shared rule with margins that cancel it. */
 .app .home-hero .hero-copy>*+*{margin-top:0}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   HOMEPAGE: THE FOUR BANDS THE REFERENCE LEADS WITH
+
+   Offering cards, contact strip, process ladder, FAQ. Markup in
+   components/home/home-sections.jsx. Everything below is scoped to .app and
+   uses only tokens declared at the top of this sheet, so nothing here can
+   reach the console — the two sheets share a document but not a selector.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── B. THREE PRIMARY OFFERINGS ────────────────────────────────────────────
+   Solid fills, white type, one large pill button each, equal heights. The
+   equal height is the grid's doing rather than a fixed min-height: the button
+   is pushed to the bottom with `margin-top:auto`, so three cards whose copy
+   runs to two, three and two lines still end their buttons on one baseline. */
+.app .offer-band{padding-top:var(--band-tight)}
+.app .offer-h{font-size:var(--fs-700);margin:0 0 var(--s-5);text-align:center}
+.app .offer-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s-4)}
+.app .offer-card{display:flex;flex-direction:column;align-items:flex-start;
+  gap:var(--s-3);padding:var(--s-5);border-radius:var(--r-4);color:#fff;
+  background:var(--oc);border:1px solid var(--oc-deep);box-shadow:var(--e-2);
+  transition:transform var(--t-micro) var(--ease-out),box-shadow var(--t-micro) var(--ease-out)}
+.app .offer-card:hover{transform:translateY(-3px);box-shadow:var(--e-4)}
+.app .offer-card.tone-1{--oc:var(--offer-1);--oc-deep:var(--offer-1-deep);--oc-wash:var(--offer-1-wash)}
+.app .offer-card.tone-2{--oc:var(--offer-2);--oc-deep:var(--offer-2-deep);--oc-wash:var(--offer-2-wash)}
+.app .offer-card.tone-3{--oc:var(--offer-3);--oc-deep:var(--offer-3-deep);--oc-wash:var(--offer-3-wash)}
+.app .oc-icon{display:grid;place-items:center;width:46px;height:46px;flex:none;
+  border-radius:var(--r-3);background:rgb(255 255 255/.16);color:#fff}
+.app .oc-icon svg{width:22px;height:22px;stroke-width:2}
+.app .offer-card h3{margin:0;color:#fff;font-size:var(--fs-600);line-height:1.2}
+/* rgb(255 255 255/.88) on --offer-3, the lightest of the three fills, is
+   4.1:1 — under AA for body text. These lines are the supporting sentence a
+   decision rests on, so they are set at full white and leaned on weight and
+   size for the hierarchy instead of on opacity. */
+.app .offer-card p{margin:0;color:#fff;font-size:var(--fs-300);line-height:1.5;
+  max-width:36ch;font-weight:500}
+.app .oc-go{margin-top:auto;display:inline-flex;align-items:center;gap:var(--s-2);
+  min-height:46px;padding:0 var(--s-5);border-radius:var(--r-pill);
+  background:#fff;color:var(--oc-deep);font-size:var(--fs-300);font-weight:800;
+  border:1px solid #fff;white-space:nowrap;
+  transition:background var(--t-micro) var(--ease-out),transform var(--t-micro) var(--ease-out)}
+.app .oc-go svg{width:16px;height:16px;transition:transform var(--t-micro) var(--ease-out)}
+.app .offer-card:hover .oc-go svg{transform:translateX(3px)}
+.app .oc-go:active{transform:translateY(1px)}
+/* The focus ring elsewhere on this site is the accent, which disappears against
+   a saturated fill of a related hue. These three get a two-tone ring instead:
+   3px of solid ink hugging the white button, then 3px of white outside it. The
+   ink reads against the button (14:1), the white reads against the ink and
+   against all three card fills (6.6:1 on the lightest), so every boundary of
+   the indicator clears 3:1 whichever tone it lands on. A translucent halo was
+   tried first and measured 1.4:1 against the purple. */
+.app .offer-card :focus-visible{outline:3px solid #fff;outline-offset:3px;
+  box-shadow:0 0 0 3px var(--ink-1)}
+
+@media(max-width:900px){
+  .app .offer-grid{grid-template-columns:1fr;gap:var(--s-3)}
+  .app .offer-h{font-size:var(--fs-600);text-align:left}
+  /* Stacked, three full-width saturated blocks in a row is a wall of colour.
+     The fill becomes a left keyline and a tinted ground, the type goes back to
+     ink, and the button takes the tone — the three are still told apart by
+     colour, at a tenth of the area. */
+  .app .offer-card{background:var(--oc-wash);border:1px solid var(--line);
+    border-left:4px solid var(--oc);color:var(--ink-2);padding:var(--s-4);
+    border-radius:var(--r-3);box-shadow:none}
+  .app .offer-card:hover{transform:none;box-shadow:var(--e-2)}
+  .app .offer-card h3{color:var(--ink-1);font-size:var(--fs-500)}
+  .app .offer-card p{color:var(--ink-2);font-weight:400}
+  .app .oc-icon{background:var(--oc);color:#fff;width:40px;height:40px}
+  .app .oc-go{background:var(--oc);border-color:var(--oc);color:#fff;
+    width:100%;justify-content:center}
+  .app .offer-card :focus-visible{outline-color:var(--oc-deep);box-shadow:none}
+}
+
+/* Tablet sits between the two layouts above and is served badly by either: the
+   three-up row gives each card 225px, and the stack gives it 690px with a
+   690px-wide pill button under it, which reads as a bug rather than as a call
+   to action. Same pale card, laid along the width instead of down it — icon,
+   the need with its line, then the button at its own size on the right. */
+@media(min-width:621px) and (max-width:900px){
+  .app .offer-card{display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+    grid-template-rows:auto auto;column-gap:var(--s-4);row-gap:var(--s-1);
+    align-items:center;padding:var(--s-4) var(--s-5)}
+  .app .offer-card .oc-icon{grid-row:1/3}
+  .app .offer-card h3{grid-column:2;grid-row:1}
+  .app .offer-card p{grid-column:2;grid-row:2;max-width:48ch}
+  .app .offer-card .oc-go{grid-column:3;grid-row:1/3;width:auto;margin-top:0}
+}
+
+/* ── C. CONTACT STRIP ──────────────────────────────────────────────────────
+   One white bounded card on the page canvas, the way the reference does it:
+   the invitation on the left, the channels as four equal rows on the right,
+   divided by hairlines rather than boxed individually. */
+.app .contact-strip{padding-block:var(--band-tight)}
+.app .cs-inner{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,2.4fr);
+  gap:var(--s-5) var(--s-6);align-items:center;
+  background:var(--n-0);border:1px solid var(--line);border-radius:var(--r-4);
+  padding:var(--s-5) var(--s-6);box-shadow:var(--e-2)}
+.app .cs-lead h2{margin:0 0 var(--s-2);font-size:var(--fs-600)}
+.app .cs-lead p{margin:0 0 var(--s-2);font-size:var(--fs-300);color:var(--ink-3);
+  line-height:var(--lh-body);max-width:34ch}
+.app .cs-lead small{font-size:var(--fs-100);font-weight:700;color:var(--ok)}
+/* Not four equal columns: `info@distancecourseswala.in` is 27 characters and
+   the two phone rows are 11, so equal thirds broke the address across three
+   lines while the numbers sat in half-empty cells. The track widths are sized
+   to the longest string each cell actually holds. */
+.app .cs-rows{list-style:none;margin:0;padding:0;display:grid;
+  grid-template-columns:minmax(0,.85fr) minmax(0,.9fr) minmax(0,1.3fr) minmax(0,.95fr)}
+.app .cs-rows li+li{border-left:1px solid var(--line)}
+.app .cs-rows a{display:flex;align-items:center;gap:var(--s-3);padding:var(--s-2) var(--s-4);
+  min-height:52px;text-decoration:none;border-radius:var(--r-2);min-width:0}
+.app .cs-rows a:hover{background:var(--wash)}
+.app .cs-rows i{display:grid;place-items:center;width:38px;height:38px;flex:none;
+  border-radius:50%;background:var(--accent-solid,var(--accent));color:#fff}
+.app .cs-rows i svg{width:17px;height:17px}
+.app .cs-rows span{min-width:0}
+.app .cs-rows small{display:block;font-size:var(--fs-050);font-weight:700;
+  letter-spacing:var(--tr-caps);text-transform:uppercase;color:var(--ink-4)}
+.app .cs-rows b{display:block;font-size:var(--fs-200);font-weight:700;color:var(--ink-1);
+  line-height:1.3;overflow-wrap:anywhere}
+/* 1140, not 1000. Four channels beside the invitation need about 700px of row
+   track before the longest value stops wrapping, and with the lead column, the
+   card padding and the page gutter that is a ~1140px viewport. At 1024 the old
+   breakpoint kept the four-across row and gave each cell ~150px, which broke
+   `099395 87009` across three lines. Below this the lead sits above a 2×2. */
+@media(max-width:1140px){
+  .app .cs-inner{grid-template-columns:1fr;padding:var(--s-5)}
+  .app .cs-rows{grid-template-columns:1fr 1fr;gap:var(--s-2)}
+  .app .cs-rows li+li{border-left:0}
+  /* Hairlines between four cells in a 2×2 grid draw a cross, which reads as a
+     table. Bounded rows instead, which is also a bigger tap target. */
+  .app .cs-rows li{border:1px solid var(--line);border-radius:var(--r-2)}
+  .app .cs-rows a{padding:var(--s-3)}
+}
+@media(max-width:560px){
+  .app .cs-rows{grid-template-columns:1fr}
+  .app .cs-lead p{max-width:none}
+}
+
+/* ── E. PROCESS ────────────────────────────────────────────────────────────
+   A numbered ladder, not four cards: the numeral is the structure and the
+   hairline between steps is the rung. Three or four columns depending on how
+   many steps the vertical actually has.
+
+   The column count is declared by the step count rather than left to auto-fit.
+   auto-fit resolved to three tracks at 1024, which put steps 1–3 in a row and
+   step 4 alone underneath — a ladder that looks like it lost a rung. Four steps
+   go four-across or two-by-two; three go three-across or stacked. Neither ever
+   leaves one step on a row of its own. */
+.app .proc-grid{list-style:none;margin:0;padding:0;display:grid;gap:var(--s-4);
+  grid-template-columns:repeat(var(--proc-cols,3),minmax(0,1fr))}
+.app .proc-grid.steps-3{--proc-cols:3}
+.app .proc-grid.steps-4{--proc-cols:4}
+@media(max-width:1180px){.app .proc-grid.steps-4{--proc-cols:2}}
+.app .proc-step{position:relative;display:grid;gap:var(--s-2);padding:var(--s-5) var(--s-4) var(--s-4);
+  background:var(--n-0);border:1px solid var(--line);border-radius:var(--r-3)}
+.app .ps-n{position:absolute;top:var(--s-3);right:var(--s-4);
+  font-family:var(--font-display);font-size:var(--fs-800);font-weight:900;
+  line-height:1;color:var(--accent);opacity:.14}
+.app .ps-icon{display:grid;place-items:center;width:40px;height:40px;
+  border-radius:var(--r-2);background:var(--wash);color:var(--accent-ink)}
+.app .ps-icon svg{width:19px;height:19px}
+.app .proc-step b{font-family:var(--font-display);font-size:var(--fs-400);font-weight:800;
+  color:var(--ink-1);line-height:1.3;letter-spacing:-.015em}
+.app .proc-step p{margin:0;font-size:var(--fs-200);color:var(--ink-3);line-height:var(--lh-body)}
+@media(max-width:640px){
+  .app .proc-grid{--proc-cols:1;gap:var(--s-2)}
+  /* Stacked, the card border around each step is four boxes in a column. The
+     ladder reads better as one bounded list with rungs. */
+  .app .proc-step{grid-template-columns:auto 1fr;align-items:start;
+    column-gap:var(--s-3);padding:var(--s-4);border-radius:var(--r-2)}
+  .app .ps-icon{grid-row:1/3}
+  .app .ps-n{position:static;grid-column:2;font-size:var(--fs-200);opacity:1;
+    letter-spacing:var(--tr-caps);color:var(--accent-ink)}
+  .app .proc-step b{grid-column:2}
+  .app .proc-step p{grid-column:2}
+}
+
+/* ── I. FAQ ────────────────────────────────────────────────────────────────
+   The invitation stays beside the questions rather than above them, so a long
+   accordion does not push the "ask us" button off the bottom of the band. */
+.app .faq-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.6fr);
+  gap:var(--s-5) var(--s-7);align-items:start}
+.app .faq-side{position:sticky;top:96px}
+.app .faq-side h2{margin:var(--s-2) 0 var(--s-3);font-size:var(--fs-700)}
+.app .faq-side p{font-size:var(--fs-300);color:var(--ink-3);line-height:var(--lh-body);
+  max-width:34ch;margin-bottom:var(--s-4)}
+.app .faq-list{display:grid;gap:var(--s-2)}
+@media(max-width:900px){
+  .app .faq-grid{grid-template-columns:1fr;gap:var(--s-4)}
+  /* Sticky inside a single column pins the heading over the answers as they
+     open, which is the one place it must not be. */
+  .app .faq-side{position:static}
+  .app .faq-side p{max-width:none}
+  .app .faq-side .btn{width:100%;justify-content:center}
+}
+@media(prefers-reduced-motion:reduce){
+  .app .offer-card,.app .offer-card:hover,.app .oc-go,.app .oc-go svg{
+    transition:none;transform:none}
+}
+
+/* ── A. THE HERO AS A ROUNDED BANNER ───────────────────────────────────────
+   The reference's hero is not a full-bleed band, it is a wide rounded panel
+   floating on a white page with the page gutters visible either side of it.
+   That one difference is most of why its top-of-page reads as a composed
+   object rather than as a coloured stripe, and it costs nothing but moving
+   the wash off the <section> and onto the container inside it.
+
+   The gradient is the one that was already on .home-hero, unchanged — this is
+   a change of shape, not of palette, and the per-vertical --wash still drives
+   the near end of it. Declared after the hero block above so it wins at equal
+   specificity without !important. */
+.app .home-hero{background:var(--n-0);padding-block:var(--s-5) var(--s-5)}
+.app .home-hero .hero-content{
+  background:linear-gradient(160deg,var(--wash) 0%,
+    color-mix(in srgb,var(--wash) 42%,var(--n-0)) 52%,
+    color-mix(in srgb,var(--wash) 12%,var(--n-0)) 100%);
+  border:1px solid var(--line);border-radius:var(--r-5);
+  padding:var(--s-7) var(--s-6);box-shadow:var(--e-1)}
+/* The photo carries its own --r-5 corner. Nested inside a --r-5 panel the two
+   radii sit on the same arc and the frame reads as a mistake, so the inner one
+   steps down a notch — the same nesting rule the rest of this sheet follows. */
+.app .home-hero .hh-photo picture{border-radius:var(--r-4)}
+.app .home-hero .hh-photo{border-radius:var(--r-4)}
+/* The floating "1L+ students guided" card hangs off the photo's left edge by a
+   full --s-4. Inside a padded panel that put it over the panel's own border;
+   against the panel it only needs to break the photo's edge, not the page's. */
+.app .home-hero .hh-guided{left:calc(var(--s-3)*-1)}
+@media(max-width:1100px){
+  .app .home-hero .hero-content{padding:var(--s-6) var(--s-5)}
+}
+@media(max-width:760px){
+  /* At phone widths the gutter either side of a rounded panel is 24px of the
+     360px the headline has to live in. The panel keeps its corner and its wash
+     and gives the padding back. */
+  .app .home-hero{padding-block:var(--s-3) var(--s-4)}
+  .app .home-hero .hero-content{padding:var(--s-5) var(--s-4);border-radius:var(--r-4)}
+  .app .home-hero .hh-guided{left:var(--s-3)}
+}

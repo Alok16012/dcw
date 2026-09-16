@@ -1,5 +1,5 @@
 'use client';
-import {useState} from 'react';
+import {useId,useState} from 'react';
 import {ArrowRight,ChevronDown} from 'lucide-react';
 
 /* Layout furniture with no domain knowledge: a section heading, the one hero
@@ -35,4 +35,21 @@ export function PageHero({kicker,title,lead,photo,alt='',pills,children,tone='ca
   </section>;
 }
 
-export function Accordion({title,children}){const [open,setOpen]=useState(false);return <div className="accordion"><button aria-expanded={open} onClick={()=>setOpen(!open)}><b>{title}</b><ChevronDown className={open?'rotate':''}/></button>{open&&<p>{children}</p>}</div>}
+/* aria-expanded alone tells a screen reader the control is open; it does not
+   tell it what opened. useId ties the panel to its button so the answer is
+   announced as this question's answer, and the panel keeps a role of region so
+   it can be navigated to directly rather than only stumbled into by arrowing
+   past the heading. The panel is unmounted rather than hidden when closed —
+   collapsed text that is still in the tree is text a screen reader reads out
+   for a question nobody opened. */
+export function Accordion({title,children}){
+  const [open,setOpen]=useState(false);
+  const id=useId();
+  return <div className={`accordion${open?' is-open':''}`}>
+    <button type="button" aria-expanded={open} aria-controls={`${id}-p`} id={`${id}-b`}
+      onClick={()=>setOpen(!open)}>
+      <b>{title}</b><ChevronDown className={open?'rotate':''} aria-hidden="true"/>
+    </button>
+    {open&&<p id={`${id}-p`} role="region" aria-labelledby={`${id}-b`}>{children}</p>}
+  </div>;
+}

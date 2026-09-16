@@ -19,6 +19,7 @@ import {CONTACT,officePlaceUrl,officeDirectionsUrl,officeEmbedUrl} from '@/lib/c
 import {ReviewMarquee} from '@/components/editorial/review-marquee.jsx';
 import {Credentials} from '@/components/editorial/credentials.jsx';
 import {PathCard,EntityCard} from '@/components/discovery/entity-card.jsx';
+import {OfferCards,ContactStrip,ProcessSteps,HomeFaq} from '@/components/home/home-sections.jsx';
 /* One of these renders per URL, so each ships as its own chunk rather than
    riding along in the shell every visitor downloads. Server rendering stays on:
    /about, /blog and /reviews are the pages a stranger reads before deciding
@@ -441,7 +442,16 @@ function HomePage(ctx){const {vertical,go,catalog}=ctx;const pool=catalog.rows;
   const noun=vertical==='jobs'?'roles':vertical==='colleges'?'colleges':'universities';
   const rail=useRef(null);
   return <main id="main" tabIndex={-1}><Hero {...ctx}/>
+  {/* The reference's opening sequence, in its order: the banner, then the three
+      things a visitor came to do, then how to reach a human, then the reasons to
+      believe us. Each card below opens a route that already existed — this band
+      is a better-signposted front door onto the same site, not a new one. */}
+  <OfferCards vertical={vertical} go={go}/>
+  <ContactStrip vertical={vertical}/>
   <section className="trust-strip"><div className="container"><span><ShieldCheck/>Data checked by our research team</span><span><Users/>{catalog.state==='ready'?`${pool.length} ${noun} on record`:catalog.state==='error'?'Catalogue unavailable':'Catalogue loading'}</span><span><Clock3/>Updated every admission cycle</span></div></section>
+  {/* What happens after the enquiry, before the catalogue that provokes it.
+      Somebody deciding whether to call wants to know what calling starts. */}
+  <ProcessSteps vertical={vertical}/>
   {/* The six doors of the reference, as one compact strip rather than six tall
       cards. A category is a turning, not a destination, so it gets one line of
       explanation and a chevron — the height goes to the listing it opens. */}
@@ -467,6 +477,10 @@ function HomePage(ctx){const {vertical,go,catalog}=ctx;const pool=catalog.rows;
       and renders nothing at all until /api/reviews has rows, so a cold
       catalogue shows one less section instead of an empty promotional band. */}
   {vertical==='distance'&&<ReviewMarquee go={go}/>}
+  {/* Last objections, then the ask. An FAQ placed above the closing enquiry band
+      is the one place on the page where answering a question converts directly
+      into the next click. */}
+  <HomeFaq vertical={vertical} go={go} setLead={ctx.setLead}/>
   {/* The band that closes the page. The four figures are the ones already
       computed from the live catalogue for the old hero strip — moved here rather
       than reinvented, because a number on a homepage should be one somebody can
