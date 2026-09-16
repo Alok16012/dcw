@@ -1,6 +1,7 @@
 'use client';
 import {useId,useState} from 'react';
 import {ArrowRight,ChevronDown} from 'lucide-react';
+import {PHOTOS} from '@/lib/photos.js';
 
 /* Layout furniture with no domain knowledge: a section heading, the one hero
    contract every interior page uses, and a disclosure. They are here rather
@@ -13,17 +14,38 @@ import {ArrowRight,ChevronDown} from 'lucide-react';
    its carousel arrows there. */
 export function SectionTitle({kicker,title,sub,action,onAction,children}){return <div className="section-title"><div><span className="kicker">{kicker}</span><h2>{title}</h2>{sub&&<p className="st-sub">{sub}</p>}</div>{(action||children)&&<span className="st-actions">{action&&<button onClick={onAction}>{action}<ArrowRight/></button>}{children}</span>}</div>}
 
+/* The `<picture>` the whole site serves photographs through. Three sources, in
+   the order a browser stops reading at the first one it can use: the phone webp
+   under 900px, the full webp above it, then the png every browser understands.
+   It was copied by hand into PageHero, the homepage hero and the detail banner,
+   which is three places to forget the 900px source — and forgetting it ships a
+   1.6MB desktop asset to a phone.
+
+   `alt` comes from lib/photos.js keyed by the same name, so the description
+   lives with the file rather than with whichever band happens to show it.
+   `priority` is only for the one photograph above the fold; everything else
+   loads lazily, and every caller reserves the box in CSS so a late image does
+   not move the page under a reader. */
+export function Photo({name, alt, priority = false, className}){
+  return <picture className={className}>
+    <source type="image/webp" media="(max-width:900px)" srcSet={`/${name}-900.webp`}/>
+    <source type="image/webp" srcSet={`/${name}-full.webp`}/>
+    {/* `||` rather than `??`: PageHero's own default is an empty string, and an
+        empty alt on a photograph of people is a description the reader loses,
+        not a decoration they are spared. A caller that passes a real alt still
+        wins over the library's. */}
+    <img src={`/${name}.png`} alt={alt || PHOTOS[name] || ''} decoding="async"
+      loading={priority ? 'eager' : 'lazy'} fetchPriority={priority ? 'high' : 'auto'}/>
+  </picture>;
+}
+
 /* One hero contract for every interior page. Content pages get the editorial
    photograph; tool pages get a generated field in the vertical's own palette,
    because stock imagery on a resume builder would be a lie about the page. */
 export function PageHero({kicker,title,lead,photo,alt='',pills,children,tone='canvas'}){
   return <section className={`tool-hero page-hero ${photo?'photo-hero':'canvas-hero t-'+tone}`}>
     {photo
-      ? <><picture>
-          <source type="image/webp" media="(max-width:900px)" srcSet={`/${photo}-900.webp`}/>
-          <source type="image/webp" srcSet={`/${photo}-full.webp`}/>
-          <img src={`/${photo}.png`} alt={alt} decoding="async"/>
-        </picture><span className="hero-shade" aria-hidden="true"/></>
+      ? <><Photo name={photo} alt={alt} priority/><span className="hero-shade" aria-hidden="true"/></>
       : <span className="hero-weave" aria-hidden="true"/>}
     <div className="container tool-hero-copy">
       <span className="kicker">{kicker}</span>

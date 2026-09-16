@@ -1,8 +1,9 @@
 'use client';
 import {ArrowRight,ScrollText,GraduationCap,Award,Search,TrendingUp,Plane,MapPin,FileText,Wrench,
-  Phone,MessageCircle,Mail,Navigation,ClipboardCheck,UserCheck,Send,LineChart} from 'lucide-react';
-import {SectionTitle,Accordion} from '@/components/ui/primitives.jsx';
+  Phone,MessageCircle,Mail,Navigation,ClipboardCheck,UserCheck,Send,LineChart,Headset} from 'lucide-react';
+import {SectionTitle,Accordion,Photo} from '@/components/ui/primitives.jsx';
 import {CONTACT,officePlaceUrl} from '@/lib/contact.js';
+import {photoFor} from '@/lib/photos.js';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    The four homepage bands the reference leads with and this site did not have:
@@ -161,6 +162,18 @@ const STEPS = {
   ]
 };
 
+/* The reference lays this band out as a numbered ladder down the left with a
+   tall photograph holding the right half, and it is the single strongest device
+   on that page: the steps read as one continuous sequence instead of four
+   parallel tiles, and the photograph gives the column of text something to be
+   next to. Four cards in a row said "here are four unrelated features"; a
+   ladder says "this, then this".
+
+   The badge over the photograph is the reference's floating pill. What it says
+   is ours and is checkable — counselling is free and the hours are the ones in
+   lib/contact.js, the same string the footer prints. The reference's version of
+   this badge carries a student count; we do not publish one we can stand
+   behind, so it carries an offer we can. */
 export function ProcessSteps({vertical}){
   const steps = STEPS[vertical] ?? STEPS.distance;
   return <section className="section wash process-band">
@@ -168,16 +181,74 @@ export function ProcessSteps({vertical}){
       <SectionTitle kicker="HOW IT WORKS"
         title={`${steps.length} steps, and you can see all of them`}
         sub="No hidden stage, no surprise fee. You are told what happens next before it happens."/>
-      {/* The step count is on the element so the stylesheet can lay out three
-          steps and four steps differently without guessing at a track width. */}
-      <ol className={`proc-grid steps-${steps.length}`}>{steps.map((s, i) =>
-        <li key={s.t} className="proc-step">
-          <span className="ps-n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-          <i className="ps-icon" aria-hidden="true">{s.icon}</i>
-          <b>{s.t}</b>
-          <p>{s.d}</p>
-        </li>)}
-      </ol>
+      <div className="proc-split">
+        {/* The step count stays on the element: three steps and four steps need
+            different vertical rhythm against a photograph of fixed height. */}
+        <ol className={`proc-grid steps-${steps.length}`}>{steps.map((s, i) =>
+          <li key={s.t} className="proc-step">
+            <span className="ps-n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            {/* The icon sits inside the heading rather than beside it: as a
+                sibling it took a grid cell of its own next to the numeral, and
+                two badges on one rung is one badge too many. */}
+            <b><i className="ps-icon" aria-hidden="true">{s.icon}</i>{s.t}</b>
+            <p>{s.d}</p>
+          </li>)}
+        </ol>
+        <figure className="proc-photo">
+          <Photo name={photoFor(vertical, 'process')}/>
+          <figcaption>
+            <i aria-hidden="true"><Headset/></i>
+            <span><b>Counselling is free</b><small>{CONTACT.hours}</small></span>
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>;
+}
+
+/* ---------- The closing photographic band ----------------------------------
+   The device the reference repeats twice and we had nowhere: a wide rounded
+   banner, copy held left, a photograph bleeding off the right edge under a
+   scrim dark enough for white text to clear AA against it.
+
+   It is placed where the page previously ended in three consecutive bands of
+   flat colour. Both buttons do something that already existed — the first opens
+   the same enquiry form the hero's button opens, the second goes to the
+   vertical's own listing — because a banner this loud is the last thing a
+   visitor reads, and a dead button there is worse than no banner. */
+const CLOSE = {
+  distance: {k: 'STILL DECIDING?', h: 'Tell us where you stopped. We will tell you what is open.',
+    p: 'One call, no form-filling, nothing to buy. A counsellor reads your case and names the boards and universities you actually qualify for today.',
+    cta: 'Talk to a counsellor', alt: 'See universities', href: '/distance/universities'},
+  colleges: {k: 'STILL DECIDING?', h: 'Bring us your rank. We will bring you a shortlist.',
+    p: 'Strong, possible and backup — with the cutoffs, the seats and the total cost behind each one, so the list is something you can defend at home.',
+    cta: 'Talk to a counsellor', alt: 'Compare colleges', href: '/colleges/search'},
+  jobs: {k: 'READY TO APPLY?', h: 'A resume, and openings that state the salary.',
+    p: 'Build the resume free in three steps, then apply to employers we have checked. No fee to you at any stage — not for a listing, an interview or a placement.',
+    cta: 'Talk to our team', alt: 'See openings', href: '/jobs/search'}
+};
+
+export function PhotoCta({vertical, go, setLead}){
+  const c = CLOSE[vertical] ?? CLOSE.distance;
+  return <section className="section container">
+    <div className="photo-cta">
+      <div className="pc-copy">
+        <span className="kicker">{c.k}</span>
+        <h2>{c.h}</h2>
+        <p>{c.p}</p>
+        <div className="pc-actions">
+          <button type="button" className="btn light"
+            onClick={() => setLead({title: c.cta, interest: vertical})}>
+            {c.cta}<ArrowRight aria-hidden="true"/>
+          </button>
+          {/* .btn.ghost is a dark-on-light outline everywhere else on the site;
+              the rule under .pc-actions repaints it for this one dark band
+              rather than adding a variant class nothing else would use. */}
+          <button type="button" className="btn ghost" onClick={() => go(c.href)}>{c.alt}</button>
+        </div>
+      </div>
+      <Photo name={photoFor(vertical, 'close')} className="pc-photo"/>
+      <span className="pc-scrim" aria-hidden="true"/>
     </div>
   </section>;
 }

@@ -4279,7 +4279,13 @@ body{overflow-x:visible;overflow-y:visible}
 .app .hh-photo{position:relative;margin:0;border-radius:var(--r-5);overflow:visible}
 .app .hh-photo picture{display:block;border-radius:var(--r-5);overflow:hidden;
   background:var(--wash);box-shadow:var(--e-3)}
-.app .hh-photo img{display:block;width:100%;height:clamp(220px,23vw,282px);
+/* Declared rather than intrinsic: the box exists before the file does, so the
+   highest-priority image on the site costs no layout shift. Raised from
+   23vw/282 — the reference leads with a photograph that owns the fold, and at
+   282px ours was shorter than the trust panel beneath it, which made the
+   picture read as an illustration attached to the list rather than the other
+   way round. 27vw/340 puts it level with the copy column's headline block. */
+.app .hh-photo img{display:block;width:100%;height:clamp(250px,27vw,340px);
   object-fit:cover;object-position:center 22%}
 .app .hh-guided{position:absolute;left:calc(var(--s-4)*-1);bottom:var(--s-4);
   display:flex;align-items:center;gap:var(--s-3);
@@ -4890,42 +4896,134 @@ body{overflow-x:visible;overflow-y:visible}
 }
 
 /* ── E. PROCESS ────────────────────────────────────────────────────────────
-   A numbered ladder, not four cards: the numeral is the structure and the
-   hairline between steps is the rung. Three or four columns depending on how
-   many steps the vertical actually has.
+   A numbered ladder down the left, a tall photograph holding the right.
 
-   The column count is declared by the step count rather than left to auto-fit.
-   auto-fit resolved to three tracks at 1024, which put steps 1–3 in a row and
-   step 4 alone underneath — a ladder that looks like it lost a rung. Four steps
-   go four-across or two-by-two; three go three-across or stacked. Neither ever
-   leaves one step on a row of its own. */
-.app .proc-grid{list-style:none;margin:0;padding:0;display:grid;gap:var(--s-4);
-  grid-template-columns:repeat(var(--proc-cols,3),minmax(0,1fr))}
-.app .proc-grid.steps-3{--proc-cols:3}
-.app .proc-grid.steps-4{--proc-cols:4}
-@media(max-width:1180px){.app .proc-grid.steps-4{--proc-cols:2}}
-.app .proc-step{position:relative;display:grid;gap:var(--s-2);padding:var(--s-5) var(--s-4) var(--s-4);
-  background:var(--n-0);border:1px solid var(--line);border-radius:var(--r-3)}
-.app .ps-n{position:absolute;top:var(--s-3);right:var(--s-4);
-  font-family:var(--font-display);font-size:var(--fs-800);font-weight:900;
-  line-height:1;color:var(--accent);opacity:.14}
-.app .ps-icon{display:grid;place-items:center;width:40px;height:40px;
-  border-radius:var(--r-2);background:var(--wash);color:var(--accent-ink)}
-.app .ps-icon svg{width:19px;height:19px}
-.app .proc-step b{font-family:var(--font-display);font-size:var(--fs-400);font-weight:800;
-  color:var(--ink-1);line-height:1.3;letter-spacing:-.015em}
-.app .proc-step p{margin:0;font-size:var(--fs-200);color:var(--ink-3);line-height:var(--lh-body)}
-@media(max-width:640px){
-  .app .proc-grid{--proc-cols:1;gap:var(--s-2)}
-  /* Stacked, the card border around each step is four boxes in a column. The
-     ladder reads better as one bounded list with rungs. */
-  .app .proc-step{grid-template-columns:auto 1fr;align-items:start;
-    column-gap:var(--s-3);padding:var(--s-4);border-radius:var(--r-2)}
-  .app .ps-icon{grid-row:1/3}
-  .app .ps-n{position:static;grid-column:2;font-size:var(--fs-200);opacity:1;
-    letter-spacing:var(--tr-caps);color:var(--accent-ink)}
-  .app .proc-step b{grid-column:2}
-  .app .proc-step p{grid-column:2}
+   This was four equal cards across the full width, and four cards in a row read
+   as four unrelated features — the eye scans them in parallel, which is the
+   opposite of what a sequence is for. Stacked into one column they read in
+   order, and the width the cards gave up pays for the photograph, which is the
+   only thing in this band that shows a person.
+
+   `.steps-N` stays on the list because three steps and four steps have to fill
+   the same photograph height: the four-step ladder tightens its gap so both
+   verticals end level with the bottom of the picture instead of one of them
+   leaving a 90px shelf of empty wash. */
+.app .proc-split{display:grid;grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr);
+  gap:var(--s-6) var(--s-7);align-items:center}
+.app .proc-grid{list-style:none;margin:0;padding:0;display:grid;gap:var(--s-3)}
+.app .proc-grid.steps-4{gap:var(--s-2)}
+/* The rung. A hairline on each step but the last draws the ladder without a
+   box around every tread — a bordered card per step, stacked, is four boxes in
+   a column and the sequence disappears into the borders. */
+.app .proc-step{position:relative;display:grid;grid-template-columns:auto 1fr;
+  align-items:start;column-gap:var(--s-3);row-gap:2px;
+  padding:var(--s-3) var(--s-4) var(--s-4) 0}
+.app .proc-step+.proc-step{border-top:1px solid var(--line)}
+.app .ps-n{grid-row:1/3;grid-column:1;display:grid;place-items:center;
+  width:38px;height:38px;border-radius:var(--r-2);
+  background:var(--accent-solid);color:#fff;
+  font-family:var(--font-display);font-size:var(--fs-200);font-weight:900;
+  line-height:1;font-variant-numeric:tabular-nums;letter-spacing:0}
+/* The icon repeated what the numeral already said and cost a second 40px
+   badge on every rung. It rides in the heading line instead, at text size,
+   where it labels the step rather than competing with its number. */
+.app .ps-icon{display:inline-grid;place-items:center;vertical-align:-3px;
+  margin-right:var(--s-2);color:var(--accent-ink)}
+.app .ps-icon svg{width:17px;height:17px}
+.app .proc-step b{grid-column:2;font-family:var(--font-display);font-size:var(--fs-400);
+  font-weight:800;color:var(--ink-1);line-height:1.3;letter-spacing:-.015em}
+.app .proc-step p{grid-column:2;margin:0;font-size:var(--fs-200);color:var(--ink-3);
+  line-height:var(--lh-body)}
+
+/* The photograph. Its height is declared rather than left to the asset so the
+   box is reserved before the file lands — the band sits mid-page and a picture
+   that arrives late must not shove the FAQ down under somebody's cursor. */
+.app .proc-photo{position:relative;margin:0}
+.app .proc-photo img{display:block;width:100%;height:clamp(320px,38vw,470px);
+  object-fit:cover;border-radius:var(--r-5);border:1px solid var(--line)}
+/* The reference's floating pill, with a claim we can stand behind in it. It
+   overhangs the bottom-left corner so the photograph is read as a photograph
+   and not as a card with a caption. */
+.app .proc-photo figcaption{position:absolute;left:var(--s-4);bottom:var(--s-4);
+  right:var(--s-6);display:flex;align-items:center;gap:var(--s-3);
+  background:var(--n-0);border-radius:var(--r-3);padding:var(--s-3) var(--s-4);
+  box-shadow:var(--e-3)}
+.app .proc-photo figcaption i{display:grid;place-items:center;flex:none;
+  width:36px;height:36px;border-radius:var(--r-2);
+  background:var(--wash);color:var(--accent-ink)}
+.app .proc-photo figcaption i svg{width:18px;height:18px}
+.app .proc-photo figcaption b{display:block;font-size:var(--fs-200);font-weight:800;color:var(--ink-1)}
+.app .proc-photo figcaption small{display:block;font-size:var(--fs-100);color:var(--ink-3);margin-top:1px}
+
+@media(max-width:900px){
+  /* Photograph first, then the steps. A picture under four paragraphs of
+     process is a picture nobody reaches; above them it is the thing that makes
+     the paragraphs look worth starting. */
+  .app .proc-split{grid-template-columns:1fr;gap:var(--s-5)}
+  .app .proc-photo{order:-1}
+  .app .proc-photo img{height:clamp(230px,40vw,300px);border-radius:var(--r-4)}
+}
+@media(max-width:560px){
+  .app .proc-step{padding:var(--s-3) 0 var(--s-3)}
+  .app .ps-n{width:32px;height:32px;font-size:var(--fs-100)}
+  .app .proc-photo figcaption{left:var(--s-3);right:var(--s-3);bottom:var(--s-3);
+    padding:var(--s-2) var(--s-3);gap:var(--s-2)}
+  .app .proc-photo figcaption i{width:30px;height:30px}
+}
+
+/* ── The closing photographic banner ───────────────────────────────────────
+   Copy left, photograph bleeding off the right edge, one scrim between them.
+
+   The photograph is absolutely positioned and the copy is not, so the band is
+   exactly as tall as its text — a two-column grid would have let a 900px asset
+   set the height of a paragraph. `object-position:center 28%` keeps faces in
+   frame when the band is short and the crop is severe.
+
+   The scrim is a left-to-right ramp, opaque under the text and clear over the
+   right third. Two stops would band visibly across 600px; the middle stop puts
+   the fade where the copy actually ends. */
+.app .photo-cta{position:relative;isolation:isolate;overflow:hidden;
+  border-radius:var(--r-5);background:var(--ink-1);color:#fff;
+  padding:clamp(28px,4vw,56px);min-height:clamp(300px,30vw,380px);
+  display:flex;align-items:center}
+.app .pc-photo{position:absolute;inset:0;z-index:-2}
+.app .pc-photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 28%}
+.app .pc-scrim{position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(100deg,
+    color-mix(in srgb,var(--ink-1) 94%,transparent) 0%,
+    color-mix(in srgb,var(--ink-1) 88%,transparent) 42%,
+    color-mix(in srgb,var(--ink-1) 34%,transparent) 78%,
+    color-mix(in srgb,var(--ink-1) 12%,transparent) 100%)}
+.app .pc-copy{max-width:min(540px,62%)}
+.app .photo-cta .kicker{color:#fff;opacity:.72}
+.app .photo-cta h2{font-family:var(--font-display);font-size:clamp(25px,2.7vw,38px);
+  font-weight:850;line-height:1.14;letter-spacing:-.025em;margin:var(--s-2) 0 var(--s-3);color:#fff}
+.app .photo-cta p{margin:0 0 var(--s-5);font-size:var(--fs-300);line-height:var(--lh-body);
+  color:rgb(255 255 255/.86);max-width:46ch}
+.app .pc-actions{display:flex;flex-wrap:wrap;gap:var(--s-3)}
+/* .btn.ghost is ink-on-white everywhere else. Over a photograph it needs its
+   own fill as well as its own border: a transparent button on a picture is a
+   label floating on whatever happens to be behind it. */
+.app .pc-actions .btn.ghost{color:#fff;border-color:rgb(255 255 255/.55);
+  background:rgb(255 255 255/.12);backdrop-filter:blur(2px)}
+.app .pc-actions .btn.ghost:hover:not(:disabled){background:rgb(255 255 255/.22);border-color:#fff}
+@media(max-width:820px){
+  /* The copy stops being a column and becomes the whole width, so the scrim
+     has to cover the whole width too — it ramps top-to-bottom instead, and the
+     photograph keeps the top third to itself. */
+  .app .photo-cta{min-height:0;padding-top:clamp(150px,34vw,220px)}
+  .app .pc-copy{max-width:none}
+  .app .pc-photo img{object-position:center 22%}
+  .app .pc-scrim{background:linear-gradient(180deg,
+    color-mix(in srgb,var(--ink-1) 18%,transparent) 0%,
+    color-mix(in srgb,var(--ink-1) 72%,transparent) 34%,
+    color-mix(in srgb,var(--ink-1) 95%,transparent) 52%,
+    color-mix(in srgb,var(--ink-1) 97%,transparent) 100%)}
+}
+@media(max-width:560px){
+  .app .photo-cta{border-radius:var(--r-4)}
+  .app .pc-actions{flex-direction:column;align-items:stretch}
+  .app .pc-actions .btn{width:100%;justify-content:center}
 }
 
 /* ── I. FAQ ────────────────────────────────────────────────────────────────

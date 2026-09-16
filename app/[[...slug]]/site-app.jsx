@@ -7,7 +7,7 @@ import {plainFacts} from '@/lib/content/plain.js';
 import Image from 'next/image';
 import {ArrowRight,ArrowUp,Bookmark,Building2,Check,ChevronLeft,ChevronRight,Clock3,FileText,GraduationCap,Heart,Home,MapPin,Search,ShieldCheck,Sparkles,Star,Users,X,Bell,UserRound,BookOpen,ExternalLink,TrendingUp,CalendarDays,MessageCircle,RotateCcw,Navigation,LocateFixed,Wifi,Flame,Filter,Stethoscope,Plane,Scale,Award,Briefcase,ScrollText,Laptop,Cog,Calculator,Wrench,Workflow,Paperclip,Upload,Trash2,IndianRupee,Phone,Mail} from 'lucide-react';
 import {Plate,CardWash} from '@/components/ui/plate.jsx';
-import {SectionTitle,PageHero,Accordion} from '@/components/ui/primitives.jsx';
+import {SectionTitle,PageHero,Accordion,Photo} from '@/components/ui/primitives.jsx';
 import {MarkVerified,MarkCompared,MarkCounsellor,MarkOpenings,MarkThisWeek,MarkEmployers} from '@/components/ui/proof-marks.jsx';
 import {CardSkeleton,CatalogError,EmptyState,CatalogGrid,CatalogFallback} from '@/components/discovery/catalog-states.jsx';
 import {Repeater,ChipInput} from '@/components/forms/fields.jsx';
@@ -16,10 +16,11 @@ import {coursesOf,matchesPath,PATHS} from '@/lib/content/courses.js';
 import {STREAMS,ABROAD_LABEL,readStream,matchesStream,isAbroad} from '@/lib/content/streams.js';
 import {fmt,phoneDigits} from '@/lib/format.js';
 import {CONTACT,officePlaceUrl,officeDirectionsUrl,officeEmbedUrl} from '@/lib/contact.js';
+import {photoFor} from '@/lib/photos.js';
 import {ReviewMarquee} from '@/components/editorial/review-marquee.jsx';
 import {Credentials} from '@/components/editorial/credentials.jsx';
 import {PathCard,EntityCard} from '@/components/discovery/entity-card.jsx';
-import {OfferCards,ContactStrip,ProcessSteps,HomeFaq} from '@/components/home/home-sections.jsx';
+import {OfferCards,ContactStrip,ProcessSteps,PhotoCta,HomeFaq} from '@/components/home/home-sections.jsx';
 /* One of these renders per URL, so each ships as its own chunk rather than
    riding along in the shell every visitor downloads. Server rendering stays on:
    /about, /blog and /reviews are the pages a stranger reads before deciding
@@ -371,7 +372,11 @@ const HERO={
 };
 function Hero({vertical,go,setSearchOpen,setLead,query,setQuery}){
   const h=HERO[vertical];const [cat,setCat]=useState(0);
-  const art=vertical==='colleges'?'campus-editorial':vertical==='jobs'?'career-editorial':'dcw-journey-hero';
+  /* One of three, chosen so that this page's hero, its process ladder and its
+     closing banner are never the same photograph. The table is in lib/photos.js
+     with the other two slots, because the constraint is about the page as a
+     whole and cannot be seen from any single band. */
+  const art=photoFor(vertical,'hero');
   /* Typed text wins, because the search panel searches all three verticals and a
      category cannot narrow a word it has not seen. With the field empty the
      select is the whole instruction, so it navigates to that filter. Either way
@@ -392,7 +397,7 @@ function Hero({vertical,go,setSearchOpen,setLead,query,setQuery}){
     </div>
     <div className="hero-aside">
       <figure className="hh-photo">
-        <picture><source type="image/webp" media="(max-width:900px)" srcSet={`/${art}-900.webp`}/><source type="image/webp" srcSet={`/${art}-full.webp`}/><img src={`/${art}.png`} alt={h.alt} fetchPriority="high" decoding="async"/></picture>
+        <Photo name={art} alt={h.alt} priority/>
         <figcaption className="hh-guided"><span className="hh-faces" aria-hidden="true"><i/><i/><i/><b>+</b></span><span className="hh-guided-t"><b>{h.guided}</b><small>{h.guidedSub}</small></span></figcaption>
         <span className="hh-script" aria-hidden="true">{h.script}</span>
       </figure>
@@ -457,6 +462,11 @@ function HomePage(ctx){const {vertical,go,catalog}=ctx;const pool=catalog.rows;
       explanation and a chevron — the height goes to the listing it opens. */}
   <section className="section container"><SectionTitle kicker="WHERE DO YOU WANT TO START?" title={vertical==='jobs'?'Start with what you need today':vertical==='colleges'?'Explore by your ambition':'Find the course that fits your life'} sub={vertical==='jobs'?'Pick the one closest to where you are right now.':vertical==='colleges'?'Pick a stream and compare the colleges that teach it.':'Pick where you stopped studying, or where you want to go next.'} action="View everything" onAction={()=>go(listAll)}/>
     <div className="cat-strip">{categories(vertical).map(x=><button key={x.name} type="button" className="cat-tile" onClick={()=>go(x.href)}><i className="ct-icon" aria-hidden="true">{x.icon}</i><span className="ct-text"><b>{x.name}</b><small>{x.tag??x.kicker}</small></span><ChevronRight className="ct-go" size={18} aria-hidden="true"/></button>)}</div></section>
+  {/* The reference's wide photographic banner, at the point where it puts one:
+      after the visitor has seen the doors and before the catalogue. It sits
+      mid-page rather than at the end so the two dark bands on this page are a
+      screen apart — stacked, they read as one long basement. */}
+  <PhotoCta vertical={vertical} go={go} setLead={ctx.setLead}/>
   {/* The rail the reference asks for. It shows five rather than three because a
       carousel that cannot scroll is a grid with extra controls. */}
   <section className="section wash"><div className="container"><SectionTitle kicker={vertical==='jobs'?'HIRING NOW':vertical==='colleges'?'TOP COLLEGES':'TOP UNIVERSITIES'} title={vertical==='jobs'?'Real Openings, Real Employers.':vertical==='colleges'?'Good Colleges, Honest Numbers.':'Trusted Universities, Real Opportunities.'} sub={vertical==='jobs'?'Every role below states its salary and the employer behind it.':vertical==='colleges'?'Cutoffs, total cost and seats — checked at source, not copied.':'Explore UGC-approved universities offering distance and online programs.'} action={`View all ${noun}`} onAction={()=>go(listAll)}>
@@ -679,11 +689,7 @@ function Listing(ctx){
   return <main id="main" tabIndex={-1} className={isJobs?'listing-page jobs-listing':'listing-page'}>
 
     {isJobs?<section className="tool-hero jobs-hero">
-      <picture>
-        <source type="image/webp" media="(max-width:900px)" srcSet="/career-editorial-900.webp"/>
-        <source type="image/webp" srcSet="/career-editorial-full.webp"/>
-        <img src="/career-editorial.png" alt="Young professionals starting work in an Indian office" decoding="async"/>
-      </picture>
+      <Photo name="career-editorial" alt="Young professionals starting work in an Indian office" priority/>
       <span className="hero-shade" aria-hidden="true"/>
       <div className="container tool-hero-copy">
         <span className="kicker">BEROJGAR BHARAT · VERIFIED HIRING</span>
@@ -892,11 +898,9 @@ function Detail(ctx){
   const reviewHref=isJob
     ?(entity.companyId?`/reviews?companyId=${encodeURIComponent(entity.companyId)}`:'/reviews')
     :`/reviews?institutionId=${encodeURIComponent(entity.id)}&vertical=${vertical}`;
-  return <main id="main" tabIndex={-1} className="detail-page"><div className="container breadcrumbs">Home <ChevronRight/> {V[vertical].label} <ChevronRight/> <b>{entity.name}</b></div><section className="detail-banner"><picture>
-  <source type="image/webp" media="(max-width:900px)" srcSet={vertical==='jobs'?'/career-editorial-900.webp':'/campus-editorial-900.webp'}/>
-  <source type="image/webp" srcSet={vertical==='jobs'?'/career-editorial-full.webp':'/campus-editorial-full.webp'}/>
-  <img src={vertical==='jobs'?'/career-editorial.png':'/campus-editorial.png'} alt="" decoding="async"/>
-</picture><span className="hero-shade" aria-hidden="true"/><div className="container db-copy">
+  return <main id="main" tabIndex={-1} className="detail-page"><div className="container breadcrumbs">Home <ChevronRight/> {V[vertical].label} <ChevronRight/> <b>{entity.name}</b></div><section className="detail-banner">
+<Photo name={vertical==='jobs'?'career-editorial':'campus-editorial'} priority/>
+<span className="hero-shade" aria-hidden="true"/><div className="container db-copy">
   <span className="db-kicker">{vertical==='jobs'?'Hiring now':vertical==='colleges'?'Campus profile':'Recognised institution'}</span>
   {/* Deliberately not a heading. This band names the employer (or, for a
       college, a shortened form of the page title) over the hero image, and it
