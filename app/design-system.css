@@ -3255,7 +3255,10 @@ body{overflow-x:visible;overflow-y:visible}
   /* Five footer columns at 2fr+4x1fr resolved to 287px and four
      90px columns at 768 — every link inside them wrapping twice.
      Two columns of real width read better than five of none. */
-  .app .footer>.container:first-child{grid-template-columns:1fr 1fr;
+  /* Named by class, not by position: the footer's first child is the closing
+     band on every route that carries one, and a `:first-child` selector reads
+     one class more specific than anything scoped to the band itself. */
+  .app .footer>.footer-grid{grid-template-columns:1fr 1fr;
     gap:var(--s-6) var(--s-5)}
 }
 
@@ -5792,7 +5795,7 @@ body{overflow-x:visible;overflow-y:visible}
 .app .footer{background:var(--n-1);color:var(--ink-2);
   border-top:1px solid var(--line)}
 .app .footer p{color:var(--ink-3);font-size:var(--fs-300);max-width:38ch;line-height:var(--lh-body)}
-.app .footer>.container:first-child>div>b{
+.app .footer>.footer-grid>div>b{
   display:block;font-size:var(--fs-100);font-weight:800;letter-spacing:var(--tr-caps);
   text-transform:uppercase;color:var(--accent-text,var(--accent));
   padding-bottom:var(--s-2);margin-bottom:var(--s-3);
@@ -6174,3 +6177,109 @@ body{overflow-x:visible;overflow-y:visible}
   .app .btn.tactile:hover:not(:disabled),
   .app .compare-tray button:hover:not(:disabled){transform:none}
 }
+
+/* R15. The footer gets a last question ------------------------------------
+   OBSERVED across the footer set: the footers that do work all put something
+   at the top of the band for the reader who reached the bottom still deciding.
+   Every checklist of what belongs down there lists the same six things —
+   contact details, a mini sitemap, copyright, social, a way back up, and a
+   final call to act. This footer already had five. The sixth is this.
+
+   Structurally it follows two notes from the set. One: a darker slab is what
+   separates a footer from the page above it, and this footer went light three
+   hundred lines ago, so the slab is the thing that has to carry the weight
+   instead. Two: the ask should read as a nudge, not a pitch — so the copy is a
+   question about the reader's situation and the second control is an outline
+   rather than a second filled button.
+
+   The slab is `--accent-deep`, so it is navy on Distance, deep red on Colleges
+   and burnt orange on Jobs, the same plate colour R14 gives the keycaps. The
+   white cap on it takes R14's near-black plate for exactly the reason the photo
+   band's does: the surface underneath is already carrying colour.
+
+   NOT taken from the set: the oversized wordmark that fills half a screen (this
+   footer already ends on a legal line and a map, and a 200px brand name over
+   them would bury both), the footer-sized contact form, and the newsletter
+   box — there is no mailing list behind it, and a form that posts nowhere is
+   worse than no form at all. */
+.app .footer-cta{display:grid;grid-template-columns:minmax(0,1.35fr) auto;
+  align-items:center;gap:var(--s-5);margin-bottom:var(--s-6);
+  padding:var(--s-6);border-radius:var(--r-4);
+  background:var(--accent-deep,#07356F);color:#fff}
+.app .footer-cta .fc-eyebrow{display:inline-flex;align-items:center;gap:var(--s-2);
+  font-size:var(--fs-100);font-weight:800;letter-spacing:var(--tr-caps);
+  text-transform:uppercase;color:rgb(255 255 255/.72)}
+.app .footer-cta .fc-eyebrow svg{width:15px;height:15px}
+.app .footer-cta h2{margin:var(--s-3) 0 var(--s-2);color:#fff;
+  font-family:var(--font-display);font-size:var(--fs-700);line-height:var(--lh-tight);
+  letter-spacing:var(--tr-tight)}
+.app .footer-cta p{margin:0;max-width:52ch;color:rgb(255 255 255/.8);
+  font-size:var(--fs-300);line-height:var(--lh-body)}
+.app .fc-actions{display:flex;flex-wrap:wrap;gap:var(--s-3);flex:none}
+/* `.app .footer button` sets every button in this band to the footer's grey
+   link colour, and it is declared after the button styles. Restating the two
+   here is cheaper than moving either of them. */
+.app .footer-cta .btn{font-size:var(--fs-300);font-weight:800;min-height:48px;
+  padding-inline:var(--s-5);border-radius:var(--r-pill)}
+.app .footer-cta .btn.light{background:var(--n-0);color:var(--accent-deep,#07356F)}
+.app .footer-cta .btn.fc-ghost{background:transparent;color:#fff;
+  border:1.5px solid rgb(255 255 255/.45);
+  transition:background var(--t-micro) var(--ease-out),
+             border-color var(--t-micro) var(--ease-out),
+             transform var(--t-micro) var(--ease-out)}
+.app .footer-cta .btn.fc-ghost:hover{background:rgb(255 255 255/.14);
+  border-color:rgb(255 255 255/.75);transform:translateY(-2px)}
+.app .footer-cta :focus-visible{outline-color:#fff}
+/* The band's white cap gets the same thickness the photo band's does. */
+.app .fc-actions .btn.light{--cta-base:#061224;
+  box-shadow:0 5px 0 var(--cta-base),0 12px 22px -8px rgb(3 8 18/.5);
+  transition:transform var(--t-micro) var(--ease-out),
+             box-shadow var(--t-micro) var(--ease-out)}
+.app .fc-actions .btn.light:hover:not(:disabled){transform:translateY(-2px);
+  box-shadow:0 7px 0 var(--cta-base),0 18px 28px -9px rgb(3 8 18/.55)}
+.app .fc-actions .btn.light:active:not(:disabled){transform:translateY(4px);
+  box-shadow:0 1px 0 var(--cta-base),0 3px 7px -4px rgb(3 8 18/.45)}
+.app .fc-actions .btn.light>svg:last-child{transition:transform var(--t-micro) var(--ease-out)}
+.app .fc-actions .btn.light:hover:not(:disabled)>svg:last-child{transform:translateX(3px)}
+
+/* One column below the point where the copy and two buttons stop fitting on a
+   line together, and the buttons go full width so a thumb gets the whole row. */
+@media(max-width:860px){
+  .app .footer-cta{grid-template-columns:1fr;gap:var(--s-4);padding:var(--s-5)}
+  .app .footer-cta h2{font-size:var(--fs-600)}
+  .app .fc-actions{width:100%}
+  .app .fc-actions .btn{flex:1 1 200px;justify-content:center}
+}
+@media(prefers-reduced-motion:reduce){
+  .app .footer-cta .btn.fc-ghost:hover,
+  .app .fc-actions .btn.light:hover:not(:disabled){transform:none}
+  .app .fc-actions .btn.light:hover:not(:disabled)>svg:last-child{transform:none}
+}
+
+/* The sitemap's own rules, restated against the class that now names it. They
+   were written as `.footer>.container:first-child` — a position, back when the
+   sitemap was the only thing in the band. The two rules in this sheet have been
+   re-pointed at `.footer-grid` in place; these three restate the copies that
+   live in `globals.css`, which is minified onto one line and not worth editing
+   for it. Same values, so nothing about the sitemap moves.
+
+   Specificity is the whole reason this matters. `.footer>.container:first-child`
+   counts one class more than anything written against the band's own class, so
+   left alone it would keep sizing the band and win. */
+.app .footer>.footer-grid{display:grid;grid-template-columns:2fr repeat(4,1fr);gap:44px}
+@media(max-width:940px){
+  .app .footer>.footer-grid{grid-template-columns:1fr 1fr;gap:var(--s-6) var(--s-5)}
+}
+@media(max-width:760px){
+  .app .footer>.footer-grid>div:first-child{grid-column:1/-1}
+}
+/* And the band, stated at the same weight as the rules it has to answer: two
+   tracks above 860, one below, and the brand column's `grid-column:1/-1` reset
+   so the copy block does not span a grid it was never part of. */
+.app .footer>.footer-cta:first-child{grid-template-columns:minmax(0,1.35fr) auto;
+  gap:var(--s-5)}
+@media(max-width:860px){
+  .app .footer>.footer-cta:first-child{grid-template-columns:1fr;gap:var(--s-4)}
+}
+.app .footer>.footer-cta:first-child>div:first-child,
+.app .footer>.footer-cta:first-child>div{grid-column:auto}

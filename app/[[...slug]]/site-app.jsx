@@ -239,7 +239,7 @@ let page;if(path==='/about')page=<AboutPage {...ctx}/>;else if(path?.startsWith(
     :isDetailRoute?<NotFoundPage go={go} vertical={vertical}/>
     :<HomePage {...ctx}/>;
 }
-return <div className={`app app-${vertical}`} style={cfg.theme}><MotionLayer/><a className="skip-link" href="#main">Skip to main content</a><Header {...ctx}/>{page}<Footer go={go} vertical={vertical} path={path}/>{compare[vertical].length>0&&!path?.endsWith('/compare')&&<CompareTray {...ctx}/>}<MobileNav {...ctx}/><AskDCW open={botOpen} setOpen={setBotOpen} {...ctx}/>{searchOpen&&<SearchPanel {...ctx}/>} {lead&&<LeadFlow lead={lead} vertical={vertical} go={go} close={()=>setLead(null)} notify={notify}/>} {toast&&<div className="toast" role="status"><Check size={17}/>{toast}</div>}</div>}
+return <div className={`app app-${vertical}`} style={cfg.theme}><MotionLayer/><a className="skip-link" href="#main">Skip to main content</a><Header {...ctx}/>{page}<Footer go={go} vertical={vertical} path={path} setLead={setLead}/>{compare[vertical].length>0&&!path?.endsWith('/compare')&&<CompareTray {...ctx}/>}<MobileNav {...ctx}/><AskDCW open={botOpen} setOpen={setBotOpen} {...ctx}/>{searchOpen&&<SearchPanel {...ctx}/>} {lead&&<LeadFlow lead={lead} vertical={vertical} go={go} close={()=>setLead(null)} notify={notify}/>} {toast&&<div className="toast" role="status"><Check size={17}/>{toast}</div>}</div>}
 
 function MotionLayer(){
   const progressRef=useRef(null);
@@ -1242,10 +1242,62 @@ return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget&&
 </aside>}</div></div>}
 function CompareTray({vertical,compare,go}){return <div className="compare-tray glass-dark"><span><b>{compare[vertical].length} of 3 selected</b><small>{compare[vertical].length<2?'Add one more for a useful comparison':'Ready to compare side by side'}</small></span><button disabled={compare[vertical].length<2} onClick={()=>go(`/${vertical}/compare`)}>Compare now<ArrowRight/></button></div>}
 function MobileNav({vertical,go,setSearchOpen,path}){return <nav className="mobile-nav" aria-label="Mobile navigation"><button className={path===`/${vertical}`?'active':''} onClick={()=>go(`/${vertical}`)}><Home/>Home</button><button className={path?.includes('search')||path?.includes('universities')?'active':''} onClick={()=>go(vertical==='distance'?'/distance/universities':`/${vertical}/search`)}><Search/>Explore</button><button className="mobile-main" onClick={()=>setSearchOpen(true)}><Search/>Search</button><button className={path==='/saved'?'active':''} onClick={()=>go('/saved')}><Heart/>Saved</button><button className={path==='/profile'?'active':''} onClick={()=>go('/profile')}><UserRound/>Profile</button></nav>}
-function Footer({go,vertical,path}){const brand=V[vertical];return <footer className="footer"><div className="container"><div><div className="brand inverse"><BrandLockup vertical={vertical}/><span><b>{brand.logoAlt}</b><small>Your next move, made visible.</small></span></div><p>Clear education and career decisions for students across India.</p>{/* The reference puts a gradient pill under its logo carrying a founding
+/* The one thing the footer did not do. Every checklist of what belongs at the
+   bottom of a page agrees on the same six things — contact details, a mini
+   sitemap, copyright, social, a way back to the top, and a last call to act —
+   and this footer already had five of them. What it did not have was the sixth:
+   somewhere to go for a reader who has scrolled the whole page and is still
+   deciding. So the band sits at the TOP of the footer, where it catches that
+   reader before the link columns, and it asks rather than sells: a question
+   about their situation, not a pitch.
+
+   Both controls are existing, working flows — the counselling modal that the
+   hero and the contact strip already open, and the vertical's own listing. No
+   newsletter box: this product has no mailing list to sign anyone up to, and a
+   form that posts nowhere is worse than no form.
+
+   Everywhere except the three home pages. Those already end on the stat band,
+   which closes with the same ask in the same words — two consecutive invitations
+   to talk to the same counsellor is the repetition that makes a page feel
+   generated. The footer carries it on the other forty-odd routes, which had no
+   closing ask at all: a search result, a university page and the blog all ended
+   on a link list.
+
+   NOT added, and worth saying plainly: the privacy policy and terms links that
+   belong in a footer of a site which collects enquiries. There are no such
+   pages yet, and a footer link to a 404 is not compliance. */
+function FooterCta({vertical,go,setLead}){
+  const ask=vertical==='jobs'?'Not sure which role to apply for?'
+    :vertical==='colleges'?'Not sure which college to target?'
+    :'Not sure which programme fits you?';
+  const line=vertical==='jobs'?'Tell us the kind of work you are looking for and where. A counsellor will go through the openings that match with you.'
+    :vertical==='colleges'?'Tell us your marks, your budget and the states you would move to. A counsellor will build the shortlist with you.'
+    :'Tell us what you have studied and how much time you have. A counsellor will work through the programmes that fit with you.';
+  const browse=vertical==='jobs'?['Browse jobs','/jobs/search']
+    :vertical==='colleges'?['Browse colleges','/colleges/search']
+    :['Browse universities','/distance/universities'];
+  return <div className="container footer-cta">
+    <div>
+      <span className="fc-eyebrow"><MessageCircle/>Still deciding</span>
+      <h2>{ask}</h2>
+      <p>{line}</p>
+    </div>
+    <div className="fc-actions">
+      <button className="btn light" onClick={()=>setLead({title:'Talk to a DCW counsellor',interest:vertical})}>Talk to a counsellor<ArrowRight/></button>
+      <button className="btn fc-ghost" onClick={()=>go(browse[1])}>{browse[0]}</button>
+    </div>
+  </div>;
+}
+
+function Footer({go,vertical,path,setLead}){const brand=V[vertical];return <footer className="footer" id="site-footer">{!(!path||path==='/'||path===`/${vertical}`)&&<FooterCta vertical={vertical} go={go} setLead={setLead}/>}{/* `footer-grid`, not the bare `container` it used to be: the five-column
+    sitemap was addressed as `.footer>.container:first-child` in three
+    stylesheets, and the call-to-action band above it is now that first child.
+    A class says what the element is; `:first-child` only said where it sat. */}<div className="container footer-grid"><div><div className="brand inverse"><BrandLockup vertical={vertical}/><span><b>{brand.logoAlt}</b><small>Your next move, made visible.</small></span></div><p>Clear education and career decisions for students across India.</p>{/* The reference puts a gradient pill under its logo carrying a founding
       year. We do not publish one, and a year is a claim rather than a
       decoration — so the slot takes the vertical's own tagline, which is
-      already in V[] and already on the masthead. */}<span className="footer-tagline">{brand.tagline}</span><button className="automation-link" onClick={()=>go('/automations')}><Workflow/>Automation centre</button></div><div><b>Distance</b><button onClick={()=>go('/distance/universities')}>Universities</button><button onClick={()=>go('/distance/boards')}>Board comparison</button></div><div><b>Colleges</b><button onClick={()=>go('/colleges/search')}>Find colleges</button><button onClick={()=>go('/colleges/neet-predictor')}>NEET predictor</button></div><div><b>Jobs</b><button onClick={()=>go('/jobs/search')}>Find jobs</button><button onClick={()=>go('/jobs/resume-builder')}>Resume builder</button></div><div><b>Company</b><button onClick={()=>go('/about')}>About us</button><button onClick={()=>go('/blog')}>Blog</button><button onClick={()=>go('/reviews')}>Reviews</button></div></div>
+      already in V[] and already on the masthead. */}<span className="footer-tagline">{brand.tagline}</span><button className="automation-link" onClick={()=>go('/automations')}><Workflow/>Automation centre</button></div><div><b>Distance</b><button onClick={()=>go('/distance/universities')}>Universities</button><button onClick={()=>go('/distance/boards')}>Board comparison</button></div><div><b>Colleges</b><button onClick={()=>go('/colleges/search')}>Find colleges</button><button onClick={()=>go('/colleges/neet-predictor')}>NEET predictor</button></div><div><b>Jobs</b><button onClick={()=>go('/jobs/search')}>Find jobs</button><button onClick={()=>go('/jobs/resume-builder')}>Resume builder</button></div><div><b>Company</b><button onClick={()=>go('/about')}>About us</button><button onClick={()=>go('/blog')}>Blog</button>{/* Reviews are a Distance Courses Wala page. The other two verticals do not
+      carry them, so the footer must not offer a door to a room they do not
+      have. */}{vertical==='distance'&&<button onClick={()=>go('/reviews')}>Reviews</button>}</div></div>
   {/* One contact row, in the footer, because the footer is the only thing that
       renders on every page of all three verticals — Distance Courses Wala,
       Colleges Wala and Berojgar Bharat share this component, so the office
