@@ -6020,3 +6020,157 @@ body{overflow-x:visible;overflow-y:visible}
   .app .cred-grid button:hover .cr-mark,
   .app .offer-card:hover .oc-icon,.app .as-principles li:hover .ap-icon{transform:none}
 }
+
+/* R14. The CTA gets a thickness -------------------------------------------
+   OBSERVED in the call-to-action set: the buttons that read as three-
+   dimensional are not bevelled or glossy. Every one of them is a flat pill
+   sitting on a solid, hard-edged plate of the same hue a few shades darker —
+   a key on a keyboard, not a gradient. One board renders the same idea in
+   perspective with a glow behind it and a cursor pushing it down; another
+   lays out the whole state ladder, default / hover / pressed / disabled, and
+   makes the point that the pressed state is the part people actually feel.
+
+   So the depth here is structural, not painted. The plate is `--accent-deep`,
+   which every vertical already defines, so the CTA is blue on Distance, red on
+   Colleges and orange on Jobs without a single hard-coded hex. Hover raises
+   the cap and the plate grows with it. Press drives the cap down INTO the
+   plate until only a millimetre of thickness is left — the travel and the
+   shadow move together, which is the whole reason it reads as an object and
+   not as a rectangle that changed colour. Disabled loses the plate outright,
+   because a key that cannot be pressed should not look pressable.
+
+   This is the large-CTA treatment only, and the list below is the six controls
+   that actually carry a page: the hero action, the search submit, the sticky
+   compare bar, the form submits and the unlock. Ordinary `.btn.primary` inside
+   a section keeps the lighter lift from R12 — if every button on a page is a
+   keycap, none of them is the call to action. The sheen sweep stays retired:
+   the set does not use one, and it was turned off two hundred lines above for
+   good reason. */
+.app .hs-actions .hs-primary,
+.app .hh-search .btn.primary,
+.app .btn.primary.tactile,
+.app .btn.primary.full,
+.app .btn.primary.unlock,
+.app .btn.primary.compare-all{
+  --cta-base:var(--accent-deep,#07356F);
+  box-shadow:0 5px 0 var(--cta-base),
+             0 11px 20px -7px color-mix(in srgb,var(--cta-base) 58%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.16);
+  transition:transform var(--t-micro) var(--ease-out),
+             box-shadow var(--t-micro) var(--ease-out),
+             background var(--t-micro) var(--ease-out)}
+
+/* A white cap on a photograph cannot sit on an accent plate — the picture is
+   already carrying colour. It gets the same thickness in near-black instead. */
+.app .pc-actions .btn.light{--cta-base:#0A1A33;
+  box-shadow:0 5px 0 var(--cta-base),
+             0 12px 22px -8px rgb(4 10 22/.55);
+  transition:transform var(--t-micro) var(--ease-out),
+             box-shadow var(--t-micro) var(--ease-out),
+             background var(--t-micro) var(--ease-out)}
+
+.app .hs-actions .hs-primary:hover:not(:disabled),
+.app .hh-search .btn.primary:hover:not(:disabled),
+.app .btn.primary.tactile:hover:not(:disabled),
+.app .btn.primary.full:hover:not(:disabled),
+.app .btn.primary.unlock:hover:not(:disabled),
+.app .btn.primary.compare-all:hover:not(:disabled),
+.app .pc-actions .btn.light:hover:not(:disabled){
+  transform:translateY(-2px);
+  box-shadow:0 7px 0 var(--cta-base),
+             0 18px 28px -8px color-mix(in srgb,var(--cta-base) 68%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.16)}
+
+/* The press. Four pixels down against a plate that shrinks to one: the cap
+   ends up level with the ground, which is what being pushed looks like. */
+.app .hs-actions .hs-primary:active:not(:disabled),
+.app .hh-search .btn.primary:active:not(:disabled),
+.app .btn.primary.tactile:active:not(:disabled),
+.app .btn.primary.full:active:not(:disabled),
+.app .btn.primary.unlock:active:not(:disabled),
+.app .btn.primary.compare-all:active:not(:disabled),
+.app .pc-actions .btn.light:active:not(:disabled){
+  transform:translateY(4px);
+  box-shadow:0 1px 0 var(--cta-base),
+             0 3px 7px -4px color-mix(in srgb,var(--cta-base) 50%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.1)}
+
+.app .hs-actions .hs-primary:disabled,
+.app .hh-search .btn.primary:disabled,
+.app .btn.primary.tactile:disabled,
+.app .btn.primary.full:disabled,
+.app .btn.primary.unlock:disabled,
+.app .btn.primary.compare-all:disabled,
+.app .pc-actions .btn.light:disabled{
+  transform:none;box-shadow:0 2px 0 color-mix(in srgb,var(--cta-base) 45%,transparent)}
+
+/* The direction cue the set is unanimous about: a trailing arrow that leans
+   the way the click goes. Trailing only — an icon that labels the action sits
+   on the left and has no business moving. */
+.app .hs-actions .hs-primary>svg:last-child,
+.app .hh-search .btn.primary>svg:last-child,
+.app .btn.primary.tactile>svg:last-child,
+.app .btn.primary.full>svg:last-child,
+.app .btn.primary.unlock>svg:last-child,
+.app .btn.primary.compare-all>svg:last-child,
+.app .pc-actions .btn.light>svg:last-child{
+  transition:transform var(--t-micro) var(--ease-out)}
+.app .hs-actions .hs-primary:hover:not(:disabled)>svg:last-child,
+.app .hh-search .btn.primary:hover:not(:disabled)>svg:last-child,
+.app .btn.primary.tactile:hover:not(:disabled)>svg:last-child,
+.app .btn.primary.full:hover:not(:disabled)>svg:last-child,
+.app .btn.primary.unlock:hover:not(:disabled)>svg:last-child,
+.app .btn.primary.compare-all:hover:not(:disabled)>svg:last-child,
+.app .pc-actions .btn.light:hover:not(:disabled)>svg:last-child{
+  transform:translateX(3px)}
+
+/* Reduced motion keeps the press — a control has to answer a finger — and
+   drops the hover travel and the arrow, which are flourish. */
+@media(prefers-reduced-motion:reduce){
+  .app .hs-actions .hs-primary:hover:not(:disabled),
+  .app .hh-search .btn.primary:hover:not(:disabled),
+  .app .btn.primary.tactile:hover:not(:disabled),
+  .app .btn.primary.full:hover:not(:disabled),
+  .app .btn.primary.unlock:hover:not(:disabled),
+  .app .btn.primary.compare-all:hover:not(:disabled),
+  .app .pc-actions .btn.light:hover:not(:disabled){transform:none}
+  .app .hs-actions .hs-primary:hover:not(:disabled)>svg:last-child,
+  .app .hh-search .btn.primary:hover:not(:disabled)>svg:last-child,
+  .app .btn.primary.tactile:hover:not(:disabled)>svg:last-child,
+  .app .btn.primary.full:hover:not(:disabled)>svg:last-child,
+  .app .btn.primary.unlock:hover:not(:disabled)>svg:last-child,
+  .app .btn.primary.compare-all:hover:not(:disabled)>svg:last-child,
+  .app .pc-actions .btn.light:hover:not(:disabled)>svg:last-child{transform:none}
+}
+
+/* Two controls already had a thickness of their own and now have to agree with
+   this one. `.tactile` carried a 7px plate declared `!important` in globals, so
+   it takes `!important` back rather than a deeper selector — the point is that
+   every keycap on the site is the same height. The compare tray's button is the
+   one CTA that is not accent-coloured: it is the spark yellow on a dark bar, so
+   its plate is mixed from the spark instead. */
+.app .btn.tactile{--cta-base:var(--accent-deep,#07356F);
+  box-shadow:0 5px 0 var(--cta-base),
+             0 11px 20px -7px color-mix(in srgb,var(--cta-base) 58%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.16)!important}
+.app .btn.tactile:hover:not(:disabled){transform:translateY(-2px);
+  box-shadow:0 7px 0 var(--cta-base),
+             0 18px 28px -8px color-mix(in srgb,var(--cta-base) 68%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.16)!important}
+.app .btn.tactile:active:not(:disabled){transform:translateY(4px);
+  box-shadow:0 1px 0 var(--cta-base),
+             0 3px 7px -4px color-mix(in srgb,var(--cta-base) 50%,transparent)!important}
+
+.app .compare-tray button{--cta-base:color-mix(in srgb,var(--spark,#F7A928) 62%,#2A1704);
+  box-shadow:0 4px 0 var(--cta-base),0 10px 18px -8px rgb(0 0 0/.55);
+  transition:transform var(--t-micro) var(--ease-out),
+             box-shadow var(--t-micro) var(--ease-out)}
+.app .compare-tray button:hover:not(:disabled){transform:translateY(-2px);
+  box-shadow:0 6px 0 var(--cta-base),0 16px 24px -9px rgb(0 0 0/.6)}
+.app .compare-tray button:active:not(:disabled){transform:translateY(3px);
+  box-shadow:0 1px 0 var(--cta-base),0 3px 6px -4px rgb(0 0 0/.5)}
+.app .compare-tray button:disabled{box-shadow:0 2px 0 color-mix(in srgb,var(--cta-base) 45%,transparent)}
+@media(prefers-reduced-motion:reduce){
+  .app .btn.tactile:hover:not(:disabled),
+  .app .compare-tray button:hover:not(:disabled){transform:none}
+}

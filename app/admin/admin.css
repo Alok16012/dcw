@@ -83,15 +83,28 @@
 .adm-btn:active:not(:disabled){transform:translateY(1px)}
 .adm-btn svg{width:15px;height:15px;flex:none}
 .adm-btn:hover{background:var(--line-2);border-color:#C9D3DE}
-.adm-btn.pri{background:var(--a);border-color:var(--a);color:#fff;box-shadow:0 4px 12px #0b4da82e,inset 0 1px 0 #ffffff26}
-.adm-btn.pri:hover{transform:translateY(-1px);box-shadow:0 8px 20px #0b4da838,inset 0 1px 0 #ffffff26}
-.adm-btn.pri:active:not(:disabled){transform:translateY(1px);box-shadow:0 2px 7px #0b4da833}
-.adm-btn.pri:hover{background:var(--a-deep);border-color:var(--a-deep)}
+/* The site's CTA keycap, at console scale: a solid 3px plate instead of 5, and
+   only on `.pri`. The cap keeps one colour through the whole ladder — the
+   height is what changes, which is the entire point of the shape. The old rule
+   darkened the fill on hover, and against a plate that is already the dark blue
+   the thickness would have vanished exactly when it was meant to grow. */
+.adm-btn.pri{--cta-base:#06285A;background:var(--a);border-color:var(--a);color:#fff;
+  box-shadow:0 3px 0 var(--cta-base),0 8px 16px -6px #0b4da866,inset 0 1px 0 #ffffff26}
+.adm-btn.pri:hover{transform:translateY(-2px);
+  box-shadow:0 5px 0 var(--cta-base),0 14px 22px -8px #0b4da877,inset 0 1px 0 #ffffff26}
+.adm-btn.pri:active:not(:disabled){transform:translateY(2px);
+  box-shadow:0 1px 0 var(--cta-base),0 2px 6px -3px #0b4da866}
+.adm-btn.pri:disabled{transform:none;box-shadow:0 2px 0 #06285a73}
 .adm-btn.danger{color:var(--bad);border-color:#EBC9C7}
 .adm-btn.danger:hover{background:var(--bad-w)}
 .adm-btn.sm{min-height:32px;padding:0 14px;font-size:12.5px}
-@media(prefers-reduced-motion:reduce){.adm-btn.pri:hover{transform:none}}
+/* No travel means the hover has to be said in colour instead. */
+@media(prefers-reduced-motion:reduce){
+  .adm-btn.pri:hover{transform:none;background:var(--a-deep);border-color:var(--a-deep)}}
 .adm-btn:disabled{opacity:.5;cursor:not-allowed}
+/* Same rule, applied wherever a button is nothing but its glyph. */
+.adm-btn:has(>svg:only-child){padding:0;width:38px;min-width:38px;border-radius:50%}
+.adm-btn.sm:has(>svg:only-child){width:32px;min-width:32px}
 .adm-btn.ghost{border-color:transparent;background:transparent}
 .adm-btn.ghost:hover{background:var(--line-2)}
 
@@ -357,7 +370,10 @@
 .adm-optinput{flex:1;min-width:0;min-height:34px;border:1px solid var(--a);border-radius:var(--r-1);
   padding:0 9px;font:inherit;font-size:13px;background:#fff;color:var(--ink)}
 .adm-optmove{display:flex;gap:2px;flex:none}
-.adm-optmove .adm-btn{padding:0 7px;min-width:26px;font-size:13px;line-height:1}
+/* Once .adm-btn became a pill these two stopped working as 26x32 lozenges.
+   An icon-only control in this console is a circle, the same rule the site's
+   .btn.icon follows. */
+.adm-optmove .adm-btn{padding:0;width:32px;min-width:32px;border-radius:50%;font-size:13px;line-height:1}
 .adm-optadd{display:flex;gap:8px;margin-top:12px}
 .adm-optadd input{flex:1;min-width:0;min-height:38px;border:1px solid var(--line);border-radius:var(--r-2);
   padding:0 11px;font:inherit;font-size:13.5px;background:#fff;color:var(--ink)}

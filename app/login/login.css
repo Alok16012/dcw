@@ -36,11 +36,14 @@
 .lg-field input:focus{border-color:var(--a);outline:2px solid var(--a-wash);outline-offset:0}
 /* The same pill the site and the console use, so the sign-in button is
    recognisably the product's primary action rather than a form's submit. */
-.lg-go{width:100%;min-height:48px;border:0;border-radius:999px;background:var(--a);color:#fff;font:inherit;font-size:14.5px;font-weight:700;cursor:pointer;transition:150ms;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:0 5px 14px #0b4da82e,inset 0 1px 0 #ffffff26}
-.lg-go:hover:not(:disabled){background:var(--a-deep);transform:translateY(-1px);box-shadow:0 10px 22px #0b4da838,inset 0 1px 0 #ffffff26}
-.lg-go:active:not(:disabled){transform:translateY(1px);box-shadow:0 2px 8px #0b4da833}
-@media(prefers-reduced-motion:reduce){.lg-go:hover:not(:disabled){transform:none}}
-.lg-go:disabled{opacity:.6;cursor:not-allowed}
+/* Sign in is the only action on this page, so it takes the full 5px plate the
+   public site gives a hero CTA rather than the console's 3px. Same ladder: the
+   cap holds its colour and the thickness does the talking. */
+.lg-go{--cta-base:#06285A;width:100%;min-height:48px;border:0;border-radius:999px;background:var(--a);color:#fff;font:inherit;font-size:14.5px;font-weight:700;cursor:pointer;transition:150ms;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:0 5px 0 var(--cta-base),0 11px 20px -7px #0b4da866,inset 0 1px 0 #ffffff26}
+.lg-go:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 7px 0 var(--cta-base),0 18px 28px -8px #0b4da877,inset 0 1px 0 #ffffff26}
+.lg-go:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 var(--cta-base),0 3px 7px -4px #0b4da855}
+@media(prefers-reduced-motion:reduce){.lg-go:hover:not(:disabled){transform:none;background:var(--a-deep)}}
+.lg-go:disabled{opacity:.6;cursor:not-allowed;transform:none;box-shadow:0 2px 0 #06285a73}
 .lg-err{display:flex;gap:9px;align-items:flex-start;background:var(--bad-w);border:1px solid #EBC9C7;color:var(--bad);border-radius:10px;padding:11px 13px;font-size:13px;font-weight:650;margin-bottom:16px;line-height:1.5}
 .lg-err svg{width:16px;height:16px;flex:none;margin-top:1px}
 .lg-demo{margin-top:22px;border-top:1px solid var(--line);padding-top:18px}
