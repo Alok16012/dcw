@@ -34,8 +34,12 @@
 .lg-field span{display:block;font-size:12.5px;font-weight:700;margin-bottom:6px}
 .lg-field input{width:100%;min-height:44px;border:1px solid var(--line);border-radius:11px;padding:0 13px;font:inherit;font-size:15px;transition:150ms}
 .lg-field input:focus{border-color:var(--a);outline:2px solid var(--a-wash);outline-offset:0}
-.lg-go{width:100%;min-height:46px;border:0;border-radius:11px;background:var(--a);color:#fff;font:inherit;font-size:14.5px;font-weight:700;cursor:pointer;transition:150ms;display:flex;align-items:center;justify-content:center;gap:9px}
-.lg-go:hover:not(:disabled){background:var(--a-deep)}
+/* The same pill the site and the console use, so the sign-in button is
+   recognisably the product's primary action rather than a form's submit. */
+.lg-go{width:100%;min-height:48px;border:0;border-radius:999px;background:var(--a);color:#fff;font:inherit;font-size:14.5px;font-weight:700;cursor:pointer;transition:150ms;display:flex;align-items:center;justify-content:center;gap:9px;box-shadow:0 5px 14px #0b4da82e,inset 0 1px 0 #ffffff26}
+.lg-go:hover:not(:disabled){background:var(--a-deep);transform:translateY(-1px);box-shadow:0 10px 22px #0b4da838,inset 0 1px 0 #ffffff26}
+.lg-go:active:not(:disabled){transform:translateY(1px);box-shadow:0 2px 8px #0b4da833}
+@media(prefers-reduced-motion:reduce){.lg-go:hover:not(:disabled){transform:none}}
 .lg-go:disabled{opacity:.6;cursor:not-allowed}
 .lg-err{display:flex;gap:9px;align-items:flex-start;background:var(--bad-w);border:1px solid #EBC9C7;color:var(--bad);border-radius:10px;padding:11px 13px;font-size:13px;font-weight:650;margin-bottom:16px;line-height:1.5}
 .lg-err svg{width:16px;height:16px;flex:none;margin-top:1px}

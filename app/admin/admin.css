@@ -75,18 +75,22 @@
 .adm-body{padding:22px 26px 60px;flex:1}
 
 /* ── buttons ── */
-/* Flat fills and a 1px travel on press, like the site's .btn — the console
-   never had a plinth, so matching it is mostly weight and height. */
-.adm-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:0 16px;border-radius:var(--r-2);border:1px solid var(--line);background:#fff;color:var(--ink);font-size:13.5px;font-weight:700;cursor:pointer;transition:var(--t);white-space:nowrap}
+/* Pills, like the site's .btn. The console carries far more buttons per screen
+   than any public page, so it takes the shape and the press but a smaller lift
+   — a toolbar of eight glowing controls is a light show, not a hierarchy. Only
+   the primary is raised, and only enough to name itself as the one that acts. */
+.adm-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:0 18px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:13.5px;font-weight:700;cursor:pointer;transition:var(--t);white-space:nowrap}
 .adm-btn:active:not(:disabled){transform:translateY(1px)}
 .adm-btn svg{width:15px;height:15px;flex:none}
 .adm-btn:hover{background:var(--line-2);border-color:#C9D3DE}
-.adm-btn.pri{background:var(--a);border-color:var(--a);color:#fff;box-shadow:0 1px 2px #0b4da838}
-.adm-btn.pri:hover{box-shadow:0 5px 14px #0b4da833}
+.adm-btn.pri{background:var(--a);border-color:var(--a);color:#fff;box-shadow:0 4px 12px #0b4da82e,inset 0 1px 0 #ffffff26}
+.adm-btn.pri:hover{transform:translateY(-1px);box-shadow:0 8px 20px #0b4da838,inset 0 1px 0 #ffffff26}
+.adm-btn.pri:active:not(:disabled){transform:translateY(1px);box-shadow:0 2px 7px #0b4da833}
 .adm-btn.pri:hover{background:var(--a-deep);border-color:var(--a-deep)}
 .adm-btn.danger{color:var(--bad);border-color:#EBC9C7}
 .adm-btn.danger:hover{background:var(--bad-w)}
-.adm-btn.sm{min-height:32px;padding:0 12px;font-size:12.5px;border-radius:var(--r-1)}
+.adm-btn.sm{min-height:32px;padding:0 14px;font-size:12.5px}
+@media(prefers-reduced-motion:reduce){.adm-btn.pri:hover{transform:none}}
 .adm-btn:disabled{opacity:.5;cursor:not-allowed}
 .adm-btn.ghost{border-color:transparent;background:transparent}
 .adm-btn.ghost:hover{background:var(--line-2)}
@@ -439,3 +443,14 @@
 @media(prefers-reduced-motion:reduce){
   .adm *,.adm *::before{animation-duration:.001ms!important;transition-duration:.001ms!important}
 }
+
+/* The same lit-object treatment the site's icon plates take, at console scale.
+   Two marks, not twenty — a toolbar is not a place for depth, but the identity
+   avatar and the preview mark are objects rather than labels, so they get one. */
+.adm-avatar,.adm-preview-card .mark{
+  border-radius:30%;
+  background-image:
+    radial-gradient(62% 46% at 28% 12%,#ffffff80,transparent 72%),
+    linear-gradient(180deg,#ffffff4d,#ffffff00 54%,#09142d1a);
+  box-shadow:inset 0 1.5px 0 #ffffff59,inset 0 -2px 3px #09142d17,
+             0 4px 10px -3px #09142d33}

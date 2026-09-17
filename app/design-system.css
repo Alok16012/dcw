@@ -5874,3 +5874,149 @@ body{overflow-x:visible;overflow-y:visible}
   .app .compare-tray button{flex:none;white-space:nowrap;min-height:42px;
     border-radius:var(--r-2)}
 }
+
+/* R12. Buttons become pills ------------------------------------------------
+   OBSERVED across the four boards in the reference set: every control is a
+   full pill. It is raised off the surface by a soft shadow tinted with its
+   own fill colour rather than a neutral grey, and it has a visible pressed
+   state. Secondary controls are the same pill drawn as a hairline outline.
+   Icon-only controls are circles. The dark capsule on the last board divides
+   its links with hairlines inside one pill rather than splitting into four.
+
+   NOT TAKEN, deliberately: the chrome bevel, the clay extrusion, the rainbow
+   gradient fill and the neumorphic white-on-white pair. Three are the kind of
+   decoration the brief rules out, and the neumorphic one sets grey text on a
+   white face at roughly 3:1 — it cannot carry a primary action on a site
+   people apply to courses through. Shape, lift and press are the parts of
+   that set that survive contact with real content, so those are the parts
+   taken, in our own per-vertical colour.
+
+   One rule sets the radius for the whole matrix: outline, light, ghost,
+   danger and quiet all read it from here, so the family cannot drift. */
+.app .btn{border-radius:var(--r-pill)}
+.app .btn.icon{border-radius:50%}
+.app .btn.icon.small{width:40px}
+
+/* The lift. The glow is mixed from --accent-deep so it reads as the button's
+   own shadow in all three verticals rather than as a grey smudge under a
+   blue, red or orange face. */
+.app .btn.primary{
+  box-shadow:0 6px 16px color-mix(in srgb,var(--accent-deep,#07356F) 26%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.16)}
+.app .btn.primary:hover:not(:disabled){
+  background:color-mix(in srgb,var(--accent-ink,var(--accent,#0B4DA8)) 90%,#000);
+  transform:translateY(-2px);
+  box-shadow:0 12px 26px color-mix(in srgb,var(--accent-deep,#07356F) 34%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.16)}
+.app .btn.primary:active:not(:disabled){
+  transform:translateY(1px);
+  box-shadow:0 3px 9px color-mix(in srgb,var(--accent-deep,#07356F) 30%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.10)}
+
+.app .btn.danger{
+  box-shadow:0 6px 16px rgb(110 21 18/.26),inset 0 1px 0 rgb(255 255 255/.16)}
+.app .btn.danger:hover:not(:disabled){
+  transform:translateY(-2px);box-shadow:0 12px 26px rgb(110 21 18/.32),
+             inset 0 1px 0 rgb(255 255 255/.16)}
+
+/* A white pill on a solid tile is the one place the shadow is neutral: it is
+   cast on the tile's colour, not on the page. */
+.app .btn.light{box-shadow:0 4px 12px rgb(9 20 45/.16)}
+.app .btn.light:hover:not(:disabled){transform:translateY(-2px);
+  box-shadow:0 9px 22px rgb(9 20 45/.22)}
+
+/* Hairline secondaries: same pill, no fill, 1.5px so the outline holds its
+   weight against the primary next to it. */
+.app .btn.outline,.app .btn.secondary{border-width:1.5px}
+.app .btn.outline:hover:not(:disabled),.app .btn.secondary:hover:not(:disabled){
+  transform:translateY(-2px)}
+
+/* The three places a radius was pinned to the old 12px square. */
+.app .btn.primary.tactile,.app .talk{border-radius:var(--r-pill)!important}
+.app .hs-actions .btn{border-radius:var(--r-pill)}
+.app .oc-go{border-radius:var(--r-pill)}
+
+@media(prefers-reduced-motion:reduce){
+  .app .btn.primary:hover:not(:disabled),.app .btn.danger:hover:not(:disabled),
+  .app .btn.light:hover:not(:disabled),.app .btn.outline:hover:not(:disabled),
+  .app .btn.secondary:hover:not(:disabled){transform:none}
+}
+
+/* R13. Icons get a body ----------------------------------------------------
+   ASKED FOR: iconscout's 3D icon set. WHAT WAS ACTUALLY DONE, and why it is
+   not a download.
+
+   Those files are licensed stock — free ones need attribution, most need a
+   paid seat, and getting either means signing into an account, which is not
+   mine to do. Nothing from that library is committed here. Separately, they
+   would not have worked: this product draws about sixty distinct glyphs, and
+   most of them are 14-18px — a chevron in a select, an X on a filter chip, an
+   arrow inside a button, a clock in a table row. A 3D render is a raster that
+   cannot take `currentColor`, cannot invert on a dark tile, and turns to mud
+   below roughly 32px. Swapping those wholesale would have cost legibility on
+   every screen to buy novelty on three.
+
+   So the treatment is applied where 3D icons actually earn their weight — the
+   large plates that already carry one glyph each — and it is drawn rather than
+   fetched. What makes that library read as three-dimensional is four things:
+   a rounded-cube silhouette, light from above, a specular catch in the upper
+   left, and a soft shadow underneath tinted with the object's own colour. All
+   four are gradients and shadows, so they cost nothing, theme per vertical,
+   and stay sharp at any size.
+
+   The fill is deliberately untouched — these rules add light to whatever wash,
+   tint or accent each plate already carries, so Distance stays blue, Colleges
+   stays red and Jobs stays orange rather than all three turning into the same
+   violet render. Functional micro-icons keep their flat line forms. */
+.app :is(.ct-icon,.cr-mark,.pc-icon,.al-mark,.ap-icon,.np-mark,.entity-mark,
+  .plate-chip,.oc-icon){
+  border-radius:30%;
+  background-image:
+    radial-gradient(62% 46% at 28% 12%,rgb(255 255 255/.5),transparent 72%),
+    linear-gradient(180deg,rgb(255 255 255/.3),rgb(255 255 255/0) 54%,rgb(9 20 45/.1));
+  box-shadow:inset 0 1.5px 0 rgb(255 255 255/.6),
+             inset 0 -2px 3px rgb(9 20 45/.09),
+             0 4px 10px -3px rgb(9 20 45/.2),
+             0 1px 3px -1px rgb(9 20 45/.14);
+  transition:transform var(--t-micro) var(--ease-out),
+             box-shadow var(--t-micro) var(--ease-out)}
+
+/* The glyph sits on the face rather than in it. */
+.app :is(.ct-icon,.cr-mark,.pc-icon,.al-mark,.ap-icon,.oc-icon) svg{
+  filter:drop-shadow(0 1px 1px rgb(9 20 45/.22))}
+
+/* A circle stays a circle: the article byline mark is a sphere, not a cube. */
+.app .am-mark{
+  background-image:
+    radial-gradient(58% 44% at 30% 16%,rgb(255 255 255/.62),transparent 70%),
+    linear-gradient(180deg,rgb(255 255 255/.26),rgb(255 255 255/0) 56%,rgb(9 20 45/.12));
+  box-shadow:inset 0 1.5px 0 rgb(255 255 255/.6),
+             inset 0 -2px 4px rgb(9 20 45/.1),
+             0 4px 10px -3px rgb(9 20 45/.2)}
+
+/* A white plate on a solid coloured tile casts its shadow on that tile, so the
+   shadow is the tile's own darkness rather than the page's neutral grey. */
+.app .oc-icon{
+  box-shadow:inset 0 1.5px 0 rgb(255 255 255/.4),
+             inset 0 -2px 3px rgb(0 0 0/.12),
+             0 4px 10px -3px rgb(0 0 0/.24)}
+
+/* An accent-filled plate is the one that gets a coloured shadow, the same move
+   the primary button makes: the object lights its own ground. */
+.app .np-mark{
+  box-shadow:inset 0 1.5px 0 rgb(255 255 255/.34),
+             inset 0 -2px 3px rgb(0 0 0/.14),
+             0 5px 12px -3px color-mix(in srgb,var(--accent-deep,#07356F) 40%,transparent)}
+
+/* When the card lifts, the object on it catches a little more light. The
+   category tile is not in this list on purpose: its icon is a badge pinned to
+   the corner of a photograph, it already tilts on hover, and it keeps both its
+   own flat white chip and that tilt. */
+.app .cred-grid button:hover .cr-mark,
+.app .offer-card:hover .oc-icon,
+.app .as-principles li:hover .ap-icon{transform:translateY(-1px) scale(1.04)}
+
+@media(prefers-reduced-motion:reduce){
+  .app .cred-grid button:hover .cr-mark,
+  .app .offer-card:hover .oc-icon,.app .as-principles li:hover .ap-icon{transform:none}
+}
