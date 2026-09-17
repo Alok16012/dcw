@@ -61,7 +61,8 @@ export function EntityCard({item,vertical,go,saved,toggleSave,compare,toggleComp
     courses:isJob?null:all.map(c=>c.name),
     where:item.place});
   return <article className="entity-card">
-    <Plate seed={item.name} mark={item.mark} tag={item.approval[0]} image={item.image} alt={item.imageAlt||''}/>
+    <Plate seed={item.name} mark={item.mark} tag={item.approval[0]} image={item.image} alt={item.imageAlt||''}
+      note={item.imageIllustrative?'Illustrative':null}/>
     <button aria-label={isSaved?`Remove ${item.name} from saved`:`Save ${item.name}`} aria-pressed={isSaved}
       className={isSaved?'ec-save active':'ec-save'} onClick={()=>toggleSave(item.id)}><Heart/></button>
     <div className="ec-body">

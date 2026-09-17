@@ -100,7 +100,14 @@ export function plateMotif(kind,h,uid){
   </>;
 }
 
-export function Plate({seed,icon,mark,tag,image,alt='',ratio,tone,motif}){
+/* `note` is the small line in the bottom-right corner, and it exists for one
+   reason: when the photograph on the plate is a library scene standing in for a
+   campus nobody has photographed for us, the card has to say so. A picture of a
+   university, on a card that invites you to apply to that university, is a claim
+   about the place unless it is labelled. lib/store.js sets `imageIllustrative`
+   and the card passes the word through; an institution that uploads its own
+   photograph in /admin gets no note, because then there is nothing to disclaim. */
+export function Plate({seed,icon,mark,tag,note,image,alt='',ratio,tone,motif}){
   const h=seedOf(seed);
   const uid='pl'+(h%1679616).toString(36);
   const g=tone??h%6;                       /* tonal key */
@@ -131,6 +138,7 @@ export function Plate({seed,icon,mark,tag,image,alt='',ratio,tone,motif}){
           <g transform={`rotate(${tilt} 60 38)`}>{plateMotif(kind,h,uid)}</g>
         </svg>}
     {tag&&<span className="plate-tag">{tag}</span>}
+    {note&&<span className="plate-note">{note}</span>}
     {mark&&<span className="plate-mark" aria-hidden="true">{mark}</span>}
     {icon&&<span className="plate-chip" aria-hidden="true">{icon}</span>}
   </span>;

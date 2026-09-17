@@ -42,7 +42,12 @@ export function ComparePage({vertical,compare,toggleCompare,setLead,catalog}){
         <div className="compare-col labels"><b>Choice</b>{ROWS.map(r=><span key={r.label}>{r.label}</span>)}</div>
         {items.map(x=><div className="compare-col" key={x.id}>
           <button className="remove" aria-label={`Remove ${x.name} from the comparison`} onClick={()=>toggleCompare(x.id)}><X/></button>
-          <div className="cc-head"><span className="entity-mark" aria-hidden="true">{x.mark}</span><b>{x.name}</b></div>
+          {/* The column head gets the same picture the card had, so a shortlist
+              still looks like the three places it came from rather than three
+              initials. The photograph is not one of the compared facts, so it
+              stays a strip above them; `Illustrative` travels with it for the
+              same reason it travels on the card. */}
+          <div className="cc-head">{x.image&&<span className="cc-photo"><img src={x.image} alt={x.imageAlt||''} loading="lazy" decoding="async"/>{x.imageIllustrative&&<em>Illustrative</em>}</span>}<span className="entity-mark" aria-hidden="true">{x.mark}</span><b>{x.name}</b></div>
           {ROWS.map((r,i)=><span key={r.label} className={differs[i]?'different':undefined}
             aria-label={`${r.label} for ${x.name}: ${r.spoken(x,vertical)}`}>{r.value(x,vertical)}</span>)}
         </div>)}

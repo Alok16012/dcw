@@ -173,6 +173,10 @@ export default function InstitutionEditor({ params }) {
   const [approval, setApproval] = useState(blankApproval);
   const [proof, setProof] = useState(blankProof);
   const [google, setGoogle] = useState({ placeId: '', mapsUrl: '', address: '', lat: '', lng: '' });
+  /* The description of the campus photograph. Separate from `form` because it
+     is saved beside the file it describes, on the documents tab, rather than
+     with the name and the city. */
+  const [photoAlt, setPhotoAlt] = useState('');
 
   const load = useCallback(async () => {
     try {
@@ -191,6 +195,7 @@ export default function InstitutionEditor({ params }) {
         address: d.institution.google?.address ?? '',
         lat: d.institution.google?.lat ?? '', lng: d.institution.google?.lng ?? ''
       });
+      setPhotoAlt(d.institution.imageAlt ?? '');
       setErr(null);
     } catch (e) { setErr(e.message); }
   }, [id]);
@@ -680,6 +685,26 @@ export default function InstitutionEditor({ params }) {
                 <button className="adm-btn pri" onClick={() => patch({ google }, 'Location saved.')} disabled={busy}>
                   Save location
                 </button>
+
+                <h3 style={{ margin: '24px 0 10px', fontSize: 14 }}>Campus photograph</h3>
+                <FileField label="The picture the public card leads with" purpose="photo" institutionId={inst.id}
+                  title={`${inst.name} campus photograph`}
+                  hint="Until a real one is uploaded, every card for this listing shows a library scene marked “Illustrative”."
+                  value={inst.image ? { url: inst.image, title: 'Current campus photograph', kind: 'image' } : null}
+                  onUploaded={d => patch({ image: d.url, imageAlt: '' }, 'Campus photograph uploaded.')}
+                  onCleared={() => patch({ image: null, imageAlt: null }, 'Campus photograph removed. Cards go back to the illustrative scene.')} />
+                {inst.image && (
+                  <>
+                    <Field label="What the photograph shows"
+                      hint="Read aloud to anyone using a screen reader, and shown if the image fails to load.">
+                      <input value={photoAlt} onChange={e => setPhotoAlt(e.target.value)}
+                        placeholder={`The ${inst.name} campus`} />
+                    </Field>
+                    <button className="adm-btn" onClick={() => patch({ imageAlt: photoAlt }, 'Description saved.')} disabled={busy}>
+                      Save description
+                    </button>
+                  </>
+                )}
 
                 <h3 style={{ margin: '24px 0 10px', fontSize: 14 }}>Prospectus</h3>
                 <FileField label="Prospectus PDF" purpose="prospectus" institutionId={inst.id}

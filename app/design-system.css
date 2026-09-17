@@ -1148,6 +1148,18 @@
   padding:5px 9px;border-radius:var(--r-pill);
   box-shadow:0 4px 12px rgb(0 0 0/.26),inset 0 1px 0 rgb(255 255 255/.5)}
 
+/* The disclosure line, bottom-right of a plate that is carrying a photograph we
+   did not take of a place we do not hold a picture of. Deliberately quiet: no
+   pill, no accent, no icon. A badge would read as a feature of the institution;
+   this has to read as a footnote about the image. It sits inside the gradient
+   .plate::after already lays down along the bottom edge, and the shadow keeps
+   it legible over the light half of a bright scene. */
+.app .plate-note{
+  position:absolute;right:var(--s-3);bottom:var(--s-3);z-index:2;
+  font-size:var(--fs-050);font-weight:700;letter-spacing:var(--tr-caps);
+  text-transform:uppercase;color:rgb(255 255 255/.88);
+  text-shadow:0 1px 3px rgb(6 14 28/.66)}
+
 /* --- the card itself --- */
 .app .path-card{
   position:relative;display:flex;flex-direction:column;text-align:left;
@@ -1224,6 +1236,35 @@
     0 8px 18px rgb(0 0 0/.32)}
 /* a card carrying both keeps them from stacking on the same corner */
 .app .plate:has(.plate-mark) .plate-chip{left:auto;right:var(--s-3)}
+
+/* ---- the plate in the detail hero ----
+   The detail page used to open on an institution's initials in a 86px tile.
+   It now opens on the institution: the same plate the card carries, squared
+   off and rounded on all four corners because nothing is stacked beneath it
+   here. The monogram stays, riding the photograph as it does on the card —
+   it is the mark that names the place, and the picture is usually a stand-in.
+   Width, not height, because the hero's first grid column is `auto`. */
+.app .detail-plate{display:block;width:118px;flex:none}
+.app .detail-plate .plate{aspect-ratio:1;border-radius:var(--r-4);
+  border:1px solid var(--line)}
+/* A card plate is 300px wide and can seat the monogram and the disclosure on
+   the same bottom edge. This one is 118 and cannot — measured, they overlapped
+   by 15px — so the two separate: the mark to the top corner, the note to a
+   full-width line along the bottom. Centring the note is what lets it stay
+   legible at 9px without a background plate behind it. */
+.app .detail-plate .plate-mark{left:8px;top:8px;bottom:auto;min-width:40px;
+  height:30px;padding-inline:8px;border-radius:9px;font-size:var(--fs-100)}
+.app .detail-plate .plate-note{left:0;right:0;bottom:7px;text-align:center;
+  font-size:9px;letter-spacing:.05em}
+@media(max-width:760px){.app .detail-plate{width:84px}}
+
+/* ---- the strip above a comparison column ---- */
+.app .cc-photo{position:relative;display:block;width:100%;aspect-ratio:16/9;
+  overflow:hidden;border-radius:var(--r-2);background:var(--ink-1)}
+.app .cc-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.app .cc-photo em{position:absolute;right:6px;bottom:5px;font-style:normal;
+  font-size:9px;font-weight:700;letter-spacing:var(--tr-caps);text-transform:uppercase;
+  color:rgb(255 255 255/.9);text-shadow:0 1px 3px rgb(6 14 28/.7)}
 
 /* ---- entity card ---- */
 .app .entity-card{position:relative;display:flex;flex-direction:column;
