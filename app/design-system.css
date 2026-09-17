@@ -5860,3 +5860,17 @@ body{overflow-x:visible;overflow-y:visible}
 
 .app .offer-h{font-size:var(--fs-section);font-weight:800;line-height:1.08;
   letter-spacing:-.026em;text-align:left;margin-bottom:var(--s-5)}
+
+/* R11. Three fixed layers, one corner ------------------------------------
+   On a phone the compare tray, the assistant launcher and the bottom nav all
+   claim the same 90px of screen: the launcher sat on top of the tray's only
+   button, and the label broke across two lines behind it. They stack now —
+   nav, launcher, tray — so each is reachable, and the button keeps its label
+   on one line rather than shrinking to fit under something else. */
+@media(max-width:760px){
+  .app .compare-tray{bottom:148px;gap:var(--s-3);padding:12px 12px 12px 16px;
+    border-radius:var(--r-3)}
+  .app .compare-tray small{line-height:1.35}
+  .app .compare-tray button{flex:none;white-space:nowrap;min-height:42px;
+    border-radius:var(--r-2)}
+}
