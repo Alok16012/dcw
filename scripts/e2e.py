@@ -53,7 +53,9 @@ s, _ = req(admin, '/api/admin/leads');  check('admin 200 on leads', s == 200, f'
 s, _ = req(stu, '/api/admin/jobs');     check('student 403 on admin jobs', s == 403, f'got {s}')
 
 print('\n4. CREATE -> PUBLIC VISIBILITY')
-s, d = req(anon, '/api/jobs?limit=200'); before = len(d['data']['rows'])
+# `total`, not len(rows): /api/jobs pages at 20 and caps pageSize at 50, so a
+# row count can never show a listing growing past the first page.
+s, d = req(anon, '/api/jobs'); before = d['data']['total']
 s, d = req(admin, '/api/admin/jobs', 'POST', {
     'title': 'Field Sales Executive', 'companyName': 'Muthoot Finance', 'location': 'Lucknow',
     'salaryMin': 216000, 'salaryMax': 312000, 'jobType': 'Full-time', 'qualification': 'Graduate',
@@ -63,7 +65,7 @@ check('create 200/201', s in (200, 201), f'got {s} {d}')
 job = d['data']['job']; JID, SLUG = job['id'], job['slug']
 check('slug generated', SLUG.startswith('field-sales-executive-lucknow'), SLUG)
 check('company auto-created', job['companyId'] == 'muthoot-finance', job['companyId'])
-s, d = req(anon, '/api/jobs?limit=200'); after = len(d['data']['rows'])
+s, d = req(anon, '/api/jobs'); after = d['data']['total']
 check('public listing grew by 1', after == before + 1, f'{before}->{after}')
 s, d = req(anon, f'/api/jobs/{SLUG}')
 check('public detail by slug 200', s == 200, f'got {s}')
@@ -210,7 +212,10 @@ check('hired is not double-counted as in-pipeline',
 
 print('\n14. OTP IS PROVEN SERVER-SIDE, NOT CLAIMED')
 lead = {'vertical': 'distance', 'name': f'Test Person {RUN}', 'phone': '98111' + RUN[-5:],
-        'city': 'Patna', 'qualification': '12th', 'interestType': 'course', 'interestId': 'bca'}
+        'city': 'Patna', 'qualification': '12th', 'interestType': 'course', 'interestId': 'bca',
+        # /api/leads refuses a lead without an explicit contact permission. The
+        # form has always sent one; this harness had not caught up.
+        'consent': {'contact': True, 'whatsapp': False}}
 s, d = req(anon, '/api/leads', 'POST', {**lead, 'phoneVerified': True})
 check('forged phoneVerified rejected', s == 422 and d.get('error') == 'OTP_REQUIRED',
       f'got {s} {json.dumps(d)[:120]}')

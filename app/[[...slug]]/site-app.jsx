@@ -456,7 +456,7 @@ const HERO={
    prioritised, the others are local assets and arrive lazily. */
 const HERO_STORIES={
   distance:[
-    {image:'university-campus',kicker:'DISTANCE COURSES WALA',label:'Find a university',title:'Learn your way.',highlight:'Move your life forward.',body:'Recognised distance and online programmes that fit around the life you already have.',cta:'Explore universities',href:'/distance/universities'},
+    {image:'dcw-journey-hero',kicker:'DISTANCE COURSES WALA',label:'Find a university',title:'Learn your way.',highlight:'Move your life forward.',body:'Recognised distance and online programmes that fit around the life you already have.',cta:'Explore universities',href:'/distance/universities'},
     {image:'home-study',kicker:'OPEN SCHOOLING',label:'Finish school',title:'A gap is not',highlight:'the end of your story.',body:'See flexible ways to complete your 10th or 12th and take the next step with confidence.',cta:'Compare open boards',href:'/distance/boards'},
     {image:'counsellor-desk',kicker:'FREE HUMAN GUIDANCE',label:'Talk it through',title:'Not sure which',highlight:'path is yours?',body:'Tell us where you stopped. A counsellor will help you see what is open to you now.',cta:'Ask a counsellor',href:null}
   ],
@@ -546,10 +546,16 @@ function RailArrows({target,label}){
     <button type="button" aria-label={`Scroll ${label} right`} disabled={at.end} onClick={()=>nudge(1)}><ChevronRight size={18}/></button>
   </span>;
 }
+/* Thumbnails for the category tiles, in the order categories() returns them.
+   These are the one band allowed to repeat a photograph the page has already
+   shown: they are small, an icon sits over them, and there are only ten
+   pictures against fifteen slots on a homepage. The rule they do follow is
+   that a tile never repeats the picture in the band directly above or below
+   it — see the note in lib/photos.js for how the large slots are spent. */
 const CATEGORY_PHOTOS={
-  distance:['classroom-session','university-campus','home-study','career-editorial','counsellor-desk','campus-editorial'],
-  colleges:['campus-steps','university-campus','classroom-session','campus-editorial','campus-steps','home-study'],
-  jobs:['workplace-team','career-editorial','office-front','home-study']
+  distance:['home-study','campus-editorial','university-campus','workplace-team','classroom-session','counsellor-desk'],
+  colleges:['classroom-session','workplace-team','career-editorial','campus-editorial','university-campus','campus-steps'],
+  jobs:['office-front','home-study','classroom-session','counsellor-desk']
 };
 function HomePage(ctx){const {vertical,go,catalog}=ctx;const pool=catalog.rows;
   const listAll=vertical==='distance'?'/distance/universities':`/${vertical}/search`;

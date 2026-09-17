@@ -5184,7 +5184,15 @@ body{overflow-x:visible;overflow-y:visible}
 .app .hs-eyebrow svg{color:#ffcf75}
 .app .hs-copy h1{margin:24px 0 18px;font-family:var(--font-display);font-size:clamp(46px,5.3vw,76px);
   line-height:1.015;letter-spacing:-.045em;color:#fff;text-wrap:balance}
-.app .hs-copy h1 em{font-style:normal;color:#ffd27e}
+/* The family has to be restated here, not inherited. globals.css still carries
+   `.hero h1 em{font-family:'Source Serif 4'}` from the old hero, and this
+   headline is inside that same .hero, so the em wins a serif the sheet no
+   longer loads — layout.jsx dropped Source Serif 4 when the fonts went local,
+   and the browser was substituting its own Times. Same reasoning as
+   .hero-copy h1 em above: the contrast is weight and colour, not a second
+   typeface. */
+.app .hs-copy h1 em{font-family:var(--font-display);font-style:normal;
+  font-weight:400;color:#ffd27e}
 .app .hs-copy p{margin:0;max-width:48ch;font-size:clamp(16px,1.55vw,19px);line-height:1.55;color:#f1f5fc}
 .app .hs-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:31px}
 .app .hs-actions .btn{min-height:52px;border-radius:999px;padding-inline:22px;font-weight:800;gap:12px}
