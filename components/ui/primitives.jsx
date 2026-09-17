@@ -1,6 +1,6 @@
 'use client';
 import {useId,useState} from 'react';
-import {ArrowRight,ChevronDown} from 'lucide-react';
+import {ArrowRight,Plus} from 'lucide-react';
 import {PHOTOS} from '@/lib/photos.js';
 
 /* Layout furniture with no domain knowledge: a section heading, the one hero
@@ -12,7 +12,23 @@ import {PHOTOS} from '@/lib/photos.js';
    of plain explanation requirement 3 asks for under a heading; `children` is for
    a section that needs a control next to its action — the universities rail puts
    its carousel arrows there. */
-export function SectionTitle({kicker,title,sub,action,onAction,children}){return <div className="section-title"><div><span className="kicker">{kicker}</span><h2>{title}</h2>{sub&&<p className="st-sub">{sub}</p>}</div>{(action||children)&&<span className="st-actions">{action&&<button onClick={onAction}>{action}<ArrowRight/></button>}{children}</span>}</div>}
+/* Two-tone headings. Every band title on the reference is one phrase in two
+   colours — the last word in the brand hue, the rest in ink — and doing it by
+   hand at forty call sites would guarantee that some of them drifted. So the
+   split happens here, on the string, and only on a string: a caller that passes
+   markup has already said how its heading should read and is left alone.
+
+   The last *word*, not the last half: "Student Success", "Google Reviews",
+   "Recognitions and Approvals". A one-word title is left whole, because a
+   heading entirely in the accent is a different device and a louder one. */
+function twoTone(title){
+  if(typeof title!=='string')return title;
+  const i=title.trimEnd().lastIndexOf(' ');
+  if(i<1)return title;
+  return <>{title.slice(0,i)} <em className="st-hl">{title.slice(i+1)}</em></>;
+}
+
+export function SectionTitle({kicker,title,sub,action,onAction,children}){return <div className="section-title"><div><span className="kicker">{kicker}</span><h2>{twoTone(title)}</h2>{sub&&<p className="st-sub">{sub}</p>}</div>{(action||children)&&<span className="st-actions">{action&&<button className="btn pill" onClick={onAction}>{action}<ArrowRight/></button>}{children}</span>}</div>}
 
 /* The `<picture>` the whole site serves photographs through. Three sources, in
    the order a browser stops reading at the first one it can use: the phone webp
@@ -70,7 +86,12 @@ export function Accordion({title,children}){
   return <div className={`accordion${open?' is-open':''}`}>
     <button type="button" aria-expanded={open} aria-controls={`${id}-p`} id={`${id}-b`}
       onClick={()=>setOpen(!open)}>
-      <b>{title}</b><ChevronDown className={open?'rotate':''} aria-hidden="true"/>
+      {/* A plus that becomes a minus, in a tinted well, rather than a bare
+          chevron: the reference's disclosure marker, and a clearer one — a
+          chevron says "there is more below", a plus says "this expands". The
+          rotation is the same 45° trick either way, so the animation the sheet
+          already had for `.rotate` keeps working. */}
+      <b>{title}</b><span className="ac-mark" aria-hidden="true"><Plus className={open?'rotate':''}/></span>
     </button>
     {open&&<p id={`${id}-p`} role="region" aria-labelledby={`${id}-b`}>{children}</p>}
   </div>;

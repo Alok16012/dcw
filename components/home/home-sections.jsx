@@ -73,7 +73,11 @@ const OFFERS = {
 export function OfferCards({vertical, go}){
   const rows = OFFERS[vertical] ?? OFFERS.distance;
   return <section className="section container offer-band" aria-labelledby="offer-h">
-    <h2 id="offer-h" className="offer-h">What would you like to do first?</h2>
+    {/* Two-tone and left-aligned like every other band title, rather than the
+        centred single-colour heading this one used to be. SectionTitle does the
+        split automatically for the bands that use it; this heading is written
+        by hand because the band has no kicker, sub or action to hang on it. */}
+    <h2 id="offer-h" className="offer-h">What would you like to do <em className="st-hl">first?</em></h2>
     <div className="offer-grid">{rows.map(o =>
       <article key={o.need} className={`offer-card tone-${o.tone}`}>
         <div className="oc-image"><Photo name={o.image}/><i className="oc-icon" aria-hidden="true">{o.icon}</i></div>

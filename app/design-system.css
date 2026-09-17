@@ -44,19 +44,27 @@
   --fs-400:16px;    /* body */
   --fs-500:18px;    /* lead paragraph */
   --fs-600:21px;    /* h4 / card title */
-  --fs-700:26px;    /* h3 */
-  --fs-800:32px;    /* h2 */
-  --fs-900:40px;    /* h1 on interior pages */
-  --fs-1000:52px;   /* interior page display */
-  --fs-display:clamp(38px,4.6vw,64px);   /* reference measures ~62px at 1586 */
+  --fs-700:27px;    /* h3 */
+  --fs-800:34px;    /* h2 */
+  --fs-900:42px;    /* h1 on interior pages */
+  --fs-1000:54px;   /* interior page display */
+  --fs-display:clamp(40px,5.6vw,76px);   /* reference hero measures ~74px at 1586 */
+
+  /* Band headings are their own step, not h2's. The reference runs its section
+     heads at ~42px against a 34px h2 — a card title and "Student Success" are
+     the same element but not the same voice, and collapsing them is most of
+     why our bands read flatter than the reference's. */
+  --fs-section:clamp(27px,3.1vw,42px);
 
   /* The reference sets its display far tighter than this sheet did — 1.06
      against 1.12 — and that single number is most of why its hero reads as one
      object rather than three stacked lines. Body loosens the other way: 1.55
      rather than 1.6, because Mulish's high x-height already fills the line. */
-  --lh-tight:1.06;  /* display */
-  --lh-snug:1.22;   /* headings */
-  --lh-body:1.55;   /* running text */
+  --lh-tight:1.04;  /* display */
+  --lh-snug:1.18;   /* headings */
+  --lh-body:1.65;   /* running text — the reference sets 1.7 on its review copy
+                       and close to it everywhere else; at 1.55 our paragraphs
+                       read as denser than the thing we are matching */
   --lh-ui:1.35;
 
   --tr-display:-.022em;  /* negative only at 32px and up; UI sizes sit at 0 */
@@ -86,11 +94,14 @@
      Flattened one notch toward the reference, which is squarer than this sheet
      was: cards 12, panels 18. --r-1 stays 6 so a chip inside a 12px card still
      reads as nested. */
-  --r-1:6px;    /* chips, tags, swatches */
-  --r-2:10px;   /* controls: inputs, buttons */
-  --r-3:12px;   /* cards */
-  --r-4:18px;   /* panels, drawers */
-  --r-5:24px;   /* hero surfaces */
+  /* Measured off the reference: buttons 12, cards 16, the offer tiles 20, the
+     hero banner 28. Ours ran one step tighter at every stop, which is a small
+     number per element and a visibly harder page in aggregate. */
+  --r-1:8px;    /* chips, tags, swatches */
+  --r-2:12px;   /* controls: inputs, buttons */
+  --r-3:16px;   /* cards */
+  --r-4:20px;   /* panels, drawers */
+  --r-5:28px;   /* hero surfaces */
   --r-pill:999px;
 
   /* ── ELEVATION ───────────────────────────────────────────────────────────
@@ -214,21 +225,25 @@
 .app{font-family:var(--font-body);font-size:var(--fs-400);line-height:var(--lh-body);color:var(--ink-2);
   -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 
+/* Weight 800, not 900. The reference's headings are bold, not black — at 900
+   Mulish closes its counters and a 42px section head turns into a solid bar of
+   ink. The extra presence the old sheet was buying with weight is bought back
+   above in size instead, which is where the reference buys it. */
 .app h1,.app h2,.app h3,.app h4,.app .display{
-  font-family:var(--font-display);font-weight:900;color:var(--ink-1);
+  font-family:var(--font-display);font-weight:800;color:var(--ink-1);
   line-height:var(--lh-snug);letter-spacing:var(--tr-display);margin:0 0 var(--s-3)}
 .app h1{font-size:var(--fs-900)}
 .app h2{font-size:var(--fs-800)}
 .app h3{font-size:var(--fs-700)}
 .app h4{font-size:var(--fs-600);font-weight:700}
 .app p{margin:0 0 var(--s-4);max-width:68ch}   /* measure, not full-bleed prose */
-.app .lead{font-size:var(--fs-500);color:var(--ink-2);line-height:1.52}
+.app .lead{font-size:var(--fs-500);color:var(--ink-2);line-height:1.55}
 
 /* The hero display line. The old sheet set 1.03 leading, which collided the
    two lines' ascenders and descenders at every viewport above 1200px. */
 .app .hero-copy h1{
-  font-family:var(--font-display);font-size:var(--fs-display);font-weight:900;
-  line-height:1.06;letter-spacing:-.028em;margin-bottom:var(--s-4)}
+  font-family:var(--font-display);font-size:var(--fs-display);font-weight:800;
+  line-height:var(--lh-tight);letter-spacing:-.028em;margin-bottom:var(--s-4)}
 
 /* The second line was Source Serif 4 italic — a literary voice that belongs to
    neither the Allen direction nor the three verticals it renders across. The
@@ -269,9 +284,13 @@
    the contexts. This is a variant × size matrix with every state defined.   */
 
 .app .btn{
-  font-family:var(--font-body);font-size:var(--fs-300);font-weight:700;letter-spacing:0;
-  min-height:44px;                       /* WCAG 2.5.8 target size */
-  padding-inline:var(--s-5);
+  font-family:var(--font-body);font-size:15px;font-weight:700;letter-spacing:0;
+  min-height:48px;                       /* WCAG 2.5.8 floor is 44; the
+                                            reference's controls sit at 48 and
+                                            the difference is what makes its
+                                            buttons read as the page's furniture
+                                            rather than as form widgets */
+  padding-inline:var(--s-6);
   border-radius:var(--r-2);border:1px solid transparent;
   display:inline-flex;align-items:center;justify-content:center;gap:var(--s-2);
   position:relative;isolation:isolate;white-space:nowrap;
@@ -282,33 +301,51 @@
 }
 .app .btn svg{width:17px;height:17px;flex:none}
 
-/* Tactile primary: a solid face over a darker bottom edge, so the control has
-   a side you can see. Pressing collapses the edge and drops the face by the
-   same distance — the button travels rather than just changing colour. */
+/* Flat primary. The tactile version — a solid face standing on a 3px darker
+   bottom edge — was a good button and the wrong one: the reference's buttons
+   are single flat fills with no visible side, and a page of pressable-looking
+   slabs next to the reference's flat ones is the first difference you notice.
+   The press is still felt, it is just felt in colour and a 1px travel rather
+   than in a collapsing edge. */
 .app .btn.primary{
   background:var(--accent-ink,var(--accent,#0B4DA8));color:#fff;
-  box-shadow:
-    0 3px 0 color-mix(in srgb,var(--accent-deep,#07356F) 90%,#000),
-    var(--e-3),
-    var(--edge-top-dark);
+  box-shadow:0 1px 2px color-mix(in srgb,var(--accent-deep,#07356F) 22%,transparent);
 }
 .app .btn.primary:hover:not(:disabled){
+  background:color-mix(in srgb,var(--accent-ink,var(--accent,#0B4DA8)) 88%,#000);
   transform:translateY(-1px);
-  box-shadow:0 4px 0 color-mix(in srgb,var(--accent-deep,#07356F) 90%,#000),var(--e-4),var(--edge-top-dark)}
+  box-shadow:0 6px 18px color-mix(in srgb,var(--accent-deep,#07356F) 30%,transparent)}
 .app .btn.primary:active:not(:disabled){
-  transform:translateY(3px);
-  box-shadow:0 0 0 color-mix(in srgb,var(--accent-deep,#07356F) 90%,#000),var(--e-1),var(--edge-top-dark);
+  transform:translateY(1px);
+  box-shadow:0 1px 2px color-mix(in srgb,var(--accent-deep,#07356F) 26%,transparent);
   transition-duration:var(--t-instant)}
 
+/* The reference's secondary control is a hairline pill, not a raised white
+   slab: 1px of the brand colour, brand-coloured label, nothing underneath it. */
 .app .btn.outline{
-  background:var(--n-0);color:var(--ink-1);border-color:var(--line);box-shadow:var(--e-1)}
+  background:transparent;color:var(--accent-ink,var(--accent));
+  border-color:color-mix(in srgb,var(--accent-ink,var(--accent)) 30%,var(--line));
+  box-shadow:none}
 .app .btn.outline:hover:not(:disabled){
   border-color:var(--accent-ink,var(--accent));background:var(--wash,var(--n-1));
-  transform:translateY(-1px);box-shadow:var(--e-2)}
+  transform:translateY(-1px);box-shadow:none}
 .app .btn.outline:active:not(:disabled){transform:translateY(1px);box-shadow:none}
 
-.app .btn.light{background:var(--n-0);color:var(--ink-1);box-shadow:var(--e-2),var(--edge-top)}
-.app .btn.light:hover:not(:disabled){transform:translateY(-1px);box-shadow:var(--e-3),var(--edge-top)}
+/* White face, coloured label — the button inside each solid offer tile, and the
+   one the reference uses anywhere a control sits on its own brand colour. */
+.app .btn.light{background:var(--n-0);color:var(--accent-ink,var(--accent));box-shadow:none}
+.app .btn.light:hover:not(:disabled){transform:translateY(-1px);box-shadow:var(--e-2)}
+
+/* The outlined pill: "View All", the language selector, the rail controls. Full
+   radius, hairline border, ink label — deliberately quieter than .outline,
+   which still carries the brand colour. */
+.app .btn.pill{
+  background:var(--n-0);color:var(--ink-1);border-color:var(--line);
+  border-radius:var(--r-pill);min-height:42px;padding-inline:var(--s-5);
+  font-size:var(--fs-200);box-shadow:none}
+.app .btn.pill:hover:not(:disabled){
+  border-color:var(--accent-ink,var(--accent));color:var(--accent-ink,var(--accent));
+  background:var(--wash,var(--n-1));transform:none}
 
 /* Ghost sits on photography, so it needs its own contrast floor rather than
    relying on whatever is behind it. The audit measured the hero's secondary
@@ -321,18 +358,20 @@
   background:rgb(11 21 38/.58);border-color:rgb(255 255 255/.72);transform:translateY(-1px)}
 .app .btn.ghost:active:not(:disabled){transform:translateY(1px)}
 
-.app .btn.danger{background:var(--danger);color:#fff;
-  box-shadow:0 3px 0 #6E1512,var(--e-3),var(--edge-top-dark)}
-.app .btn.danger:active:not(:disabled){transform:translateY(3px);box-shadow:0 0 0 #6E1512,var(--e-1)}
+.app .btn.danger{background:var(--danger);color:#fff;box-shadow:0 1px 2px rgb(110 21 18/.22)}
+.app .btn.danger:active:not(:disabled){transform:translateY(1px)}
 
 .app .btn.quiet{background:transparent;color:var(--accent-ink,var(--accent));border-color:transparent}
 .app .btn.quiet:hover:not(:disabled){background:var(--wash,var(--n-2))}
 
 /* Sizes */
-.app .btn.small{min-height:36px;padding-inline:var(--s-4);font-size:var(--fs-200)}
-.app .btn.large{min-height:52px;padding-inline:var(--s-6);font-size:var(--fs-400)}
+.app .btn.small{min-height:40px;padding-inline:var(--s-4);font-size:var(--fs-200)}
+.app .btn.large{min-height:56px;padding-inline:var(--s-7,40px);font-size:var(--fs-400)}
 .app .btn.full{width:100%}
-.app .btn.icon{padding-inline:0;width:44px;min-height:44px}
+.app .btn.icon{padding-inline:0;width:48px;min-height:48px}
+/* The circular icon button — the reference's phone control and its social row.
+   Solid brand fill, perfect circle, no label. */
+.app .btn.icon.round{border-radius:50%}
 
 /* States */
 .app .btn:disabled{opacity:.45;cursor:not-allowed;
@@ -905,38 +944,31 @@
    push. It is spent on the controls where a press is the point, and withheld
    everywhere else so it keeps meaning something.
 
-   The primary button is a key on a keyboard: it has a lit top edge, a body,
-   and a plinth underneath it. Pressing it travels the full height of the
-   plinth, so the travel distance and the shadow are the same number. */
+   The plinths are gone. A key with a visible 6px side is a lovely control and
+   it is not the control the reference uses anywhere on its page: every button
+   on it is a flat fill with a soft coloured shadow at rest. Tactility now
+   lives in the lift and the colour shift, which survives the flattening; the
+   thing that does not survive is the silhouette, and the silhouette is what
+   was making our page read as a different product. */
 .app .btn.primary.tactile,.app .talk{
-  --plinth:6px;
   border-radius:var(--r-2);
-  box-shadow:
-    0 var(--plinth) 0 color-mix(in srgb,var(--accent) 62%,var(--ink-1)),
-    0 calc(var(--plinth) + 10px) 22px color-mix(in srgb,var(--accent) 26%,transparent),
-    var(--edge-top-dark),
-    inset 0 1px 0 rgb(255 255 255/.28)!important;
-  transition:transform var(--t-instant) var(--ease-std),box-shadow var(--t-instant) var(--ease-std)}
+  box-shadow:0 2px 10px color-mix(in srgb,var(--accent) 26%,transparent)!important;
+  transition:transform var(--t-micro) var(--ease-out),box-shadow var(--t-comp) var(--ease-out),
+             background-color var(--t-micro) var(--ease-std)}
 .app .btn.primary.tactile:hover,.app .talk:hover{
   transform:translateY(-1px);
-  box-shadow:
-    0 calc(var(--plinth) + 1px) 0 color-mix(in srgb,var(--accent) 62%,var(--ink-1)),
-    0 calc(var(--plinth) + 14px) 26px color-mix(in srgb,var(--accent) 32%,transparent),
-    inset 0 1px 0 rgb(255 255 255/.34)!important}
+  box-shadow:0 8px 22px color-mix(in srgb,var(--accent) 34%,transparent)!important}
 .app .btn.primary.tactile:active,.app .talk:active{
-  /* travels exactly the plinth height and lands flat — the key bottoms out */
-  transform:translateY(var(--plinth));
-  box-shadow:0 0 0 color-mix(in srgb,var(--accent) 62%,var(--ink-1)),
-             inset 0 2px 4px rgb(0 0 0/.22)!important}
+  transform:translateY(1px);
+  box-shadow:0 1px 4px color-mix(in srgb,var(--accent) 30%,transparent)!important}
 
-/* Secondary controls get the same physics one octave quieter: a 2px plinth,
-   so they feel pressable without competing with the primary. */
+/* Secondary controls: hairline only, and a 1px travel on press. */
 .app .btn.ghost,.app .btn.secondary,.app .btn.outline{
-  box-shadow:0 2px 0 var(--line),var(--e-1),var(--edge-top);
-  transition:transform var(--t-instant) var(--ease-std),box-shadow var(--t-instant) var(--ease-std),
+  transition:transform var(--t-micro) var(--ease-out),box-shadow var(--t-comp) var(--ease-out),
+             background-color var(--t-micro) var(--ease-std),
              border-color var(--t-micro) var(--ease-out)}
 .app .btn.ghost:active,.app .btn.secondary:active,.app .btn.outline:active{
-  transform:translateY(2px);box-shadow:inset 0 2px 3px rgb(11 21 38/.12)}
+  transform:translateY(1px)}
 
 /* Wells: inputs and tracks are cut *into* the surface, so their light comes
    from the opposite direction to a raised control. Getting this inversion
@@ -5523,3 +5555,308 @@ body{overflow-x:visible;overflow-y:visible}
   .app .cs-rows i,.app .proc-photo figcaption,.app .uf-photo img,
   .app .ct-photo img,.app .university-feature{transition:none!important}
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   REFERENCE MATCH
+   ═══════════════════════════════════════════════════════════════════════════
+   The four screenshots of sscoaching.in shared on 18 Sep 2026, read element by
+   element and mapped onto the bands this site already has. Everything below is
+   a *treatment* change: not one band was added, removed or reordered, and every
+   destination, string and data source is the one that was already there.
+
+   What is observed from the screenshots, and what is inferred, are kept apart
+   deliberately — the brief asks for that distinction and it matters here
+   because the two are not equally reliable:
+
+   OBSERVED (measured or read directly off the images)
+     · headings are two-tone, the last word in the brand hue
+     · buttons are flat fills, ~12px radius, no visible side or plinth
+     · the hero is a pale rounded banner with dark type, not a dark photograph
+     · section heads run roughly a third larger than the body headings
+     · the disclosure marker is a "+" inside a tinted rounded square
+     · review cards are white, hairlined, with a centred row of gold stars
+     · process steps are numbered by huge pale outline numerals, not badges
+     · the footer is light, four columns, small-caps headings over a hairline
+
+   INFERRED (a judgement, and reversible)
+     · the exact typeface. It is a geometric-humanist sans with a tall x-height,
+       a double-storey `a` and rounded terminals. Mulish, which this site
+       already loads, is in that genus; the sheet does not claim it is the same
+       face, and no new font is downloaded to chase the resemblance.
+     · the reference's own indigo-violet is NOT adopted. It is that site's brand
+       colour, and we have three of our own that ship as PNG lockups — blue,
+       red and orange. Repainting the page violet would put a violet header over
+       a red logo. The *role* the violet plays is filled by --accent, which is
+       already per-vertical, so the device travels and the colour does not.
+   ═════════════════════════════════════════════════════════════════════════ */
+
+/* ── R1. SECTION HEADS ─────────────────────────────────────────────────────
+   Title and action share one baseline; the gradient rule under the heading is
+   retired, because the reference draws no rule and the two-tone word is now
+   doing the job the rule was doing. */
+.app .section-title{display:flex;align-items:flex-end;justify-content:space-between;
+  gap:var(--s-3) var(--s-5);flex-wrap:wrap;margin-bottom:var(--s-5)}
+.app .section-title>div{min-width:0}
+.app .section-title>div:after{display:none}
+.app .section-title h2,.app .section-head h2,.app .review-marquee .rm-head h2{
+  font-size:var(--fs-section);font-weight:800;line-height:1.08;letter-spacing:-.026em;
+  margin-bottom:var(--s-2)}
+/* The coloured half of the heading. An <em> so the emphasis survives with CSS
+   off and is not carried by colour alone — it is the last word of a phrase,
+   which is where the emphasis would fall if it were read aloud. */
+.app .st-hl{font-style:normal;color:var(--accent-text,var(--accent))}
+.app .st-sub{font-size:var(--fs-400);color:var(--ink-3);max-width:58ch}
+.app .st-actions .btn.pill svg{width:15px;height:15px}
+@media(max-width:640px){
+  .app .section-title h2{font-size:var(--fs-800)}
+  .app .st-actions{width:100%}
+  .app .st-actions .btn.pill{flex:1}
+}
+
+/* ── R2. DISCLOSURE ────────────────────────────────────────────────────────
+   Each question becomes its own hairlined card with a tinted "+" well at the
+   right, rather than a row in a divided list. The tint is mixed from the
+   vertical's own --spark, so distance gets the reference's cream, colleges a
+   pale navy and jobs a pale green — one device, three brands. */
+.app .accordion{border-bottom:0;border:1px solid var(--line);border-radius:var(--r-3);
+  background:var(--n-0);margin-bottom:var(--s-3);
+  transition:border-color var(--t-micro) var(--ease-out),box-shadow var(--t-micro) var(--ease-out)}
+.app .accordion:hover,.app .accordion.is-open{
+  border-color:color-mix(in srgb,var(--accent) 32%,var(--line));box-shadow:var(--e-1)}
+.app .accordion>button{padding:var(--s-4) var(--s-4) var(--s-4) var(--s-5);align-items:center;gap:var(--s-4)}
+.app .accordion>button b{font-size:var(--fs-400);font-weight:700;color:var(--ink-1);line-height:1.4}
+.app .accordion p{padding:0 var(--s-5) var(--s-4);font-size:var(--fs-300);color:var(--ink-3);
+  line-height:var(--lh-body)}
+.app .ac-mark{display:grid;place-items:center;width:36px;height:36px;flex:none;
+  border-radius:var(--r-1);color:var(--ink-1);
+  background:color-mix(in srgb,var(--spark,#F5C93B) 17%,#fff);
+  transition:background var(--t-micro) var(--ease-out),color var(--t-micro) var(--ease-out)}
+.app .ac-mark svg{width:18px;height:18px;
+  transition:transform var(--t-comp) var(--ease-out)}
+/* 45°, not 180°: a plus rotated a quarter-turn is a multiplication sign, and
+   rotated an eighth it is a minus with a ghost. globals.css sets 180 for the
+   chevron this replaced, so the angle has to be restated here. */
+.app .ac-mark svg.rotate{transform:rotate(45deg)}
+.app .accordion.is-open .ac-mark{background:var(--accent-ink,var(--accent));color:#fff}
+
+/* ── R3. HERO ──────────────────────────────────────────────────────────────
+   The reference's hero is a pale rounded banner: a lavender wash, a photograph
+   bleeding off one edge, and the headline in near-black brand ink. Ours was a
+   dark photographic slab with white type — a good hero, and the single biggest
+   reason the two pages did not look related.
+
+   The markup does not change. The scrim simply inverts: instead of darkening
+   the left so white type reads on it, it lays the vertical's own --wash over
+   the left and lets the photograph come through on the right. Everything that
+   sat on the dark ground follows it back to ink. */
+.app .hero-showcase{
+  background:linear-gradient(120deg,var(--wash,#EEF3FD),color-mix(in srgb,var(--wash,#EEF3FD) 45%,#fff));
+  color:var(--ink-1);border-radius:var(--r-5);
+  border:1px solid color-mix(in srgb,var(--accent) 13%,var(--line));
+  box-shadow:0 18px 50px color-mix(in srgb,var(--ink-1) 7%,transparent)}
+.app .hs-scrim,.app-jobs .hs-scrim{background:
+  linear-gradient(95deg,var(--wash,#EEF3FD) 0%,var(--wash,#EEF3FD) 32%,
+    color-mix(in srgb,var(--wash,#EEF3FD) 60%,transparent) 54%,
+    color-mix(in srgb,var(--wash,#EEF3FD) 8%,transparent) 80%),
+  linear-gradient(0deg,color-mix(in srgb,var(--wash,#EEF3FD) 62%,transparent),transparent 42%)}
+.app .hs-copy h1{color:var(--ink-1);font-weight:800;letter-spacing:-.032em}
+.app .hs-copy h1 em{color:var(--accent-text,var(--accent));font-weight:800}
+.app .hs-copy p{color:var(--ink-2)}
+.app .hs-eyebrow{background:var(--n-0);border-color:color-mix(in srgb,var(--accent) 22%,var(--line));
+  color:var(--accent-text,var(--accent));backdrop-filter:none;-webkit-backdrop-filter:none;
+  box-shadow:var(--e-1)}
+.app .hs-eyebrow svg{color:var(--spark)}
+/* 12px, not a pill: the reference's controls are rounded rectangles almost
+   everywhere, and reserves the full pill for the two places it means
+   "selector" — the language switch and the "View All" affordance. */
+.app .hs-actions .btn{border-radius:var(--r-2);min-height:52px;font-weight:700}
+.app .hs-primary{background:var(--accent-ink,var(--accent));color:#fff;border-color:transparent}
+.app .hs-primary:hover{background:color-mix(in srgb,var(--accent-ink,var(--accent)) 88%,#000);
+  color:#fff;box-shadow:0 10px 26px color-mix(in srgb,var(--accent) 32%,transparent);
+  transform:translateY(-2px)}
+.app .hs-secondary{background:var(--n-0);color:var(--ink-1);border-color:var(--line);
+  backdrop-filter:none;-webkit-backdrop-filter:none}
+.app .hs-secondary:hover{background:var(--n-1);border-color:var(--accent);transform:translateY(-2px)}
+.app .hs-slides button{background:color-mix(in srgb,var(--n-0) 84%,transparent);
+  border-color:var(--line);color:var(--ink-2);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+.app .hs-slides button:hover,.app .hs-slides button.active{
+  background:var(--n-0);border-color:var(--accent);color:var(--ink-1)}
+.app .hs-slides b{color:var(--accent-text,var(--accent))}
+.app .hs-slides i{background:color-mix(in srgb,var(--ink-1) 13%,transparent)}
+.app .hs-slides button.active i{background:var(--accent)}
+.app .hs-arrows button{background:var(--n-0);border-color:var(--line);color:var(--ink-1);
+  backdrop-filter:none;-webkit-backdrop-filter:none}
+.app .hs-arrows button:hover{background:var(--accent-ink,var(--accent));color:#fff;border-color:transparent}
+/* On a phone the copy sits over the picture rather than beside it, so the wash
+   has to come down the page instead of across it. */
+@media(max-width:760px){
+  .app .hs-scrim,.app-jobs .hs-scrim{background:linear-gradient(180deg,
+    var(--wash,#EEF3FD) 0%,var(--wash,#EEF3FD) 46%,
+    color-mix(in srgb,var(--wash,#EEF3FD) 55%,transparent) 68%,
+    color-mix(in srgb,var(--wash,#EEF3FD) 78%,transparent) 100%)}
+  .app .hero-showcase{border-radius:var(--r-4)}
+}
+
+/* ── R4. OFFER TILES ───────────────────────────────────────────────────────
+   Already three solid fills with an icon and a white button, which is the
+   reference's card almost exactly. Two differences remain: its button runs the
+   full width of the card, and it is a rounded rectangle rather than a pill. */
+.app .oc-go{width:100%;justify-content:center;border-radius:var(--r-2);
+  font-size:var(--fs-300);font-weight:800}
+.app .oc-body .oc-go{min-height:46px;font-size:var(--fs-300)}
+
+/* ── R5. CONTACT STRIP ─────────────────────────────────────────────────────
+   The reference caps its branch strip with a two-stop gradient rule. Ours is
+   drawn from the vertical's own accent into its spark, so the three verticals
+   get three rules rather than three copies of somebody else's indigo→teal. */
+.app .cs-inner{position:relative;overflow:hidden}
+.app .cs-inner:before{content:"";position:absolute;inset:0 0 auto;height:4px;
+  background:linear-gradient(90deg,var(--accent-deep),var(--accent),var(--spark));
+  pointer-events:none}
+
+/* ── R6. PROCESS LADDER ────────────────────────────────────────────────────
+   The numeral stops being a badge and becomes the reference's device: a large
+   pale outline figure that the step's text sits against. It is decoration made
+   of information — the number is still the step number — so it is allowed to
+   be big, and being pale is what keeps it from outranking the heading. */
+.app .ps-n{width:auto;min-width:64px;height:auto;border-radius:0;background:none;
+  place-items:start center;padding-top:2px;
+  font-size:clamp(38px,4vw,54px);font-weight:800;line-height:.92;
+  color:color-mix(in srgb,var(--accent) 22%,#fff);
+  -webkit-text-stroke:1px color-mix(in srgb,var(--accent) 30%,#fff)}
+.app .proc-step{column-gap:var(--s-4);padding-block:var(--s-4)}
+.app .proc-step b{font-size:var(--fs-500)}
+.app .proc-step p{font-size:var(--fs-300)}
+.app .proc-step.in-view .ps-n{color:color-mix(in srgb,var(--accent) 30%,#fff)}
+@media(max-width:760px){
+  .app .ps-n{min-width:46px;font-size:34px}
+  .app .proc-step b{font-size:var(--fs-400)}
+}
+
+/* ── R7. REVIEWS ───────────────────────────────────────────────────────────
+   The reference's review card: a circular coloured avatar carrying one
+   initial, the name in bold with a small grey timestamp under it, a centred
+   row of gold stars, then the body at 16px on generous leading. The Google
+   mark it puts top-right is theirs — ours carries the same slot with the
+   verification chip this site already computes, which is a claim we can
+   actually stand behind. */
+.app .review-card{padding:var(--s-5);border-radius:var(--r-3);gap:var(--s-4);
+  box-shadow:var(--e-1);
+  transition:box-shadow var(--t-comp) var(--ease-out),border-color var(--t-micro) var(--ease-out)}
+.app .review-card:hover{box-shadow:var(--e-3);border-color:color-mix(in srgb,var(--accent) 24%,var(--line))}
+.app .rv-mark{width:46px;height:46px;font-size:var(--fs-400);
+  background:var(--accent-ink,var(--accent));color:#fff}
+.app .review-card header b{font-size:var(--fs-400);font-weight:700;color:var(--ink-1)}
+.app .rv-text{font-size:var(--fs-400);line-height:1.7;color:var(--ink-2)}
+.app .rm-card{width:344px;padding:var(--s-5);border-radius:var(--r-3);gap:var(--s-4)}
+.app .rm-text{font-size:var(--fs-300);line-height:1.7}
+.app .rm-stars svg{width:17px;height:17px}
+.app .rm-mark{width:44px;height:44px;font-size:var(--fs-300);
+  background:var(--accent-ink,var(--accent));color:#fff}
+.app .rm-who b{font-size:var(--fs-300)}
+.app .rm-who small{font-size:var(--fs-100)}
+
+/* ── R8. STAT ROW ──────────────────────────────────────────────────────────
+   The reference states its numbers on white: a circular outlined icon badge,
+   the figure large in the brand hue, the label small and grey. Ours stated
+   them in white on a saturated gradient, which is a louder band and a harder
+   one to read — and it was the only place on the page where the brand colour
+   became a ground rather than a mark. */
+.app .stat-band{background:var(--n-1);color:var(--ink-2);
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.app .stat-band:before{display:none}
+.app .stat-band .proof .stat-i{
+  width:56px;height:56px;border-radius:50%;background:var(--n-0);
+  border:1.5px solid color-mix(in srgb,var(--accent) 34%,var(--line));
+  box-shadow:none}
+.app .stat-band .proof .stat-i:before{display:none}
+.app .stat-band .proof .stat-i svg{width:24px;height:24px;color:var(--accent-text,var(--accent));filter:none}
+.app .stat-band .proof b,.app .stat-band .proof .stat-n{
+  color:var(--accent-text,var(--accent));font-weight:800}
+.app .stat-band .proof small,.app .stat-band .proof .stat-note{color:var(--ink-3)}
+.app .stat-band .proof button:hover .stat-i{
+  background:var(--wash);border-color:var(--accent);transform:translateY(-2px) scale(1.04)}
+.app .stat-band .sb-foot{border-top-color:var(--line)}
+.app .stat-band .sb-foot p,.app .stat-band .sb-foot p b,.app .stat-band .sb-script{color:var(--ink-2)}
+.app .stat-band .sb-script{color:var(--accent-text,var(--accent))}
+
+/* ── R9. FOOTER ────────────────────────────────────────────────────────────
+   Light, four columns, small-caps headings over a hairline rule, links in
+   grey. The dark slab it replaces was the last full-bleed dark surface on the
+   page once the hero went pale, and one dark band at the very bottom of an
+   otherwise white page reads as a different site's footer pasted on.
+
+   The reference's "Est. 2001" pill is NOT copied. We do not publish a founding
+   year and inventing one would be a claim, not a style — the slot takes the
+   vertical's own tagline, which is already in V[] and already true. */
+.app .footer{background:var(--n-1);color:var(--ink-2);
+  border-top:1px solid var(--line)}
+.app .footer p{color:var(--ink-3);font-size:var(--fs-300);max-width:38ch;line-height:var(--lh-body)}
+.app .footer>.container:first-child>div>b{
+  display:block;font-size:var(--fs-100);font-weight:800;letter-spacing:var(--tr-caps);
+  text-transform:uppercase;color:var(--accent-text,var(--accent));
+  padding-bottom:var(--s-2);margin-bottom:var(--s-3);
+  border-bottom:1px solid color-mix(in srgb,var(--accent) 22%,var(--line))}
+.app .footer button{color:var(--ink-3);font-size:var(--fs-300);padding-block:var(--s-2);
+  transition:color var(--t-micro) var(--ease-std)}
+.app .footer button:hover{color:var(--accent-text,var(--accent))}
+.app .footer .brand.inverse b{color:var(--ink-1)}
+.app .footer .brand.inverse small{color:var(--ink-4)}
+.app .footer .automation-link{color:var(--accent-text,var(--accent));font-weight:700}
+/* The pill the reference puts under its logo. Gradient, because that is what
+   it is; the vertical's own two colours, because the gradient is not. */
+.app .footer-tagline{display:inline-flex;align-items:center;gap:var(--s-2);
+  margin-top:var(--s-3);padding:8px var(--s-4);border-radius:var(--r-pill);
+  background:linear-gradient(95deg,var(--accent-deep),var(--accent));
+  color:#fff;font-size:var(--fs-100);font-weight:800;line-height:1.3}
+.app .footer-contact a{color:var(--ink-2)}
+.app .footer-contact b{color:var(--ink-1)}
+.app .footer-contact small{color:var(--ink-3)}
+.app .footer-contact i{background:var(--accent-ink,var(--accent));color:#fff}
+.app .fm-side{color:var(--ink-2)}
+.app .fm-side b{color:var(--ink-1)}
+.app .fm-side small{color:var(--ink-3)}
+.app .fm-links a{color:var(--accent-text,var(--accent))}
+.app .footer-bottom{border-top:1px solid var(--line)}
+.app .footer-bottom,.app .footer-bottom span{color:var(--ink-4)}
+/* The pale band the reference runs above its bottom bar: a line of voice on
+   the left, round icon buttons on the right. Every icon here is a destination
+   this site already dials, opens or writes to — nothing decorative, because a
+   social circle that goes nowhere is a broken button with a nice shape. */
+.app .footer-social{display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:var(--s-4);margin-top:var(--s-6);padding:var(--s-4) var(--s-5);
+  border-radius:var(--r-4);background:var(--wash,var(--n-2))}
+.app .footer-social p{margin:0;max-width:none;font-family:var(--font-display);
+  font-style:italic;font-weight:700;font-size:var(--fs-500);color:var(--ink-1)}
+.app .fs-links{display:inline-flex;gap:var(--s-3);flex:none}
+.app .fs-links a{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;
+  background:var(--n-0);color:var(--accent-text,var(--accent));
+  border:1px solid color-mix(in srgb,var(--accent) 16%,var(--line));
+  transition:background var(--t-micro) var(--ease-out),color var(--t-micro) var(--ease-out),
+             transform var(--t-micro) var(--ease-out)}
+.app .fs-links a:hover{background:var(--accent-ink,var(--accent));color:#fff;
+  border-color:transparent;transform:translateY(-2px)}
+.app .fs-links svg{width:19px;height:19px}
+@media(max-width:640px){
+  .app .footer-social{flex-direction:column;align-items:flex-start}
+  .app .footer-social p{font-size:var(--fs-400)}
+}
+@media(prefers-reduced-motion:reduce){
+  .app .fs-links a:hover,.app .stat-band .proof button:hover .stat-i{transform:none}
+}
+
+/* R10. Loose ends the sweep turned up -------------------------------------
+   Two rules that lost on specificity rather than on intent.
+
+   The automation link was written for the old dark footer and carries an
+   `!important` from globals.css, so the light footer needs one back to say
+   the colour again; a gold link on a near-white band was the one contrast
+   failure in the redesigned footer.
+
+   The offers heading was the last centred band title on the page. Every other
+   heading now reads left, two-tone, at the section step — this one matches
+   them rather than standing alone in the middle. */
+.app .footer .automation-link{color:var(--accent-text,var(--accent))!important}
+
+.app .offer-h{font-size:var(--fs-section);font-weight:800;line-height:1.08;
+  letter-spacing:-.026em;text-align:left;margin-bottom:var(--s-5)}

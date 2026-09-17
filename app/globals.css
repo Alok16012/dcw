@@ -345,4 +345,11 @@ header{height:88px;grid-template-columns:minmax(210px,auto) 1fr minmax(260px,340
    of being inherited by everything that isn't. Body-level furniture (the
    announcer, portal containers) now falls to --font-body, which is preloaded
    on every route anyway, so it costs no request at all. */
-.adm,.lg{font-family:var(--f-manrope),system-ui,sans-serif}
+.adm,.lg{font-family:var(--f-display),system-ui,sans-serif}
+/* The console and the login screen now set in the same face as the public
+   site. They were on Manrope, which was a defensible split — a workspace is
+   not a landing page — but the brief asks for one typographic look across all
+   three verticals AND the admin panel, and two grotesques that are nearly the
+   same read as a mistake rather than as a distinction. Manrope stays loaded:
+   the resume builder's rendered CV uses it, and that one IS a separate
+   document rather than a screen of ours. */

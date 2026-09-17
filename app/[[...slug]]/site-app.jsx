@@ -1242,7 +1242,10 @@ return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget&&
 </aside>}</div></div>}
 function CompareTray({vertical,compare,go}){return <div className="compare-tray glass-dark"><span><b>{compare[vertical].length} of 3 selected</b><small>{compare[vertical].length<2?'Add one more for a useful comparison':'Ready to compare side by side'}</small></span><button disabled={compare[vertical].length<2} onClick={()=>go(`/${vertical}/compare`)}>Compare now<ArrowRight/></button></div>}
 function MobileNav({vertical,go,setSearchOpen,path}){return <nav className="mobile-nav" aria-label="Mobile navigation"><button className={path===`/${vertical}`?'active':''} onClick={()=>go(`/${vertical}`)}><Home/>Home</button><button className={path?.includes('search')||path?.includes('universities')?'active':''} onClick={()=>go(vertical==='distance'?'/distance/universities':`/${vertical}/search`)}><Search/>Explore</button><button className="mobile-main" onClick={()=>setSearchOpen(true)}><Search/>Search</button><button className={path==='/saved'?'active':''} onClick={()=>go('/saved')}><Heart/>Saved</button><button className={path==='/profile'?'active':''} onClick={()=>go('/profile')}><UserRound/>Profile</button></nav>}
-function Footer({go,vertical,path}){const brand=V[vertical];return <footer className="footer"><div className="container"><div><div className="brand inverse"><BrandLockup vertical={vertical}/><span><b>{brand.logoAlt}</b><small>Your next move, made visible.</small></span></div><p>Clear education and career decisions for students across India.</p><button className="automation-link" onClick={()=>go('/automations')}><Workflow/>Automation centre</button></div><div><b>Distance</b><button onClick={()=>go('/distance/universities')}>Universities</button><button onClick={()=>go('/distance/boards')}>Board comparison</button></div><div><b>Colleges</b><button onClick={()=>go('/colleges/search')}>Find colleges</button><button onClick={()=>go('/colleges/neet-predictor')}>NEET predictor</button></div><div><b>Jobs</b><button onClick={()=>go('/jobs/search')}>Find jobs</button><button onClick={()=>go('/jobs/resume-builder')}>Resume builder</button></div><div><b>Company</b><button onClick={()=>go('/about')}>About us</button><button onClick={()=>go('/blog')}>Blog</button><button onClick={()=>go('/reviews')}>Reviews</button></div></div>
+function Footer({go,vertical,path}){const brand=V[vertical];return <footer className="footer"><div className="container"><div><div className="brand inverse"><BrandLockup vertical={vertical}/><span><b>{brand.logoAlt}</b><small>Your next move, made visible.</small></span></div><p>Clear education and career decisions for students across India.</p>{/* The reference puts a gradient pill under its logo carrying a founding
+      year. We do not publish one, and a year is a claim rather than a
+      decoration — so the slot takes the vertical's own tagline, which is
+      already in V[] and already on the masthead. */}<span className="footer-tagline">{brand.tagline}</span><button className="automation-link" onClick={()=>go('/automations')}><Workflow/>Automation centre</button></div><div><b>Distance</b><button onClick={()=>go('/distance/universities')}>Universities</button><button onClick={()=>go('/distance/boards')}>Board comparison</button></div><div><b>Colleges</b><button onClick={()=>go('/colleges/search')}>Find colleges</button><button onClick={()=>go('/colleges/neet-predictor')}>NEET predictor</button></div><div><b>Jobs</b><button onClick={()=>go('/jobs/search')}>Find jobs</button><button onClick={()=>go('/jobs/resume-builder')}>Resume builder</button></div><div><b>Company</b><button onClick={()=>go('/about')}>About us</button><button onClick={()=>go('/blog')}>Blog</button><button onClick={()=>go('/reviews')}>Reviews</button></div></div>
   {/* One contact row, in the footer, because the footer is the only thing that
       renders on every page of all three verticals — Distance Courses Wala,
       Colleges Wala and Berojgar Bharat share this component, so the office
@@ -1284,5 +1287,21 @@ function Footer({go,vertical,path}){const brand=V[vertical];return <footer class
       </div>
     </div>
   </div>}
+  {/* The pale band the reference runs above its bottom bar: one line of voice
+      on the left, round icon buttons on the right. Its circles are social
+      profiles; ours are the three channels this company actually answers on,
+      because a round icon that goes nowhere is a broken button with a nice
+      shape. All three are the same hrefs the contact row above already uses. */}
+  <div className="container footer-social">
+    <p>{brand.tagline}</p>
+    <span className="fs-links">
+      <a href={CONTACT.phone.href} aria-label={`Call ${brand.logoAlt} on ${CONTACT.phone.display}`}><Phone/></a>
+      {/* The raw digits, not phoneDigits(): that helper strips the country code
+          to get a 10-digit Indian subscriber number, and wa.me needs the code.
+          Same expression ContactStrip already uses for its WhatsApp link. */}
+      <a href={`https://wa.me/${CONTACT.phone.href.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer" aria-label={`Message ${brand.logoAlt} on WhatsApp`}><MessageCircle/></a>
+      <a href={CONTACT.email.href} aria-label={`Email ${brand.logoAlt} at ${CONTACT.email.display}`}><Mail/></a>
+    </span>
+  </div>
   <div className="container footer-bottom">© 2026 {brand.legal} <span>Prototype with indicative dummy data</span></div></footer>}
 export default App;

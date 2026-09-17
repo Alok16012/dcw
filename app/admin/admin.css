@@ -12,7 +12,12 @@
   --line:#DCE3EB; --line-2:#EDF1F5;
   --ok:#0F6B52; --ok-w:#E2F5ED; --warn:#8A5300; --warn-w:#FDF3E2;
   --bad:#A0201A; --bad-w:#FDEBEA; --cool:#2A4E8F; --cool-w:#E9EFFA;
-  --r-1:6px; --r-2:10px; --r-3:14px;
+  /* One step softer at every stop, matching the public sheet's move toward
+     the reference's radii. The console stays denser than the site — these
+     are still well under the 12/16/28 --r-* scale --- but a square button in
+     the admin next to a rounded one on the site is the tell the brief asks
+     us to remove. */
+  --r-1:8px; --r-2:12px; --r-3:16px;
   --sh:0 1px 2px #0c1a2b0f,0 4px 12px #0c1a2b0a;
   --t:150ms cubic-bezier(.4,0,.2,1);
   min-height:100vh;background:var(--bg);color:var(--ink);
@@ -22,8 +27,11 @@
 }
 .adm *{box-sizing:border-box}
 .adm h1,.adm h2,.adm h3{margin:0;letter-spacing:-.018em;line-height:1.25}
-.adm h1{font-size:23px;font-weight:750}
-.adm h2{font-size:16px;font-weight:700}
+/* Weight 800 and a step larger, the same move the public headings made. The
+   console reads at arm's length for a whole shift, so it gains the size and
+   not the display scale: an h1 here is a page label, not a headline. */
+.adm h1{font-size:25px;font-weight:800;letter-spacing:-.024em}
+.adm h2{font-size:17px;font-weight:800}
 .adm h3{font-size:14px;font-weight:700}
 .adm p{margin:0}
 .adm a{color:var(--a);text-decoration:none}
@@ -67,14 +75,18 @@
 .adm-body{padding:22px 26px 60px;flex:1}
 
 /* ── buttons ── */
-.adm-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;padding:0 14px;border-radius:var(--r-2);border:1px solid var(--line);background:#fff;color:var(--ink);font-size:13px;font-weight:650;cursor:pointer;transition:var(--t);white-space:nowrap}
+/* Flat fills and a 1px travel on press, like the site's .btn — the console
+   never had a plinth, so matching it is mostly weight and height. */
+.adm-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:0 16px;border-radius:var(--r-2);border:1px solid var(--line);background:#fff;color:var(--ink);font-size:13.5px;font-weight:700;cursor:pointer;transition:var(--t);white-space:nowrap}
+.adm-btn:active:not(:disabled){transform:translateY(1px)}
 .adm-btn svg{width:15px;height:15px;flex:none}
 .adm-btn:hover{background:var(--line-2);border-color:#C9D3DE}
-.adm-btn.pri{background:var(--a);border-color:var(--a);color:#fff}
+.adm-btn.pri{background:var(--a);border-color:var(--a);color:#fff;box-shadow:0 1px 2px #0b4da838}
+.adm-btn.pri:hover{box-shadow:0 5px 14px #0b4da833}
 .adm-btn.pri:hover{background:var(--a-deep);border-color:var(--a-deep)}
 .adm-btn.danger{color:var(--bad);border-color:#EBC9C7}
 .adm-btn.danger:hover{background:var(--bad-w)}
-.adm-btn.sm{min-height:30px;padding:0 10px;font-size:12.5px;border-radius:var(--r-1)}
+.adm-btn.sm{min-height:32px;padding:0 12px;font-size:12.5px;border-radius:var(--r-1)}
 .adm-btn:disabled{opacity:.5;cursor:not-allowed}
 .adm-btn.ghost{border-color:transparent;background:transparent}
 .adm-btn.ghost:hover{background:var(--line-2)}
