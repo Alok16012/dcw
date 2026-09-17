@@ -36,35 +36,35 @@ import {photoFor} from '@/lib/photos.js';
    can be learned rather than guessed. */
 const OFFERS = {
   distance: [
-    {tone: 1, icon: <ScrollText/>, need: 'Finish your 10th or 12th',
+    {tone: 1, image: 'home-study', icon: <ScrollText/>, need: 'Finish your 10th or 12th',
       line: 'Recognised open boards with flexible exam cycles. A gap of a few years is not a problem.',
       cta: 'See open boards', href: '/distance/boards'},
-    {tone: 2, icon: <GraduationCap/>, need: 'Complete your graduation',
+    {tone: 2, image: 'campus-editorial', icon: <GraduationCap/>, need: 'Complete your graduation',
       line: 'BA, B.Com, BSc and more from UGC-DEB approved universities, built around a job.',
       cta: 'View universities', href: '/distance/universities?path=ug'},
-    {tone: 3, icon: <Award/>, need: 'Add a master’s degree',
+    {tone: 3, image: 'counsellor-desk', icon: <Award/>, need: 'Add a master’s degree',
       line: 'MA, MBA and MCA programmes you can finish without leaving the work you have.',
       cta: 'View PG courses', href: '/distance/universities?path=pg'}
   ],
   colleges: [
-    {tone: 1, icon: <Search/>, need: 'Shortlist the right college',
+    {tone: 1, image: 'campus-steps', icon: <Search/>, need: 'Shortlist the right college',
       line: 'Compare cutoffs, seats and the total cost — not just the tuition line.',
       cta: 'Start comparing', href: '/colleges/search'},
-    {tone: 2, icon: <TrendingUp/>, need: 'Check your NEET chances',
+    {tone: 2, image: 'classroom-session', icon: <TrendingUp/>, need: 'Check your NEET chances',
       line: 'Turn one rank into strong, possible and backup choices for your category and state.',
       cta: 'Open the predictor', href: '/colleges/neet-predictor'},
-    {tone: 3, icon: <Plane/>, need: 'Study abroad',
+    {tone: 3, image: 'campus-editorial', icon: <Plane/>, need: 'Study abroad',
       line: 'Country-wise cost, approvals and intake timelines, side by side in one place.',
       cta: 'Compare countries', href: '/colleges/search?abroad=1'}
   ],
   jobs: [
-    {tone: 1, icon: <MapPin/>, need: 'Find a job near you',
+    {tone: 1, image: 'office-front', icon: <MapPin/>, need: 'Find a job near you',
       line: 'Openings from employers we have checked, with the salary stated on every listing.',
       cta: 'See openings', href: '/jobs/search?city=Patna'},
-    {tone: 2, icon: <FileText/>, need: 'Build a free resume',
+    {tone: 2, image: 'workplace-team', icon: <FileText/>, need: 'Build a free resume',
       line: 'A clean, recruiter-ready resume in three guided steps. No charge at any point.',
       cta: 'Build my resume', href: '/jobs/resume-builder'},
-    {tone: 3, icon: <Wrench/>, need: 'Learn a job-ready skill',
+    {tone: 3, image: 'career-editorial', icon: <Wrench/>, need: 'Learn a job-ready skill',
       line: 'Short, job-linked courses from six weeks, with help applying once you finish.',
       cta: 'See short courses', href: '/jobs/search'}
   ]
@@ -76,12 +76,11 @@ export function OfferCards({vertical, go}){
     <h2 id="offer-h" className="offer-h">What would you like to do first?</h2>
     <div className="offer-grid">{rows.map(o =>
       <article key={o.need} className={`offer-card tone-${o.tone}`}>
-        <i className="oc-icon" aria-hidden="true">{o.icon}</i>
-        <h3>{o.need}</h3>
-        <p>{o.line}</p>
-        <button type="button" className="oc-go" onClick={() => go(o.href)}>
-          {o.cta}<ArrowRight aria-hidden="true"/>
-        </button>
+        <div className="oc-image"><Photo name={o.image}/><i className="oc-icon" aria-hidden="true">{o.icon}</i></div>
+        <div className="oc-body"><h3>{o.need}</h3><p>{o.line}</p>
+          <button type="button" className="oc-go" onClick={() => go(o.href)}>
+            {o.cta}<ArrowRight aria-hidden="true"/>
+          </button></div>
       </article>)}
     </div>
   </section>;
@@ -230,7 +229,7 @@ const CLOSE = {
 
 export function PhotoCta({vertical, go, setLead}){
   const c = CLOSE[vertical] ?? CLOSE.distance;
-  return <section className="section container">
+  return <section className="section container photo-cta-band">
     <div className="photo-cta">
       <div className="pc-copy">
         <span className="kicker">{c.k}</span>

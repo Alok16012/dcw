@@ -183,6 +183,41 @@ useEffect(()=>{const shortcut=e=>{if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()
 useEffect(()=>{localStorage.setItem('dcw-saved-v2',JSON.stringify(saved));localStorage.setItem('dcw-compare-v2',JSON.stringify(compare))},[saved,compare]);
 const go=p=>router.push(p);const notify=t=>{setToast(t);setTimeout(()=>setToast(''),2200)};const toggleSave=id=>{setSaved(s=>s.includes(id)?s.filter(x=>x!==id):[...s,id]);notify(saved.includes(id)?'Removed from saved':'Saved for later')};const toggleCompare=id=>setCompare(c=>{const arr=c[vertical];if(arr.includes(id))return {...c,[vertical]:arr.filter(x=>x!==id)};if(arr.length>=3){notify('Compare supports up to 3 choices');return c}notify('Added to comparison');return {...c,[vertical]:[...arr,id]}});
 const auth=useSession();const catalog=useCatalog(vertical);
+/* The invitation that opens itself.
+
+   The reference site greets a first-time visitor with an enquiry panel over its
+   hero, and that panel is the single thing on it doing the most work: most
+   people who fill a form on a coaching site fill the one that was put in front
+   of them, not the one they scrolled to find. This does the same job with the
+   dialog the site already has — same fields, same OTP, same consent gate, same
+   /api/leads — rather than a second form that only looks like one.
+
+   Four conditions, and all of them are about not being a nuisance:
+   • Signed in? Then we already have this person's details and a pop-up asking
+     for them again is an insult, not an offer.
+   • Only on a vertical's front page. Somebody deep in a fee table or halfway
+     through the resume builder is doing something; interrupting that loses the
+     thing they came for.
+   • Never on top of another dialog — search, the assistant, or a lead the
+     visitor opened deliberately.
+   • Once per tab. The flag is written when the timer fires rather than when the
+     form is sent, so closing it counts as an answer and it stays closed.
+
+   The delay is long enough to read the headline and see the three doors first.
+   Opening on load, the way the reference does, asks for a phone number from
+   someone who does not yet know what we sell. */
+const INVITE_KEY='dcw-invite-v1',INVITE_DELAY=8000;
+useEffect(()=>{
+  if(auth.state!=='ready'||auth.user)return;
+  if(path!==`/${vertical}`)return;
+  if(lead||searchOpen||botOpen)return;
+  try{if(sessionStorage.getItem(INVITE_KEY))return}catch{return}
+  const t=setTimeout(()=>{
+    try{sessionStorage.setItem(INVITE_KEY,'1')}catch{}
+    setLead({title:`Register with ${V[vertical].logoAlt}`,interest:vertical,popup:true});
+  },INVITE_DELAY);
+  return()=>clearTimeout(t);
+},[path,vertical,auth.state,auth.user,lead,searchOpen,botOpen]);
 const ctx={path,vertical,cfg,go,saved,toggleSave,compare,toggleCompare,setLead,query,setQuery,setSearchOpen,notify,auth,catalog};
 let page;if(path==='/about')page=<AboutPage {...ctx}/>;else if(path?.startsWith('/blog'))page=<BlogPage {...ctx}/>;else if(path==='/reviews')page=<ReviewsPage {...ctx}/>;else if(path==='/saved')page=<SavedPage {...ctx}/>;else if(path==='/applications')page=<ApplicationsPage {...ctx}/>;else if(path==='/notifications')page=<AccountPage type="notifications" {...ctx}/>;else if(path==='/profile')page=<AccountPage type="profile" {...ctx}/>;else if(path==='/automations')page=<AutomationCenter {...ctx}/>;else if(path?.endsWith('/compare'))page=<ComparePage {...ctx}/>;else if(path?.includes('resume-builder'))page=<ResumeBuilder {...ctx}/>;else if(path?.includes('neet-predictor'))page=<Predictor {...ctx}/>;else if(path?.includes('boards'))page=<Boards {...ctx}/>;else if(path?.includes('universities')||path?.includes('/search')||path?.includes('/list'))page=<Listing {...ctx}/>;else{
   const id=path?.split('/').pop();
@@ -198,7 +233,53 @@ let page;if(path==='/about')page=<AboutPage {...ctx}/>;else if(path?.startsWith(
 }
 return <div className={`app app-${vertical}`} style={cfg.theme}><MotionLayer/><a className="skip-link" href="#main">Skip to main content</a><Header {...ctx}/>{page}<Footer go={go} vertical={vertical} path={path}/>{compare[vertical].length>0&&!path?.endsWith('/compare')&&<CompareTray {...ctx}/>}<MobileNav {...ctx}/><AskDCW open={botOpen} setOpen={setBotOpen} {...ctx}/>{searchOpen&&<SearchPanel {...ctx}/>} {lead&&<LeadFlow lead={lead} vertical={vertical} go={go} close={()=>setLead(null)} notify={notify}/>} {toast&&<div className="toast" role="status"><Check size={17}/>{toast}</div>}</div>}
 
-function MotionLayer(){const [progress,setProgress]=useState(0),[showTop,setShowTop]=useState(false);useEffect(()=>{const reveal=()=>{document.querySelectorAll('main section,.entity-card,.path-card,.detail-section,.automation-grid section').forEach((el,i)=>{if(!el.classList.contains('motion-ready')){el.classList.add('motion-ready');el.style.setProperty('--delay',`${Math.min(i%6,5)*55}ms`)}})};reveal();const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in-view');observer.unobserve(e.target)}}),{threshold:.04,rootMargin:'0px 0px 120px'});const observe=()=>document.querySelectorAll('.motion-ready').forEach(el=>observer.observe(el));observe();const mutation=new MutationObserver(()=>{reveal();observe()});mutation.observe(document.body,{childList:true,subtree:true});const onScroll=()=>{const max=document.documentElement.scrollHeight-innerHeight;setProgress(max>0?scrollY/max*100:0);setShowTop(scrollY>650)};addEventListener('scroll',onScroll,{passive:true});onScroll();return()=>{observer.disconnect();mutation.disconnect();removeEventListener('scroll',onScroll)}},[]);return <><div className="scroll-progress" aria-hidden="true"><i style={{width:`${progress}%`}}/></div><button className={`scroll-top ${showTop?'show':''}`} aria-label="Scroll to top" tabIndex={showTop?0:-1} aria-hidden={!showTop} onClick={()=>scrollTo({top:0,behavior:'smooth'})}><ArrowUp/></button></>}
+function MotionLayer(){
+  const progressRef=useRef(null);
+  const [showTop,setShowTop]=useState(false);
+  useEffect(()=>{
+    const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)');
+    const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{
+      if(entry.isIntersecting){entry.target.classList.add('in-view');observer.unobserve(entry.target)}
+    }),{threshold:.05,rootMargin:'0px 0px 96px'});
+    const register=()=>{
+      document.querySelectorAll('main section,.entity-card,.path-card,.detail-section,.automation-grid section,.offer-card,.cat-tile,.proc-step,.cs-rows li').forEach((el,i)=>{
+        if(!el.classList.contains('motion-ready')){
+          el.classList.add('motion-ready');
+          el.style.setProperty('--delay',`${Math.min(i%4,3)*65}ms`);
+        }
+        if(el.classList.contains('in-view'))return;
+        const rect=el.getBoundingClientRect();
+        if(rect.top<innerHeight+96&&rect.bottom>-96){el.classList.add('in-view');return}
+        observer.observe(el);
+      });
+    };
+    register();
+    const mutation=new MutationObserver(register);
+    mutation.observe(document.body,{childList:true,subtree:true});
+    let frame=0;
+    const paint=()=>{
+      frame=0;
+      const max=document.documentElement.scrollHeight-innerHeight;
+      if(progressRef.current)progressRef.current.style.width=`${max>0?scrollY/max*100:0}%`;
+      setShowTop(visible=>visible===(scrollY>650)?visible:!visible);
+      if(reduceMotion.matches||innerWidth<760)return;
+      document.querySelectorAll('.hero-showcase,.proc-photo,.photo-cta').forEach(el=>{
+        const rect=el.getBoundingClientRect();
+        if(rect.bottom<0||rect.top>innerHeight)return;
+        const center=rect.top+rect.height/2;
+        const travel=Math.max(-1,Math.min(1,(innerHeight/2-center)/(innerHeight/2+rect.height/2)));
+        el.style.setProperty('--scroll-shift',`${(travel*22).toFixed(1)}px`);
+      });
+    };
+    const schedule=()=>{if(!frame)frame=requestAnimationFrame(paint)};
+    addEventListener('scroll',schedule,{passive:true});
+    addEventListener('resize',schedule,{passive:true});
+    reduceMotion.addEventListener('change',schedule);
+    schedule();
+    return()=>{observer.disconnect();mutation.disconnect();cancelAnimationFrame(frame);removeEventListener('scroll',schedule);removeEventListener('resize',schedule);reduceMotion.removeEventListener('change',schedule)};
+  },[]);
+  return <><div className="scroll-progress" aria-hidden="true"><i ref={progressRef}/></div><button className={`scroll-top ${showTop?'show':''}`} aria-label="Scroll to top" tabIndex={showTop?0:-1} aria-hidden={!showTop} onClick={()=>scrollTo({top:0,behavior:'smooth'})}><ArrowUp/></button></>;
+}
 
 /* Where each kind of user lands after signing in. The public site and the
    console share one account system, so the door you come through decides the
@@ -370,23 +451,59 @@ const HERO={
     alt:'Young Indian professionals collaborating at work'
   }
 };
+/* The photographic stage is a set of three useful front doors, not an ad
+   carousel: every slide has its own working destination. The first image is
+   prioritised, the others are local assets and arrive lazily. */
+const HERO_STORIES={
+  distance:[
+    {image:'university-campus',kicker:'DISTANCE COURSES WALA',label:'Find a university',title:'Learn your way.',highlight:'Move your life forward.',body:'Recognised distance and online programmes that fit around the life you already have.',cta:'Explore universities',href:'/distance/universities'},
+    {image:'home-study',kicker:'OPEN SCHOOLING',label:'Finish school',title:'A gap is not',highlight:'the end of your story.',body:'See flexible ways to complete your 10th or 12th and take the next step with confidence.',cta:'Compare open boards',href:'/distance/boards'},
+    {image:'counsellor-desk',kicker:'FREE HUMAN GUIDANCE',label:'Talk it through',title:'Not sure which',highlight:'path is yours?',body:'Tell us where you stopped. A counsellor will help you see what is open to you now.',cta:'Ask a counsellor',href:null}
+  ],
+  colleges:[
+    {image:'campus-editorial',kicker:'COLLEGES WALA',label:'Explore colleges',title:'Find the college',highlight:'that feels right.',body:'Compare seats, cutoffs and the full cost before you decide where to apply.',cta:'Explore colleges',href:'/colleges/search'},
+    {image:'campus-steps',kicker:'NEET DECISION TOOL',label:'Check your chances',title:'Your rank is a',highlight:'starting point.',body:'Turn your NEET rank into strong, possible and backup choices in a few steps.',cta:'Open NEET predictor',href:'/colleges/neet-predictor'},
+    {image:'classroom-session',kicker:'FIND YOUR STREAM',label:'Compare your options',title:'Look beyond',highlight:'the brochure.',body:'Study the numbers side by side, then build a shortlist you can explain at home.',cta:'Compare colleges',href:'/colleges/search'}
+  ],
+  jobs:[
+    {image:'career-editorial',kicker:'BEROJGAR BHARAT',label:'Find jobs',title:'Your next job',highlight:'starts here.',body:'Browse clear job listings with the employer, location and pay shown upfront.',cta:'Explore jobs',href:'/jobs/search'},
+    {image:'workplace-team',kicker:'FREE RESUME BUILDER',label:'Build your resume',title:'Show what you',highlight:'can do.',body:'Make a clean, focused resume in three guided steps. No fee and no guesswork.',cta:'Build my resume',href:'/jobs/resume-builder'},
+    {image:'office-front',kicker:'WORK NEAR YOU',label:'Jobs near home',title:'Opportunity',highlight:'closer to home.',body:'Start with local openings and see what each role asks for before you apply.',cta:'See Patna jobs',href:'/jobs/search?city=Patna'}
+  ]
+};
 function Hero({vertical,go,setSearchOpen,setLead,query,setQuery}){
-  const h=HERO[vertical];const [cat,setCat]=useState(0);
-  /* One of three, chosen so that this page's hero, its process ladder and its
-     closing banner are never the same photograph. The table is in lib/photos.js
-     with the other two slots, because the constraint is about the page as a
-     whole and cannot be seen from any single band. */
-  const art=photoFor(vertical,'hero');
-  /* Typed text wins, because the search panel searches all three verticals and a
-     category cannot narrow a word it has not seen. With the field empty the
-     select is the whole instruction, so it navigates to that filter. Either way
-     pressing Search does what the label promises. */
+  const h=HERO[vertical];
+  const [cat,setCat]=useState(0),[slide,setSlide]=useState(0),[paused,setPaused]=useState(false);
+  const slides=HERO_STORIES[vertical];
+  useEffect(()=>{setSlide(0)},[vertical]);
+  useEffect(()=>{
+    if(paused||typeof window==='undefined'||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+    const timer=setInterval(()=>{if(!document.hidden)setSlide(i=>(i+1)%slides.length)},7000);
+    return()=>clearInterval(timer);
+  },[paused,slides]);
+  const story=slides[slide];
   const submit=e=>{e.preventDefault();if(query.trim()){setSearchOpen(true);return}go(h.cats[cat][1]??h.all)};
-  return <section className="hero home-hero"><div className="container hero-content">
-    <div className="hero-copy">
-      <p className="hh-chips"><Check size={13} aria-hidden="true"/>{h.chips.map(c=><span key={c}>{c}</span>)}</p>
-      <h1>{h.line1}<br/><em>{h.line2}</em></h1>
-      <p className="hh-body">{h.body}</p>
+  const visit=()=>story.href?go(story.href):setLead({title:h.cta,interest:vertical});
+  return <section className="hero home-hero" aria-label={`${V[vertical].logoAlt} introduction`}><div className="container hero-stage">
+    <div className="hero-showcase" onMouseEnter={()=>setPaused(true)} onMouseLeave={e=>{setPaused(false);e.currentTarget.style.removeProperty('--pointer-x');e.currentTarget.style.removeProperty('--pointer-y')}} onPointerMove={e=>{if(e.pointerType!=='mouse')return;const rect=e.currentTarget.getBoundingClientRect();e.currentTarget.style.setProperty('--pointer-x',`${((e.clientX-rect.left)/rect.width*100).toFixed(1)}%`);e.currentTarget.style.setProperty('--pointer-y',`${((e.clientY-rect.top)/rect.height*100).toFixed(1)}%`)}} onFocusCapture={()=>setPaused(true)} onBlurCapture={e=>{if(!e.currentTarget.contains(e.relatedTarget))setPaused(false)}}>
+      <div className="hs-images" aria-hidden="true">{slides.map((s,i)=><Photo key={s.image} name={s.image} priority={i===0} className={i===slide?'active':''}/>)}</div>
+      <span className="hs-scrim" aria-hidden="true"/>
+      <div className="hs-copy" key={`${vertical}-${slide}`}>
+        <span className="hs-eyebrow"><Sparkles size={16} aria-hidden="true"/>{story.kicker}</span>
+        <h1>{story.title}<br/><em>{story.highlight}</em></h1>
+        <p>{story.body}</p>
+        <div className="hs-actions">
+          <button className="btn hs-primary" onClick={visit}>{story.cta}<ArrowRight aria-hidden="true"/></button>
+          <button className="btn hs-secondary" onClick={()=>setLead({title:'Talk to a DCW counsellor',interest:vertical})}>Get free guidance<MessageCircle aria-hidden="true"/></button>
+        </div>
+      </div>
+      <div className="hs-bottom">
+        <div className="hs-slides" aria-label="Featured paths">{slides.map((s,i)=><button key={s.kicker} type="button" className={i===slide?'active':''} aria-label={`Show ${s.label}`} aria-current={i===slide?'true':undefined} onClick={()=>setSlide(i)}><b>0{i+1}</b><span>{s.label}</span><i aria-hidden="true"/></button>)}</div>
+        <div className="hs-arrows"><button type="button" aria-label="Previous feature" onClick={()=>setSlide(i=>(i+slides.length-1)%slides.length)}><ChevronLeft/></button><button type="button" aria-label="Next feature" onClick={()=>setSlide(i=>(i+1)%slides.length)}><ChevronRight/></button></div>
+      </div>
+    </div>
+    <div className="hero-discovery">
+      <div className="hd-intro"><span className="kicker">EXPLORE WITH CONFIDENCE</span><h2>What are you looking for?</h2><p>Search the options, or start with a popular path.</p></div>
       <form className="hh-search" role="search" onSubmit={submit}>
         <Search size={18} aria-hidden="true"/>
         <input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={h.ph} aria-label={h.ph}/>
@@ -394,19 +511,6 @@ function Hero({vertical,go,setSearchOpen,setLead,query,setQuery}){
         <button type="submit" className="btn primary">Search<ArrowRight/></button>
       </form>
       <div className="hh-popular"><span>Popular:</span>{h.popular.map(([t,href])=><button key={t} type="button" onClick={()=>go(href)}>{t}</button>)}</div>
-    </div>
-    <div className="hero-aside">
-      <figure className="hh-photo">
-        <Photo name={art} alt={h.alt} priority/>
-        <figcaption className="hh-guided"><span className="hh-faces" aria-hidden="true"><i/><i/><i/><b>+</b></span><span className="hh-guided-t"><b>{h.guided}</b><small>{h.guidedSub}</small></span></figcaption>
-        <span className="hh-script" aria-hidden="true">{h.script}</span>
-      </figure>
-      <div className="hh-trust">
-        <p className="hh-trust-t">{h.note}</p>
-        <ul>{h.trust.map(([label,icon])=><li key={label}><i className="hh-t-i" aria-hidden="true">{icon}</i><span>{label}</span><Check className="hh-tick" size={15} aria-hidden="true"/></li>)}</ul>
-        <button className="btn primary" onClick={()=>setLead({title:h.cta,interest:vertical})}>{h.cta}<ArrowRight/></button>
-        <small>It’s free. No hidden charges.</small>
-      </div>
     </div>
   </div></section>;
 }
@@ -442,6 +546,11 @@ function RailArrows({target,label}){
     <button type="button" aria-label={`Scroll ${label} right`} disabled={at.end} onClick={()=>nudge(1)}><ChevronRight size={18}/></button>
   </span>;
 }
+const CATEGORY_PHOTOS={
+  distance:['classroom-session','university-campus','home-study','career-editorial','counsellor-desk','campus-editorial'],
+  colleges:['campus-steps','university-campus','classroom-session','campus-editorial','campus-steps','home-study'],
+  jobs:['workplace-team','career-editorial','office-front','home-study']
+};
 function HomePage(ctx){const {vertical,go,catalog}=ctx;const pool=catalog.rows;
   const listAll=vertical==='distance'?'/distance/universities':`/${vertical}/search`;
   const noun=vertical==='jobs'?'roles':vertical==='colleges'?'colleges':'universities';
@@ -460,8 +569,8 @@ function HomePage(ctx){const {vertical,go,catalog}=ctx;const pool=catalog.rows;
   {/* The six doors of the reference, as one compact strip rather than six tall
       cards. A category is a turning, not a destination, so it gets one line of
       explanation and a chevron — the height goes to the listing it opens. */}
-  <section className="section container"><SectionTitle kicker="WHERE DO YOU WANT TO START?" title={vertical==='jobs'?'Start with what you need today':vertical==='colleges'?'Explore by your ambition':'Find the course that fits your life'} sub={vertical==='jobs'?'Pick the one closest to where you are right now.':vertical==='colleges'?'Pick a stream and compare the colleges that teach it.':'Pick where you stopped studying, or where you want to go next.'} action="View everything" onAction={()=>go(listAll)}/>
-    <div className="cat-strip">{categories(vertical).map(x=><button key={x.name} type="button" className="cat-tile" onClick={()=>go(x.href)}><i className="ct-icon" aria-hidden="true">{x.icon}</i><span className="ct-text"><b>{x.name}</b><small>{x.tag??x.kicker}</small></span><ChevronRight className="ct-go" size={18} aria-hidden="true"/></button>)}</div></section>
+  <section className="section container category-band"><SectionTitle kicker="WHERE DO YOU WANT TO START?" title={vertical==='jobs'?'Start with what you need today':vertical==='colleges'?'Explore by your ambition':'Find the course that fits your life'} sub={vertical==='jobs'?'Pick the one closest to where you are right now.':vertical==='colleges'?'Pick a stream and compare the colleges that teach it.':'Pick where you stopped studying, or where you want to go next.'} action="View everything" onAction={()=>go(listAll)}/>
+    <div className="cat-strip">{categories(vertical).map((x,i)=><button key={x.name} type="button" className="cat-tile" onClick={()=>go(x.href)}><span className="ct-photo" aria-hidden="true"><Photo name={CATEGORY_PHOTOS[vertical][i]}/><i className="ct-icon">{x.icon}</i></span><span className="ct-text"><b>{x.name}</b><small>{x.tag??x.kicker}</small></span><ChevronRight className="ct-go" size={18} aria-hidden="true"/></button>)}</div></section>
   {/* The reference's wide photographic banner, at the point where it puts one:
       after the visitor has seen the doors and before the catalogue. It sits
       mid-page rather than at the end so the two dark bands on this page are a
@@ -472,7 +581,7 @@ function HomePage(ctx){const {vertical,go,catalog}=ctx;const pool=catalog.rows;
   <section className="section wash"><div className="container"><SectionTitle kicker={vertical==='jobs'?'HIRING NOW':vertical==='colleges'?'TOP COLLEGES':'TOP UNIVERSITIES'} title={vertical==='jobs'?'Real Openings, Real Employers.':vertical==='colleges'?'Good Colleges, Honest Numbers.':'Trusted Universities, Real Opportunities.'} sub={vertical==='jobs'?'Every role below states its salary and the employer behind it.':vertical==='colleges'?'Cutoffs, total cost and seats — checked at source, not copied.':'Explore UGC-approved universities offering distance and online programs.'} action={`View all ${noun}`} onAction={()=>go(listAll)}>
       <RailArrows target={rail} label={noun}/>
     </SectionTitle>
-    <CatalogGrid catalog={catalog} skeleton={3}><div className="rail" ref={rail}>{pool.slice(0,5).map(x=><EntityCard key={x.id} item={x} {...ctx}/>)}</div></CatalogGrid></div></section>
+    <CatalogGrid catalog={catalog} skeleton={3}><div className="rail" ref={rail}>{vertical==='distance'&&<article className="university-feature"><div className="uf-photo" aria-hidden="true"><Photo name="university-campus"/><span>Illustrative campus image</span></div><div className="uf-copy"><span className="kicker">UNIVERSITY FINDER</span><h3>Find your next place to learn.</h3><p>Compare recognition, course format, fees and exam mode before you choose.</p><button type="button" className="btn primary" onClick={()=>go('/distance/universities')}>See all universities<ArrowRight aria-hidden="true"/></button></div></article>}{pool.slice(0,5).map(x=><EntityCard key={x.id} item={x} {...ctx}/>)}</div></CatalogGrid></div></section>
   {/* Recognition & Approval, then Proof of Work — both on all three verticals,
       both counted out of the catalogue rather than written into this page, so
       the console is what changes them. Straight after the rail because they are
@@ -709,8 +818,8 @@ function Listing(ctx){
       </div>
     </section>
     :<PageHero
-      photo="campus-editorial"
-      alt="Students on an Indian university campus"
+      photo={vertical==='distance'?'university-campus':'campus-editorial'}
+      alt={vertical==='distance'?'Illustrative university campus with students walking between academic buildings':'Students on an Indian university campus'}
       kicker={`${V[vertical].label.toUpperCase()} · RESEARCHED, NOT RANKED BY ADS`}
       title={vertical==='colleges'
         ?<>Medical colleges,<br/><em>compared on the real numbers.</em></>
@@ -1074,7 +1183,7 @@ const verify=async()=>{if(inFlight.current)return;inFlight.current=true;setBusy(
   catch(e){setError(e.message)}finally{inFlight.current=false;setBusy(false)}};
 const finish=async(attach=resume)=>{if(inFlight.current)return;inFlight.current=true;setBusy(true);setError('');
   try{await submit(attach)}catch(e){setError(e.message)}finally{inFlight.current=false;setBusy(false)}};
-return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget&&!busy)close()}}><div className="lead-modal" ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="lead-title"><button aria-label="Close" className="modal-x" onClick={close}><X/></button>{error&&<p className="form-error" role="alert">{error}</p>}{step===0&&<><span className="kicker">{applying?<><FileText/>FREE APPLICATION SUPPORT</>:<>FREE &bull; NO PRESSURE</>}</span><h2 id="lead-title">{lead.title}</h2><p>{!applying?'Share the basics so the right DCW counsellor can understand your goal.':lead.interestType==='job'?'Share the basics and attach a resume if you have one. A DCW recruiter checks the fit and passes your application to the employer — there is no fee to DCW.':'Pick your course and share the basics. A DCW counsellor checks your eligibility and submits the application with you — there is no application fee to DCW.'}</p>{applying&&lead.where&&<div className="lead-context"><MapPin/><span>{lead.where}</span></div>}{/* Checkboxes rather than a <select multiple>: on a phone that collapses into
+return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget&&!busy)close()}}><div className={`lead-modal${lead.popup?' is-popup':''}`} ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="lead-title"><button aria-label="Close" className="modal-x" onClick={close}><X/></button>{error&&<p className="form-error" role="alert">{error}</p>}{step===0&&<><span className="kicker">{applying?<><FileText/>FREE APPLICATION SUPPORT</>:<>FREE &bull; NO PRESSURE</>}</span><h2 id="lead-title">{lead.title}</h2><p>{!applying?'Share the basics so the right DCW counsellor can understand your goal.':lead.interestType==='job'?'Share the basics and attach a resume if you have one. A DCW recruiter checks the fit and passes your application to the employer — there is no fee to DCW.':'Pick your course and share the basics. A DCW counsellor checks your eligibility and submits the application with you — there is no application fee to DCW.'}</p>{lead.popup&&<button type="button" className="lm-browse" onClick={()=>{close();go(vertical==='distance'?'/distance/universities':`/${vertical}/search`)}}>Explore first — no details needed<ArrowRight aria-hidden="true"/></button>}{applying&&lead.where&&<div className="lead-context"><MapPin/><span>{lead.where}</span></div>}{/* Checkboxes rather than a <select multiple>: on a phone that collapses into
     a picker giving no sign more than one choice is allowed, and on a desktop it
     needs a held modifier key nobody discovers. "Select all" is one tap. */}
 {multi&&<div className="course-pick"><div className="cp-head"><span className="field-legend">Choose your courses</span><button type="button" className="text-btn" onClick={()=>setPicked(picked.length===lead.courses.length?[]:[...lead.courses])}>{picked.length===lead.courses.length?'Clear all':'Select all'}</button></div>
@@ -1103,7 +1212,20 @@ return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget&&
 <p className="muted-note">Demo mode: no real SMS, WhatsApp or CRM record was created.</p>
 <div className="bc-foot"><button className="btn primary" onClick={()=>{notify(applying?'Application submitted \u2014 track it in Applications':'Enquiry saved to Applications');close()}}>Done</button>
 {/* The stage view is the answer to the question this person will ask next. */}
-{applying&&<button className="btn outline" onClick={()=>{close();go('/applications')}}>Track {result?.applications?.length>1?'these applications':'this application'}<ArrowRight/></button>}</div></div>}</div></div>}
+{applying&&<button className="btn outline" onClick={()=>{close();go('/applications')}}>Track {result?.applications?.length>1?'these applications':'this application'}<ArrowRight/></button>}</div></div>}
+{/* Last in the markup, first in the layout: CSS puts this column on the left,
+    but a screen reader should reach the heading and the fields before it
+    reaches a picture and a line about opening hours. Only the pop-up gets it —
+    a dialog the visitor opened themselves does not need to be sold to.
+    The promise under the photograph is the one the site makes everywhere else
+    (counselling is free, nothing is payable to DCW) and the hours come from
+    lib/contact.js, so there is no second copy to fall out of date. */}
+{lead.popup&&<aside className="lm-aside">
+  <Photo name={photoFor(vertical,'popup')}/>
+  <span className="lm-shade" aria-hidden="true"/>
+  <div className="lm-aside-copy"><b>Counselling is free</b><small>{CONTACT.hours}</small>
+    <small>Nothing is payable to DCW at any stage.</small></div>
+</aside>}</div></div>}
 function CompareTray({vertical,compare,go}){return <div className="compare-tray glass-dark"><span><b>{compare[vertical].length} of 3 selected</b><small>{compare[vertical].length<2?'Add one more for a useful comparison':'Ready to compare side by side'}</small></span><button disabled={compare[vertical].length<2} onClick={()=>go(`/${vertical}/compare`)}>Compare now<ArrowRight/></button></div>}
 function MobileNav({vertical,go,setSearchOpen,path}){return <nav className="mobile-nav" aria-label="Mobile navigation"><button className={path===`/${vertical}`?'active':''} onClick={()=>go(`/${vertical}`)}><Home/>Home</button><button className={path?.includes('search')||path?.includes('universities')?'active':''} onClick={()=>go(vertical==='distance'?'/distance/universities':`/${vertical}/search`)}><Search/>Explore</button><button className="mobile-main" onClick={()=>setSearchOpen(true)}><Search/>Search</button><button className={path==='/saved'?'active':''} onClick={()=>go('/saved')}><Heart/>Saved</button><button className={path==='/profile'?'active':''} onClick={()=>go('/profile')}><UserRound/>Profile</button></nav>}
 function Footer({go,vertical,path}){const brand=V[vertical];return <footer className="footer"><div className="container"><div><div className="brand inverse"><BrandLockup vertical={vertical}/><span><b>{brand.logoAlt}</b><small>Your next move, made visible.</small></span></div><p>Clear education and career decisions for students across India.</p><button className="automation-link" onClick={()=>go('/automations')}><Workflow/>Automation centre</button></div><div><b>Distance</b><button onClick={()=>go('/distance/universities')}>Universities</button><button onClick={()=>go('/distance/boards')}>Board comparison</button></div><div><b>Colleges</b><button onClick={()=>go('/colleges/search')}>Find colleges</button><button onClick={()=>go('/colleges/neet-predictor')}>NEET predictor</button></div><div><b>Jobs</b><button onClick={()=>go('/jobs/search')}>Find jobs</button><button onClick={()=>go('/jobs/resume-builder')}>Resume builder</button></div><div><b>Company</b><button onClick={()=>go('/about')}>About us</button><button onClick={()=>go('/blog')}>Blog</button><button onClick={()=>go('/reviews')}>Reviews</button></div></div>
