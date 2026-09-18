@@ -26,7 +26,15 @@
 .lg-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;background:var(--line-2);border-radius:11px;padding:4px;margin-bottom:20px}
 .lg-tabs button{border:0;background:none;border-radius:8px;min-height:38px;padding:9px 4px;font:inherit;font-size:12.5px;font-weight:700;color:var(--ink-3);cursor:pointer;transition:150ms}
 .lg-tabs button:hover{color:var(--ink)}
-.lg-tabs button[aria-pressed=true]{background:#fff;color:var(--a);box-shadow:0 1px 3px #0c1a2b1f}
+.lg-tabs{box-shadow:inset 0 1px 2px #0c1a2b12}
+/* The chosen door is a key that has been pressed out of the track, not a cell
+   that changed colour: a 2px solid plate under a white cap, matching the
+   thickness language the sign-in button and the site's tabs use at this
+   scale. Pressing any tab pushes it flush again. */
+.lg-tabs button[aria-pressed=true]{background:#fff;color:var(--a);transform:translateY(-1px);
+  box-shadow:0 2px 0 #C4D2E4,0 6px 11px -7px #0c1a2b66}
+.lg-tabs button:active{transform:translateY(1px);box-shadow:0 1px 0 #C4D2E4}
+@media(prefers-reduced-motion:reduce){.lg-tabs button[aria-pressed=true]{transform:none}}
 /* Says where the button goes before it is pressed, so no role guesses. */
 .lg-dest{margin:10px 0 0;text-align:center;font-size:12px;color:var(--ink-3)}
 .lg-dest b{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}

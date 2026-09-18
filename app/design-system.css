@@ -6283,3 +6283,195 @@ body{overflow-x:visible;overflow-y:visible}
 }
 .app .footer>.footer-cta:first-child>div:first-child,
 .app .footer>.footer-cta:first-child>div{grid-column:auto}
+
+/* R16. The icon becomes an object, and the tab becomes a key ---------------
+   Two things were asked for and one of them was written but never arrived.
+
+   The 3D icon layer two hundred lines above was scoped `.app :is(.ct-icon,…)`,
+   which is two classes. Almost every plinth it names is also addressed by a
+   three-class rule somewhere — `.app .ct-photo .ct-icon`, `.app .stat-i` in a
+   section block — and those rules set `box-shadow`, so they won and the icons
+   stayed flat. Measured on /distance: of eleven icon plinths on the page, three
+   carried the treatment. This restates it at three classes (`.app.app` is the
+   same element matched twice, which is the cheapest way to say "one weight
+   more" without inventing a deeper structure) and adds the plinths the first
+   pass did not list — the switcher's own icons above all, which sit in the
+   masthead and are the first icons anyone sees.
+
+   A base edge is added to the formula: a hard 3px shelf under the object, the
+   same solid unblurred edge the CTA keycaps use. That is what reads as an
+   object with a thickness rather than a tile with a highlight, and it ties the
+   icons to the buttons instead of giving the page two different 3D languages.
+
+   Licensed stock stays out of this: the iconscout sets need an account to
+   download, so nothing was taken from them. This is the lucide set the product
+   already ships, lit and extruded. */
+.app.app :is(.ct-icon,.cr-mark,.pc-icon,.al-mark,.ap-icon,.np-mark,.entity-mark,
+  .plate-chip,.oc-icon,.vs-icon,.ac-mark,.pow-icon,.footer-contact i){
+  border-radius:30%;
+  background-image:
+    radial-gradient(62% 46% at 28% 12%,rgb(255 255 255/.5),transparent 72%),
+    linear-gradient(180deg,rgb(255 255 255/.3),rgb(255 255 255/0) 54%,rgb(9 20 45/.1));
+  box-shadow:inset 0 1.5px 0 rgb(255 255 255/.6),
+             inset 0 -2px 3px rgb(9 20 45/.09),
+             0 3px 0 -1px rgb(9 20 45/.16),
+             0 6px 12px -4px rgb(9 20 45/.22);
+  transition:transform var(--t-micro) var(--ease-out),
+             box-shadow var(--t-micro) var(--ease-out)}
+.app.app :is(.ct-icon,.cr-mark,.pc-icon,.al-mark,.ap-icon,.oc-icon,.vs-icon,
+  .ac-mark,.pow-icon,.footer-contact i) svg{
+  filter:drop-shadow(0 1px 1px rgb(9 20 45/.22))}
+
+/* Below 1181 the switcher drops its icon plinths and shows bare glyphs, so
+   there is no object there to light or to seat — the shelf would be a shadow
+   cast by nothing. The hero's stat medallions are left alone for the opposite
+   reason: they already have a struck bezel of their own, written for a dark
+   band, and two treatments on one object is one too many. */
+@media(max-width:1180px){
+  .app.app .vs-icon{background-image:none;box-shadow:none}
+  .app.app .vs-icon svg{filter:none}
+}
+
+/* A circle is a sphere, not a cube: same light, same shelf, no corner radius
+   imposed on it. The footer's social links are circles by design and stay
+   circles. */
+.app.app :is(.fs-links a,.am-mark){
+  background-image:
+    radial-gradient(58% 44% at 30% 16%,rgb(255 255 255/.62),transparent 70%),
+    linear-gradient(180deg,rgb(255 255 255/.26),rgb(255 255 255/0) 56%,rgb(9 20 45/.12));
+  box-shadow:inset 0 1.5px 0 rgb(255 255 255/.6),
+             inset 0 -2px 4px rgb(9 20 45/.1),
+             0 3px 0 -1px rgb(9 20 45/.14),
+             0 6px 12px -4px rgb(9 20 45/.2)}
+
+/* R16b. The tab as a key ------------------------------------------------------
+   The switcher already had a selected state — a tint, a coloured border and a
+   3px indicator bar pinned to the bottom inside edge. It reads, but it reads
+   flat: the selected tab and the two beside it sit on the same plane and only
+   differ in colour. On a control whose whole job is "you are in this one of
+   three", plane is the stronger signal than hue, and it is the one the CTA
+   keycaps already speak.
+
+   So: the selected tab is a key that has been raised, the others are keys
+   still level with the track. Two pixels of lift and a solid unblurred plate
+   under the cap — the same 0 Npx 0 shelf the buttons use, never a blur, which
+   is what keeps it an object rather than a glow. Press pushes it back to one
+   pixel of thickness and the cap lands on the plate.
+
+   The indicator bar goes: with a plate under the cap, an inside bar of the
+   same colour reads as a second, thinner base drawn 13px short at each end.
+   The plate is the indicator now, and `aria-current` was always doing the
+   work for anyone not looking at it. */
+.app>header>.verticals button{
+  --tab-base:color-mix(in srgb,var(--ink-1) 15%,transparent);
+  box-shadow:0 2px 0 var(--tab-base)}
+.app>header>.verticals button:before{display:none}
+.app>header>.verticals button:hover:not(.active){
+  background:var(--tab-wash);border-color:var(--tab-glow);transform:translateY(-2px);
+  box-shadow:0 4px 0 var(--tab-base),
+             0 11px 18px -10px color-mix(in srgb,var(--tab-ink) 45%,transparent)}
+.app>header>.verticals button.active{
+  --tab-base:color-mix(in srgb,var(--tab-ink) 62%,#04122b);
+  transform:translateY(-2px);
+  box-shadow:0 4px 0 var(--tab-base),
+             0 13px 20px -12px color-mix(in srgb,var(--tab-ink) 60%,transparent)}
+.app>header>.verticals button:active,
+.app>header>.verticals button.active:active{
+  transform:translateY(1px);box-shadow:0 1px 0 var(--tab-base)}
+
+/* Below 901 the same three buttons are a segmented control on a wash track,
+   and the active third is filled with --tab-ink. A plate mixed from that same
+   ink would be invisible against it, so the fill's own darkest relative is
+   used instead. The track's 4px padding is exactly the room the lift needs,
+   so nothing overflows. */
+@media(max-width:900px){
+  .app>header>.verticals button{box-shadow:none}
+  .app>header>.verticals button.active{
+    --tab-base:color-mix(in srgb,var(--tab-ink) 55%,#030c1c);
+    box-shadow:0 3px 0 var(--tab-base),
+               0 9px 14px -9px color-mix(in srgb,var(--tab-ink) 65%,transparent)}
+  .app>header>.verticals button.active:before{display:none}
+}
+
+/* The tab's two lines were 13px/800 over 12px/500 — nearly the same size, so
+   the pair read as one clump of text rather than a name and a qualifier. The
+   name goes up and loosens a step in weight, the qualifier goes down and
+   takes the caps tracking the rest of the product's micro-labels use. */
+.app>header>.verticals button span em{font-size:14px;font-weight:760;
+  letter-spacing:-.012em;font-style:normal}
+.app>header>.verticals button small{font-size:11px!important;font-weight:640;
+  letter-spacing:.015em;opacity:.82}
+
+/* The hero's slide tabs sit on a photograph and were re-lit to white glass a
+   few hundred lines above, so the plate is drawn in the accent rather than in
+   ink — on a picture, a grey shelf reads as dirt. The 2px progress rule at
+   the bottom of each tab stays: it is a progress bar, not a selected marker,
+   and it is the only thing on the strip that says how far the slide has run. */
+.app .hs-slides button{--tab-base:color-mix(in srgb,var(--ink-1) 22%,transparent);
+  box-shadow:0 2px 0 var(--tab-base)}
+.app .hs-slides button:hover,.app .hs-slides button.active{
+  transform:translateY(-2px);
+  box-shadow:0 4px 0 var(--tab-base),0 14px 20px -12px rgb(3 8 18/.35)}
+.app .hs-slides button.active{--tab-base:var(--accent-deep,var(--accent))}
+.app .hs-slides button:active{transform:translateY(1px);box-shadow:0 1px 0 var(--tab-base)}
+.app .hs-slides b{font-variant-numeric:tabular-nums}
+@media(prefers-reduced-motion:reduce){
+  .app .hs-slides button:hover,.app .hs-slides button.active,
+  .app>header>.verticals button:hover:not(.active),
+  .app>header>.verticals button.active{transform:none}
+}
+
+/* The phone's bottom bar marks its current item with colour alone, at 11px.
+   The active glyph gets a raised chip — the same object language, at the one
+   size where a 2px plate is still legible. Drawn with content-box padding and
+   a matching negative margin so the chip is bigger than the icon without the
+   row growing by 10px and pushing the labels into the safe-area inset. */
+.app .mobile-nav button.active svg{box-sizing:content-box;padding:5px;margin:-5px;
+  border-radius:10px;background:var(--accent-ink,var(--accent));color:#fff;
+  box-shadow:0 2px 0 color-mix(in srgb,var(--accent-deep,var(--accent)) 75%,#04122b),
+             0 6px 10px -6px rgb(9 20 45/.4)}
+.app .mobile-nav button.active:active svg{transform:translateY(1px);
+  box-shadow:0 1px 0 color-mix(in srgb,var(--accent-deep,var(--accent)) 75%,#04122b)}
+
+/* Step numbers and the tab numerals are read as a sequence, so they get the
+   fixed-width figures the sequence implies — 01 and 11 the same width down a
+   column, rather than shuffling left each time a 1 appears. */
+.app .steps li span,.app .tl-step b,.app .pc-step b{font-variant-numeric:tabular-nums}
+
+/* R16c. The ordinary button, given a floor -----------------------------------
+   The six page-carrying CTAs became keycaps with a 5px plate. Everything else
+   kept a soft blurred glow, which now reads as a different material on the
+   same page. It gets the same construction at two thirds the thickness: 3px
+   under a primary, 2px under an outline. The hierarchy survives because the
+   numbers differ, not because the language does. */
+.app .btn.primary{--btn-base:var(--accent-deep,#07356F);
+  box-shadow:0 3px 0 var(--btn-base),
+             0 8px 16px -7px color-mix(in srgb,var(--btn-base) 42%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.16)}
+.app .btn.primary:hover:not(:disabled){
+  background:color-mix(in srgb,var(--accent-ink,var(--accent,#0B4DA8)) 90%,#000);
+  transform:translateY(-2px);
+  box-shadow:0 5px 0 var(--btn-base),
+             0 14px 22px -8px color-mix(in srgb,var(--btn-base) 50%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.16)}
+.app .btn.primary:active:not(:disabled){
+  transform:translateY(2px);
+  box-shadow:0 1px 0 var(--btn-base),
+             0 3px 7px -5px color-mix(in srgb,var(--btn-base) 45%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.1)}
+.app .btn.outline,.app .btn.secondary{
+  box-shadow:0 2px 0 color-mix(in srgb,var(--ink-1) 12%,transparent)}
+.app .btn.outline:hover:not(:disabled),.app .btn.secondary:hover:not(:disabled){
+  transform:translateY(-2px);
+  box-shadow:0 4px 0 color-mix(in srgb,var(--ink-1) 14%,transparent),
+             0 10px 16px -10px rgb(9 20 45/.3)}
+.app .btn.outline:active:not(:disabled),.app .btn.secondary:active:not(:disabled){
+  transform:translateY(1px);box-shadow:0 1px 0 color-mix(in srgb,var(--ink-1) 12%,transparent)}
+/* Ghost keeps nothing under it. A button with no fill and no border has no
+   body to cast a shelf, and giving it one invents an edge that is not there. */
+.app .btn:disabled{box-shadow:none;transform:none}
+@media(prefers-reduced-motion:reduce){
+  .app .btn.primary:hover:not(:disabled),
+  .app .btn.outline:hover:not(:disabled),
+  .app .btn.secondary:hover:not(:disabled){transform:none}
+}
