@@ -43,9 +43,14 @@ export function SectionTitle({kicker,title,sub,action,onAction,children}){return
    `priority` is only for the one photograph above the fold; everything else
    loads lazily, and every caller reserves the box in CSS so a late image does
    not move the page under a reader. */
-export function Photo({name, alt, priority = false, className}){
+export function Photo({name, alt, priority = false, className, hires = false}){
   return <picture className={className}>
-    <source type="image/webp" media="(max-width:900px)" srcSet={`/${name}-900.webp`}/>
+    {/* `hires` is for a picture that fills a phone's width: a 3x phone is
+        ~1170 device pixels wide, so it may take the full file rather than
+        stretch the 900px one. Card-sized pictures keep the small file. */}
+    <source type="image/webp" media="(max-width:900px)"
+      srcSet={hires ? `/${name}-900.webp 900w, /${name}-full.webp 1600w` : `/${name}-900.webp`}
+      sizes={hires ? '100vw' : undefined}/>
     <source type="image/webp" srcSet={`/${name}-full.webp`}/>
     {/* `||` rather than `??`: PageHero's own default is an empty string, and an
         empty alt on a photograph of people is a description the reader loses,

@@ -14,14 +14,19 @@ export function HdHero({vertical,brand,h,image,setLead}){
   const words=h.script.replace(/\.$/,'').split(/\.\s*/);
   const pads=['','pl-2','pl-7','pl-14'];
   return <section className="hd relative lg:h-[clamp(480px,36vw,640px)] z-10" aria-label={`${brand.logoAlt} introduction`}>
-    <div className="absolute inset-0 overflow-hidden">
-    <Photo name={image} priority alt={h.alt}
-      className="absolute inset-0 w-full h-full [&_img]:w-full [&_img]:h-full [&_img]:object-cover [&_img]:object-[75%_center] lg:[&_img]:object-[70%_30%]"/>
+    {/* Phones get the photograph as a banner above the copy rather than behind
+        it: the subject stands on the right of every hero picture, and on a
+        narrow screen that is exactly where the headline wraps. From lg up it
+        is HelloDoctor's full-bleed background again. */}
+    <div className="relative h-72 sm:h-96 overflow-hidden lg:absolute lg:inset-0 lg:h-auto">
+    <Photo name={image} priority hires alt={h.alt}
+      className="absolute inset-0 w-full h-full [&_img]:w-full [&_img]:h-full [&_img]:object-cover [&_img]:object-[85%_30%] lg:[&_img]:object-[70%_30%]"/>
+    <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white to-transparent lg:hidden"/>
     {/* The two sky-left photographs take HelloDoctor's own light wash; the
         busier office photo keeps a heavier one so the headline still reads. */}
     <div className={SOFT.has(image)
-      ?'absolute inset-0 bg-gradient-to-r from-white/85 via-white/55 via-45% to-transparent to-75% lg:from-brand-50/90 lg:via-brand-50/50 lg:via-40% lg:to-transparent lg:to-60%'
-      :'absolute inset-0 bg-gradient-to-r from-white/85 via-white/55 via-45% to-transparent to-75% lg:from-brand-50/95 lg:via-brand-50/75 lg:via-45% lg:to-transparent lg:to-72%'}/>
+      ?'hidden lg:block absolute inset-0 bg-gradient-to-r from-brand-50/90 via-brand-50/50 via-40% to-transparent to-60%'
+      :'hidden lg:block absolute inset-0 bg-gradient-to-r from-brand-50/95 via-brand-50/75 via-45% to-transparent to-72%'}/>
 
     <div aria-hidden="true" className="font-hand font-bold hidden lg:block absolute top-[4%] left-[57%] text-brand-700 text-3xl xl:text-4xl leading-[1.05] -rotate-12 select-none [text-shadow:0_1px_10px_rgba(255,255,255,0.9)]">
       {words.map((w,i)=><div key={w} className={pads[i]??'pl-14'}>{w}</div>)}
@@ -36,17 +41,17 @@ export function HdHero({vertical,brand,h,image,setLead}){
     </svg>
     </div>
 
-    <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 py-14 lg:py-0 flex flex-col justify-center">
-      <div className="self-start inline-flex items-center bg-brand-100/80 text-brand-700 px-4 py-1.5 rounded-2xl sm:rounded-full text-xs font-bold tracking-wide uppercase mb-5 max-w-[16rem] sm:max-w-none">
+    <div className="relative h-full max-w-7xl mx-auto px-4 sm:px-6 pt-2 pb-12 lg:py-0 flex flex-col justify-center">
+      <div className="self-start inline-flex items-center bg-brand-100/80 text-brand-700 px-4 py-1.5 rounded-2xl sm:rounded-full text-xs font-bold tracking-wide uppercase mb-5">
         {brand.tagline}
       </div>
 
-      <h1 className="text-[1.75rem] sm:text-5xl lg:text-[2rem] xl:text-[2.5rem] font-black leading-[1.15] text-gray-900 mb-4 max-w-[20rem] sm:max-w-none lg:whitespace-nowrap">
+      <h1 className="text-[1.75rem] sm:text-5xl lg:text-[2rem] xl:text-[2.5rem] font-black leading-[1.15] text-gray-900 mb-4 lg:whitespace-nowrap">
         {h.line1} <br className="lg:hidden"/>
         <span className="text-brand-600">{h.line2.replace(/\.$/,'')}</span>
       </h1>
 
-      <p className="text-sm sm:text-lg text-gray-600 mb-7 lg:mb-8 max-w-[16rem] sm:max-w-xl">{h.body}</p>
+      <p className="text-base sm:text-lg text-gray-600 mb-7 lg:mb-8 sm:max-w-xl">{h.body}</p>
 
       <div className="grid grid-cols-3 gap-3 max-w-sm sm:max-w-md lg:flex lg:max-w-none lg:gap-x-8 lg:gap-y-4 mb-7 lg:mb-9">
         {h.trust.slice(0,3).map(([label,icon])=><div key={label} className="flex flex-col items-start gap-2 lg:flex-row lg:items-center lg:gap-2.5">
