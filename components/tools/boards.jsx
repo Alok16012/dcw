@@ -1,11 +1,11 @@
 'use client';
-import {useState} from 'react';
+import {useEffect,useState} from 'react';
 import {useSearchParams} from 'next/navigation';
 import {ArrowRight,Check,ChevronDown,ShieldCheck,BookOpen,RotateCcw,Zap,IndianRupee,BadgeCheck} from 'lucide-react';
 import {Plate} from '@/components/ui/plate.jsx';
-import {SectionTitle} from '@/components/ui/primitives.jsx';
+import {PageHero,SectionTitle} from '@/components/ui/primitives.jsx';
 import {CatalogGrid} from '@/components/discovery/catalog-states.jsx';
-import {EntityCard} from '@/components/discovery/entity-card.jsx';
+import {HdCard} from '@/components/hd/home.jsx';
 import {useApi} from '@/lib/client/api.js';
 
 /* ---------- Board comparison ------------------------------------------------
@@ -31,6 +31,12 @@ const GOALS=['Widest acceptance','Fastest result','Lowest fee'];
 export function Boards(ctx){const {setLead,go}=ctx;
   const {data,state}=useApi('/api/boards');
   const BOARDS=data?.rows??[];
+  /* The DCW hero's 10th / 12th picker links straight to one board
+     (/distance/boards#board-nios). The cards arrive after the fetch, so the
+     browser's own jump to the anchor finds nothing; do it once they exist. */
+  useEffect(()=>{if(!BOARDS.length)return;const id=window.location.hash.slice(1);if(!id.startsWith('board-'))return;
+    const el=document.getElementById(id);if(!el)return;el.scrollIntoView({behavior:'smooth',block:'start'});
+    el.classList.add('is-target');setTimeout(()=>el.classList.remove('is-target'),2400)},[BOARDS.length]);
   const fields=data?.comparison??[];
   /* Seeding from the URL rather than firing an effect after mount: the first
      paint should already show question two, not show question one and then
@@ -48,35 +54,20 @@ export function Boards(ctx){const {setLead,go}=ctx;
   const rationale={nios:'Best aligned with broad acceptance and mainstream admission or government-job use.',bosse:'Best aligned with faster examination cycles and flexible completion.',bbose:'Best aligned with budget-conscious Bihar learners who can follow a regular schedule.'}[winner?.id]??winner?.bestFor??'';
   const applyTo=b=>setLead({mode:'apply',title:`Apply through ${b.name}`,interest:b.id,interestType:'board',course:`Class 12 via ${b.name}`,courses:[`Class 10 via ${b.name}`,`Class 12 via ${b.name}`],where:b.full});
   return <main id="main" tabIndex={-1} className="tool-page">
-    <section className="tool-hero">
-      <picture>
-        <source type="image/webp" media="(max-width:900px)" srcSet="/dcw-journey-hero-900.webp"/>
-        <source type="image/webp" srcSet="/dcw-journey-hero-full.webp"/>
-        <img src="/dcw-journey-hero.png" alt="Student looking toward a bright education and career pathway" decoding="async"/>
-      </picture>
-      <div className="hero-shade"/>
-      <div className="container tool-hero-copy">
-        <span className="eyebrow"><BookOpen size={16}/>BOARD DECISION GUIDE</span>
-        <h1>Finish 10th or 12th<br/><em>on a board that counts.</em></h1>
-        <p>Three recognised open-school routes, compared on the things that decide it — acceptance, exam cycle, result time and total fee. Then apply, with a counsellor checking your documents first.</p>
-        <div className="hero-ctas">
-          <button className="btn primary tactile" onClick={()=>BOARDS[0]&&applyTo(BOARDS[0])} disabled={!BOARDS.length}>Apply for admission<ArrowRight/></button>
-          <a className="btn ghost" href="#compare">Compare all three<ChevronDown/></a>
-          {/* Only when the person arrived on a link that already answered
-              the first question. The quiz sits below the hero and the comparison
-              table; without this they would have to scroll past both to find the
-              thing their click was about. */}
-          {goal&&<a className="btn ghost" href="#quiz">Your recommendation<ArrowRight/></a>}
-        </div>
-      </div>
-    </section>
+    <PageHero kicker="Board Decision Guide"
+      title={<>Finish 10th or 12th <em>on a board that counts.</em></>}
+      lead="Three recognised open-school routes, compared on the things that decide it — acceptance, exam cycle, result time and total fee. Then apply, with a counsellor checking your documents first.">
+      <button className="btn primary tactile" onClick={()=>BOARDS[0]&&applyTo(BOARDS[0])} disabled={!BOARDS.length}>Apply for admission<ArrowRight/></button>
+      <a className="btn ghost" href="#compare">Compare all three<ChevronDown/></a>
+      {goal&&<a className="btn ghost" href="#quiz">Your recommendation<ArrowRight/></a>}
+    </PageHero>
 
     <section className="section container">
       <SectionTitle kicker="YOUR THREE ROUTES" title="Pick the board that matches your deadline" action="Jump to comparison" onAction={()=>document.getElementById('compare')?.scrollIntoView({behavior:'smooth',block:'start'})}/>
       <div className="path-grid board-grid">{state==='loading'&&BOARDS.length===0&&[0,1,2].map(i=>
         <article className="path-card board-card" key={i}><div className="bc-skel"/></article>)}
       {BOARDS.map(b=>
-        <article className="path-card board-card" key={b.id}>
+        <article className="path-card board-card scroll-mt-40" id={`board-${b.id}`} key={b.id}>
           <Plate seed={b.full} mark={b.name} tag={b.kicker} icon={ICONS[b.iconKey]??ICONS.badge}/>
           <div className="pc-body">
             <h3>{b.name}</h3>
@@ -128,7 +119,7 @@ export function Boards(ctx){const {setLead,go}=ctx;
     <section className="section container">
       <SectionTitle kicker="WHERE IT TAKES YOU NEXT" title="Universities that admit open-school students" action="See all universities" onAction={()=>go('/distance/universities')}/>
       <p className="section-lede">Every board on this page is UGC-recognised for further study. These universities accept an open-school certificate directly — no bridge course, no extra year.</p>
-      <div className="card-grid"><CatalogGrid catalog={ctx.catalog} skeleton={3}>{['amity-online','lpu','ignou'].map(id=>ctx.catalog.rows.find(u=>u.id===id)).filter(Boolean).map(u=><EntityCard key={u.id} item={u} {...ctx}/>)}</CatalogGrid></div>
+      <div className="hd"><CatalogGrid catalog={ctx.catalog} skeleton={3}><div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">{['amity-online','lpu','ignou'].map(id=>ctx.catalog.rows.find(u=>u.id===id)).filter(Boolean).map((u,i)=><HdCard key={u.id} item={u} vertical="distance" i={i} ctx={ctx}/>)}</div></CatalogGrid></div>
     </section>
   </main>;
 }

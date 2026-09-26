@@ -8,7 +8,7 @@ import {Plate} from '@/components/ui/plate.jsx';
    content for the prototype — the numbers are marked indicative wherever they
    appear, because a made-up placement statistic is exactly the kind of claim
    this product exists to argue against. */
-const POSTS=[
+export const POSTS=[
   {slug:'nios-vs-bosse-2026',cat:'Boards',title:'NIOS or BOSSE in 2026: which open school actually fits you',
    dek:'Both are recognised. They differ on exam windows, credit transfer and how quickly a result reaches a university admission desk.',
    author:'Ritu Anand',role:'Board research',date:'18 Aug 2026',mins:9,featured:true,

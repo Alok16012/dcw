@@ -1,7 +1,7 @@
 'use client';
 import {useCallback,useEffect,useRef,useState} from 'react';
 import {ArrowRight,Check,MapPin} from 'lucide-react';
-import {SectionTitle} from '@/components/ui/primitives.jsx';
+import {PageHero,SectionTitle} from '@/components/ui/primitives.jsx';
 import {CatalogError,EmptyState} from '@/components/discovery/catalog-states.jsx';
 
 /* ---------- NEET rank predictor ---------------------------------------------
@@ -60,10 +60,13 @@ export function Predictor({setLead}){
   const shown=groups.reduce((t,g)=>t+g[3].length,0);
 
   return <main id="main" tabIndex={-1} className="tool-page">
+    <PageHero kicker="Free NEET College Predictor"
+      title={<>Predict Your NEET <em>College Chances</em></>}
+      lead="Enter your rank and we compare it with the closing ranks recorded for each college — grouped by how much room you have."/>
     <div className="container predictor">
       <div className="predict-copy">
         <span className="kicker">NEET COLLEGE PREDICTOR</span>
-        <h1>Turn your rank into a realistic shortlist.</h1>
+        <h2>Turn your rank into a realistic shortlist.</h2>
         <p>We compare your rank against the closing ranks recorded for each college, and group the results by how much room you have.</p>
         <ul><li><Check/> Three results shown free</li><li><Check/> Matched on your category&rsquo;s closing rank</li><li><Check/> Budget included in the match</li></ul>
       </div>

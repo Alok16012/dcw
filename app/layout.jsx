@@ -1,12 +1,14 @@
 import localFont from 'next/font/local';
 import './globals.css';
 import './design-system.css';
+import './hd.css';
 
 /* Local variable files keep the public site and account screens consistent in
    offline builds. Manrope is only used in the admin/login surfaces. */
 const mulish=localFont({src:'../public/fonts/mulish-latin.woff2',weight:'200 1000',display:'swap',variable:'--f-display'});
+const caveat=localFont({src:'../public/fonts/caveat-latin.woff2',weight:'400 700',display:'swap',preload:false,variable:'--f-hand'});
 const manrope=localFont({src:'../public/fonts/manrope-latin.woff2',weight:'200 800',display:'swap',preload:false,variable:'--f-manrope'});
-const fontVars=[mulish.variable,manrope.variable].join(' ');
+const fontVars=[mulish.variable,manrope.variable,caveat.variable].join(' ');
 
 const site=process.env.NEXT_PUBLIC_SITE_URL||'http://localhost:3000';
 const title='DCW — Your next move, made visible';
@@ -22,6 +24,6 @@ export const metadata={
   robots:{index:true,follow:true}
 };
 
-export const viewport={themeColor:'#1263E0',width:'device-width',initialScale:1};
+export const viewport={themeColor:'#2563EB',width:'device-width',initialScale:1};
 
 export default function Layout({children}){return <html lang="en" className={fontVars}><body>{children}</body></html>}

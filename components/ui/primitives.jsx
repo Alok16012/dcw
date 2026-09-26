@@ -2,6 +2,7 @@
 import {useId,useState} from 'react';
 import {ArrowRight,Plus} from 'lucide-react';
 import {PHOTOS} from '@/lib/photos.js';
+import {HdPageHero} from '@/components/hd/page-hero.jsx';
 
 /* Layout furniture with no domain knowledge: a section heading, the one hero
    contract every interior page uses, and a disclosure. They are here rather
@@ -58,19 +59,8 @@ export function Photo({name, alt, priority = false, className}){
 /* One hero contract for every interior page. Content pages get the editorial
    photograph; tool pages get a generated field in the vertical's own palette,
    because stock imagery on a resume builder would be a lie about the page. */
-export function PageHero({kicker,title,lead,photo,alt='',pills,children,tone='canvas'}){
-  return <section className={`tool-hero page-hero ${photo?'photo-hero':'canvas-hero t-'+tone}`}>
-    {photo
-      ? <><Photo name={photo} alt={alt} priority/><span className="hero-shade" aria-hidden="true"/></>
-      : <span className="hero-weave" aria-hidden="true"/>}
-    <div className="container tool-hero-copy">
-      <span className="kicker">{kicker}</span>
-      <h1>{title}</h1>
-      {lead&&<p>{lead}</p>}
-      {children&&<div className="tool-hero-cta">{children}</div>}
-      {pills&&<div className="hero-pills">{pills}</div>}
-    </div>
-  </section>;
+export function PageHero({kicker,title,lead,pills,children}){
+  return <HdPageHero kicker={kicker} title={title} lead={lead} pills={pills}>{children}</HdPageHero>;
 }
 
 /* aria-expanded alone tells a screen reader the control is open; it does not

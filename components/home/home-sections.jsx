@@ -34,7 +34,7 @@ import {photoFor} from '@/lib/photos.js';
    somebody who left school after 10th searches for finishing 10th, not for
    "open schooling". The programme name goes in the supporting line where it
    can be learned rather than guessed. */
-const OFFERS = {
+export const OFFERS = {
   distance: [
     {tone: 1, image: 'classroom-session', icon: <ScrollText/>, need: 'Finish your 10th or 12th',
       line: 'Recognised open boards with flexible exam cycles. A gap of a few years is not a problem.',
@@ -145,7 +145,7 @@ export function ContactStrip({vertical}){
    what each one actually does: a job application has no document verification
    and no institution to submit to, and padding it to four to match the others
    would be describing a step that does not happen. */
-const STEPS = {
+export const STEPS = {
   distance: [
     {icon: <UserCheck/>, t: 'Tell us where you stopped', d: 'Your last qualification and the year. That alone decides most of what is open to you.'},
     {icon: <ClipboardCheck/>, t: 'Check eligibility and documents', d: 'A counsellor confirms what you qualify for and the exact papers the university will ask for.'},
@@ -219,7 +219,7 @@ export function ProcessSteps({vertical}){
    the same enquiry form the hero's button opens, the second goes to the
    vertical's own listing — because a banner this loud is the last thing a
    visitor reads, and a dead button there is worse than no banner. */
-const CLOSE = {
+export const CLOSE = {
   distance: {k: 'STILL DECIDING?', h: 'Tell us where you stopped. We will tell you what is open.',
     p: 'One call, no form-filling, nothing to buy. A counsellor reads your case and names the boards and universities you actually qualify for today.',
     cta: 'Talk to a counsellor', alt: 'See universities', href: '/distance/universities'},
@@ -262,7 +262,7 @@ export function PhotoCta({vertical, go, setLead}){
    pass guarantee, no admission deadline and no recognition claim made on an
    institution's behalf — the listing says what was verified, and these answers
    point at the listing rather than repeating it louder. */
-const FAQS = {
+export const FAQS = {
   distance: [
     ['Is a distance degree valid for a job or for higher studies?',
       'A degree from a university approved by UGC-DEB carries the same standing as its regular counterpart. Each listing shows the approvals we were able to check at source, and names the source, so you can confirm it yourself before you decide.'],

@@ -3,9 +3,11 @@ import {useCallback,useEffect,useLayoutEffect,useMemo,useRef,useState} from 'rea
 import {usePathname,useRouter,useSearchParams} from 'next/navigation';
 import {useCatalog,useAllCatalogs} from '@/lib/client/catalog.js';
 import {useApi} from '@/lib/client/api.js';
+import {useDialogA11y} from '@/lib/client/dialog.js';
+import {CITY_POS,jobKm,nearestCity,dutiesOf,jobCities,topJobCities,jobSectors,jobTypes} from '@/lib/content/jobs.js';
 import {plainFacts} from '@/lib/content/plain.js';
 import Image from 'next/image';
-import {ArrowRight,ArrowUp,Bookmark,Building2,Check,ChevronLeft,ChevronRight,Clock3,FileText,GraduationCap,Heart,Home,MapPin,Search,ShieldCheck,Sparkles,Star,Users,X,Bell,UserRound,BookOpen,ExternalLink,TrendingUp,CalendarDays,MessageCircle,RotateCcw,Navigation,LocateFixed,Wifi,Flame,Filter,Stethoscope,Plane,Scale,Award,Briefcase,ScrollText,Laptop,Cog,Calculator,Wrench,Workflow,Paperclip,Upload,Trash2,IndianRupee,Phone,Mail} from 'lucide-react';
+import {ArrowRight,ArrowUp,Bookmark,Building2,Check,ChevronLeft,ChevronRight,Clock3,FileText,GraduationCap,Heart,Home,MapPin,Search,ShieldCheck,Sparkles,Star,Users,X,Bell,UserRound,BookOpen,ExternalLink,TrendingUp,CalendarDays,MessageCircle,RotateCcw,Navigation,LocateFixed,Wifi,Flame,Filter,Stethoscope,Plane,Scale,Award,Briefcase,ScrollText,Laptop,Cog,Calculator,Wrench,Workflow,Paperclip,Upload,Trash2,IndianRupee,Phone,Mail,Headset} from 'lucide-react';
 import {Plate,CardWash} from '@/components/ui/plate.jsx';
 import {SectionTitle,PageHero,Accordion,Photo} from '@/components/ui/primitives.jsx';
 import {MarkVerified,MarkCompared,MarkCounsellor,MarkOpenings,MarkThisWeek,MarkEmployers} from '@/components/ui/proof-marks.jsx';
@@ -20,7 +22,12 @@ import {photoFor} from '@/lib/photos.js';
 import {ReviewMarquee} from '@/components/editorial/review-marquee.jsx';
 import {Credentials} from '@/components/editorial/credentials.jsx';
 import {PathCard,EntityCard} from '@/components/discovery/entity-card.jsx';
-import {OfferCards,ContactStrip,ProcessSteps,PhotoCta,HomeFaq} from '@/components/home/home-sections.jsx';
+import {HdNavbar} from '@/components/hd/navbar.jsx';
+import {HdHero} from '@/components/hd/hero.jsx';
+import {HdStreams,HdFeatured,HdOffers,HdSteps,HdBlog,HdFaq,HdCta} from '@/components/hd/home.jsx';
+import {HdFooter} from '@/components/hd/footer.jsx';
+import HdListing from '@/components/hd/listing.jsx';
+import HdDetail from '@/components/hd/detail.jsx';
 /* One of these renders per URL, so each ships as its own chunk rather than
    riding along in the shell every visitor downloads. Server rendering stays on:
    /about, /blog and /reviews are the pages a stranger reads before deciding
@@ -28,8 +35,8 @@ import {OfferCards,ContactStrip,ProcessSteps,PhotoCta,HomeFaq} from '@/component
 const Boards=dynamic(()=>import('@/components/tools/boards.jsx'));
 const Predictor=dynamic(()=>import('@/components/tools/predictor.jsx'));
 const ResumeBuilder=dynamic(()=>import('@/components/tools/resume-builder.jsx'));
-const AboutPage=dynamic(()=>import('@/components/editorial/about.jsx'));
-const BlogPage=dynamic(()=>import('@/components/editorial/blog.jsx'));
+const AboutPage=dynamic(()=>import('@/components/hd/about.jsx'));
+const BlogPage=dynamic(()=>import('@/components/hd/blog.jsx'));
 const ReviewsPage=dynamic(()=>import('@/components/editorial/reviews.jsx'));
 const SavedPage=dynamic(()=>import('@/components/account/saved.jsx'));
 const ApplicationsPage=dynamic(()=>import('@/components/account/applications.jsx'));
@@ -42,134 +49,18 @@ const AutomationCenter=dynamic(()=>import('@/components/account/automations.jsx'
    `tagline` is the line under the wordmark in the masthead. They are separate
    fields rather than one string split at runtime because the mobile segment has
    room for one short word and the desktop card has room for a sentence. */
-const V={distance:{label:'Distance',sub:'Courses Wala',navTitle:'Distance Courses',navSub:'Flexible Learning',tagline:'Padho. Aage Badho. Apne Dum Par.',logoAlt:'Distance Courses Wala',legal:'Distance Courses Wala, Patna',mark:'/distance-mark.png',lockup:'/distance-lockup.png',theme:{'--accent':'#1263E0','--accent-deep':'#0A2B5E','--accent-ink':'#1250B8','--accent-solid':'#1263E0','--wash':'#E9F1FE','--spark':'#F7A928','--spark-ink':'#3A2A00','--spark-lift':'#FFD37A','--tint':'#CFE2FB','--mark':"url('/distance-mark.png')"}},colleges:{label:'Colleges',sub:'Colleges Wala',navTitle:'Colleges Wala',navSub:'Find Your College',tagline:'Sahi College. Sahi Faisla.',logoAlt:'Colleges Wala',legal:'Colleges Wala, Patna',mark:'/colleges-mark.png',lockup:'/colleges-lockup.png',theme:{'--accent':'#C1272D','--accent-deep':'#8C1A20','--accent-ink':'#C1272D','--accent-solid':'#C1272D','--wash':'#FBEDEC','--spark':'#1B3B78','--spark-ink':'#FFFFFF','--spark-lift':'#F6C9C4','--tint':'#F3C0BC','--mark':"url('/colleges-mark.png')"}},jobs:{label:'Jobs',sub:'Berojgar Bharat',navTitle:'Berojgar Bharat',navSub:'Jobs & Opportunities',tagline:'Kaam Milega. Zindagi Badlegi.',logoAlt:'Berojgar Bharat',legal:'Berojgar Bharat, Patna',mark:'/jobs-mark.png',lockup:'/jobs-lockup.png',theme:{'--accent':'#E2760F','--accent-deep':'#A5520A','--accent-ink':'#A5520A','--accent-solid':'#A5520A','--wash':'#FDF2E5','--spark':'#5AB436','--spark-ink':'#0C2A05','--spark-lift':'#B6EE99','--tint':'#F8D3A6','--mark':"url('/jobs-mark.png')"}}};
-/* Kept out of V because V is spread into `style` as a theme object in places and
-   a React element has no business travelling with the colour tokens. */
-const VERTICAL_ICON={distance:<BookOpen/>,colleges:<Building2/>,jobs:<Briefcase/>};
+const V={distance:{label:'Distance',sub:'Courses Wala',navTitle:'Distance Courses',navSub:'Flexible Learning',tagline:'Padho. Aage Badho. Apne Dum Par.',logoAlt:'Distance Courses Wala',legal:'Distance Courses Wala, Patna',mark:'/distance-mark.png',lockup:'/distance-lockup.png',theme:{'--accent':'#2563EB','--accent-deep':'#1E3A6E','--accent-ink':'#1D4ED8','--accent-solid':'#2563EB','--wash':'#EFF6FF','--spark':'#F7A928','--spark-ink':'#3A2A00','--spark-lift':'#FFD37A','--tint':'#DBEAFE','--mark':"url('/distance-mark.png')"}},colleges:{label:'Colleges',sub:'Colleges Wala',navTitle:'Colleges Wala',navSub:'Find Your College',tagline:'Sahi College. Sahi Faisla.',logoAlt:'Colleges Wala',legal:'Colleges Wala, Patna',mark:'/colleges-mark.png',lockup:'/colleges-lockup.png',theme:{'--accent':'#C1272D','--accent-deep':'#8C1A20','--accent-ink':'#C1272D','--accent-solid':'#C1272D','--wash':'#FBEDEC','--spark':'#1B3B78','--spark-ink':'#FFFFFF','--spark-lift':'#F6C9C4','--tint':'#F3C0BC','--mark':"url('/colleges-mark.png')"}},jobs:{label:'Jobs',sub:'Berojgar Bharat',navTitle:'Berojgar Bharat',navSub:'Jobs & Opportunities',tagline:'Kaam Milega. Zindagi Badlegi.',logoAlt:'Berojgar Bharat',legal:'Berojgar Bharat, Patna',mark:'/jobs-mark.png',lockup:'/jobs-lockup.png',theme:{'--accent':'#E2760F','--accent-deep':'#A5520A','--accent-ink':'#A5520A','--accent-solid':'#A5520A','--wash':'#FDF2E5','--spark':'#5AB436','--spark-ink':'#0C2A05','--spark-lift':'#B6EE99','--tint':'#F8D3A6','--mark':"url('/jobs-mark.png')"}}};
 /* The universities, colleges and jobs that used to be pasted here now come from
    lib/data via lib/store.js, over /api — see lib/client/catalog.js. A second
    copy in the browser bundle meant a job posted in /admin was invisible to the
    public listing, and every edit had to be made twice. */
-/* ---------- Jobs ------------------------------------------------------------
-   Every posting carries a city plus its coordinates. Two features depend on
-   that and cannot be faked: the city filter, and "jobs near me", which asks
-   the browser for a location and ranks by real great-circle distance. Remote
-   roles carry wfh:true and no coordinates — they are reachable from anywhere,
-   so they are surfaced separately rather than given a misleading distance.
-   Indicative demo data; salaries and openings are illustrative. */
-const CITY_POS={'Patna':[25.5941,85.1376],'Ranchi':[23.3441,85.3096],'Lucknow':[26.8467,80.9462],'Delhi NCR':[28.5355,77.3910],'Gurugram':[28.4595,77.0266],'Bengaluru':[12.9716,77.5946],'Hyderabad':[17.3850,78.4867],'Mumbai':[19.0760,72.8777],'Pune':[18.5204,73.8567],'Jaipur':[26.9124,75.7873],'Kolkata':[22.5726,88.3639],'Bhubaneswar':[20.2961,85.8245]};
-
-/* Great-circle distance in kilometres. "Jobs near me" ranks by real distance,
-   so a flat-earth approximation that drifts by tens of kilometres would put
-   the wrong job at the top of somebody's list. */
-function kmBetween(a,b){const R=6371,rad=x=>x*Math.PI/180;const dLat=rad(b[0]-a[0]),dLng=rad(b[1]-a[1]);const h=Math.sin(dLat/2)**2+Math.cos(rad(a[0]))*Math.cos(rad(b[0]))*Math.sin(dLng/2)**2;return 2*R*Math.asin(Math.min(1,Math.sqrt(h)))}
-/* Remote roles deliberately return null rather than 0 km: they are reachable
-   from anywhere, and pretending they are next door would be a lie. */
-function jobKm(job,here){if(!here||job.wfh)return null;const p=job.pos||CITY_POS[job.city];return p?kmBetween(here,p):null}
-function nearestCity(here){const list=Object.entries(CITY_POS).map(([c,p])=>[c,kmBetween(here,p)]).sort((x,y)=>x[1]-y[1]);return list[0]}
-/* Generic, sector-level duties. A real posting would carry its own text from
-   the employer; these are clearly indicative, like the rest of the demo data,
-   and exist so the role page reads as a job rather than a row of numbers. */
-const DUTIES={
-Sales:['Meet customers in your assigned area and explain the product honestly','Complete the paperwork and KYC for every closed lead','Hit a monthly target that is shared with you in writing'],
-Support:['Answer customer calls and chats within the agreed response time','Log every interaction so the next agent has the full history','Escalate anything you cannot resolve, with your notes attached'],
-Operations:['Enter and verify records against the source document','Flag mismatches instead of guessing at the correct value','Keep the daily queue clear before you sign off'],
-Finance:['Maintain day books, vouchers and reconciliations in Tally','Support monthly closing and GST filing with the senior accountant','Follow up on outstanding payments with a written trail'],
-Logistics:['Pick up and deliver consignments on your assigned route','Confirm each handover in the app with a proof of delivery','Report damage or delay the same day, not at week end'],
-Retail:['Help customers on the floor and keep your section stocked','Run the billing counter accurately during peak hours','Support stock counts and visual merchandising resets'],
-Technology:['Build and ship features against a reviewed ticket','Write tests for what you build and fix what you break','Take part in code review and daily stand-up'],
-Healthcare:['Follow the standard operating procedure for every sample or dispense','Maintain records that satisfy an inspection without rework','Keep the workspace and equipment compliant with hygiene norms'],
-Marketing:['Write and schedule content for the channels you own','Track what each post actually earned in reach and leads','Work to a monthly calendar agreed with the lead']};
-const dutiesOf=job=>DUTIES[job.sector]||['Deliver the day-to-day work described in the role','Keep clear records of what you complete','Report blockers early to your reporting manager'];
-/* Filter facets are derived from whatever the catalogue actually returns, so a
-   city or sector an admin introduces appears in the filters without a code
-   change — and one that disappears stops being offered. */
-const jobCities=rows=>[...new Set(rows.map(j=>j.city).filter(Boolean))].sort((a,b)=>a==='Remote'?1:b==='Remote'?-1:a.localeCompare(b));
-/* The chip row shows six cities out of thirteen, so it has to show the six with
-   the most openings. Sorted alphabetically it hid Patna — the home market and
-   a third of every listing — behind Bengaluru and Bhubaneswar. */
-const topJobCities=rows=>{const n={};rows.forEach(j=>{if(j.city)n[j.city]=(n[j.city]??0)+1});
-  return Object.keys(n).sort((a,b)=>n[b]-n[a]||a.localeCompare(b));};
-const jobSectors=rows=>[...new Set(rows.map(j=>j.sector).filter(Boolean))].sort();
-/* Read off the postings for the same reason as the two above: job types are
-   editable in the console now, and a filter listing three hard-coded options
-   would hide every job posted under a fourth. */
-const jobTypes=rows=>[...new Set(rows.map(j=>j.type).filter(Boolean))].sort();
-function BrandLockup({vertical}){const brand=V[vertical];return <span className="brand-lockup"><Image src={brand.lockup} alt={`${brand.logoAlt} logo`} width={640} height={640} sizes="128px"/></span>}
-function VerticalLogo({vertical,size=46,mark=false}){const brand=V[vertical];const src=mark?brand.mark:brand.lockup;return <span className={mark?'vertical-logo':'vertical-logo is-lockup'} style={{'--logo-size':`${size}px`}}><Image src={src} alt={`${brand.logoAlt} logo`} width={mark?512:640} height={640} sizes={`${size}px`} priority/></span>}
-
 /* The public site needs to know who is looking at it: the utility bar offers
    three different front doors when nobody is signed in, and the account itself
    once somebody is. Kept as a plain fetch rather than the console's api()
    helper so the public bundle does not pull in the admin client. */
-/* Every overlay in this file opened without moving focus: the dialog appeared,
-   the activeElement stayed on the body behind it, Escape did nothing, and Tab
-   walked the page underneath. This gives all three the same behaviour — take
-   focus on open, keep it inside while trapping, hand it back on close, and
-   close on Escape. `trap` is false for the nearby popover, which is a popover
-   and not a modal: it should close on Escape but must not imprison the tab. */
-/* The last element focused outside any dialog. A dialog's own autoFocus runs
-   during React's commit, before the effect below, so reading
-   document.activeElement there can hand back a control *inside* the dialog.
-   Restoring to that focuses a node which is about to be removed, and the
-   keyboard user is dropped at the top of the document instead of back on the
-   control they opened the dialog from. */
-let lastOutsideFocus = null, focusTracked = false;
-function trackOutsideFocus(){
-  if(focusTracked || typeof document === 'undefined') return;
-  focusTracked = true;
-  document.addEventListener('focusin', e => {
-    const el = e.target;
-    if(el instanceof Element && !el.closest('[role="dialog"]')) lastOutsideFocus = el;
-  }, true);
-}
-
-// Registered at module load, not from inside the hook: the hook only runs once a
-// dialog has already mounted, by which point the control that opened it has
-// long since lost focus and there is nothing left to record.
-trackOutsideFocus();
-
 /* Rounding to whole KB printed "0 KB" for anything under 512 bytes, which
    reads as a failed attachment rather than a small file. */
 const fileSize = b => b < 1024 ? `${b} B` : b < 1048576 ? `${Math.round(b/1024)} KB` : `${(b/1048576).toFixed(1)} MB`;
-
-function useDialogA11y(open, close, {trap = true} = {}){
-  const ref = useRef(null);
-  const closeRef = useRef(close);
-  closeRef.current = close;
-  useEffect(() => {
-    if(!open) return;
-    const node = ref.current;
-    const active = document.activeElement;
-    const restoreTo = (active && active !== document.body && !node?.contains(active))
-      ? active : lastOutsideFocus;
-    const SEL = 'button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])';
-    const items = () => [...(node?.querySelectorAll(SEL) ?? [])].filter(el => el.offsetParent !== null);
-    // Focus the first real control rather than the container or the close
-    // button: a screen reader then starts on the thing the dialog is for, and
-    // typing works without a further Tab.
-    const list = items();
-    ((list.find(el => !el.classList.contains('modal-x')) ?? list[0]) ?? node)?.focus?.();
-    const onKey = e => {
-      if(e.key === 'Escape'){ e.stopPropagation(); closeRef.current?.(); return; }
-      if(e.key !== 'Tab' || !trap || !node) return;
-      const list = items();
-      if(!list.length) return;
-      const first = list[0], last = list[list.length - 1];
-      if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
-      else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
-      else if(!node.contains(document.activeElement)){ e.preventDefault(); first.focus(); }
-    };
-    document.addEventListener('keydown', onKey, true);
-    return () => {
-      document.removeEventListener('keydown', onKey, true);
-      // Only restore to something still in the document: focusing a detached
-      // node silently sends focus to <body>, which is the bug this guards.
-      if(restoreTo && document.contains(restoreTo)) restoreTo.focus?.();
-    };
-  }, [open, trap]);
-  return ref;
-}
 
 function useSession(){const [s,setS]=useState({state:'loading',user:null});
 const load=()=>fetch('/api/auth/session',{credentials:'include'}).then(r=>r.json()).then(d=>setS({state:'ready',user:d?.data?.authenticated?d.data.session:null})).catch(()=>setS({state:'ready',user:null}));
@@ -227,19 +118,19 @@ useEffect(()=>{
   return()=>clearTimeout(t);
 },[path,vertical,auth.state,auth.user,lead,searchOpen,botOpen]);
 const ctx={path,vertical,cfg,go,saved,toggleSave,compare,toggleCompare,setLead,query,setQuery,setSearchOpen,notify,auth,catalog};
-let page;if(path==='/about')page=<AboutPage {...ctx}/>;else if(path?.startsWith('/blog'))page=<BlogPage {...ctx}/>;else if(path==='/reviews')page=<ReviewsPage {...ctx}/>;else if(path==='/saved')page=<SavedPage {...ctx}/>;else if(path==='/applications')page=<ApplicationsPage {...ctx}/>;else if(path==='/notifications')page=<AccountPage type="notifications" {...ctx}/>;else if(path==='/profile')page=<AccountPage type="profile" {...ctx}/>;else if(path==='/automations')page=<AutomationCenter {...ctx}/>;else if(path?.endsWith('/compare'))page=<ComparePage {...ctx}/>;else if(path?.includes('resume-builder'))page=<ResumeBuilder {...ctx}/>;else if(path?.includes('neet-predictor'))page=<Predictor {...ctx}/>;else if(path?.includes('boards'))page=<Boards {...ctx}/>;else if(path?.includes('universities')||path?.includes('/search')||path?.includes('/list'))page=<Listing {...ctx}/>;else{
+let page;if(path==='/about')page=<AboutPage {...ctx}/>;else if(path?.startsWith('/blog'))page=<BlogPage {...ctx}/>;else if(path==='/reviews')page=<ReviewsPage {...ctx}/>;else if(path==='/saved')page=<SavedPage {...ctx}/>;else if(path==='/applications')page=<ApplicationsPage {...ctx}/>;else if(path==='/notifications')page=<AccountPage type="notifications" {...ctx}/>;else if(path==='/profile')page=<AccountPage type="profile" {...ctx}/>;else if(path==='/automations')page=<AutomationCenter {...ctx}/>;else if(path?.endsWith('/compare'))page=<ComparePage {...ctx}/>;else if(path?.includes('resume-builder'))page=<ResumeBuilder {...ctx}/>;else if(path?.includes('neet-predictor'))page=<Predictor {...ctx}/>;else if(path?.includes('boards'))page=<Boards {...ctx}/>;else if(path?.includes('universities')||path?.includes('/search')||path?.includes('/list'))page=<HdListing {...ctx}/>;else{
   const id=path?.split('/').pop();
   const entity=catalog.rows.find(x=>x.id===id);
   /* A detail URL carries at least two segments (/jobs/:id, /distance/university/:id).
      Anything shorter is a vertical home, which must render immediately rather
      than waiting on the catalogue. */
   const isDetailRoute=(path?.split('/').filter(Boolean).length??0)>=2;
-  page=entity?<Detail {...ctx} entity={entity}/>
+  page=entity?<HdDetail {...ctx} entity={entity}/>
     :isDetailRoute&&catalog.state!=='ready'?<CatalogFallback catalog={catalog} go={go} vertical={vertical}/>
     :isDetailRoute?<NotFoundPage go={go} vertical={vertical}/>
     :<HomePage {...ctx}/>;
 }
-return <div className={`app app-${vertical}`} style={cfg.theme}><MotionLayer/><a className="skip-link" href="#main">Skip to main content</a><Header {...ctx}/>{page}<Footer go={go} vertical={vertical} path={path}/>{compare[vertical].length>0&&!path?.endsWith('/compare')&&<CompareTray {...ctx}/>}<MobileNav {...ctx}/><AskDCW open={botOpen} setOpen={setBotOpen} {...ctx}/>{searchOpen&&<SearchPanel {...ctx}/>} {lead&&<LeadFlow lead={lead} vertical={vertical} go={go} close={()=>setLead(null)} notify={notify}/>} {toast&&<div className="toast" role="status"><Check size={17}/>{toast}</div>}</div>}
+return <div className={`app app-${vertical}`} style={cfg.theme}><MotionLayer/><a className="skip-link" href="#main">Skip to main content</a><HdNavbar vertical={vertical} brands={V} path={path} auth={auth} setSearchOpen={setSearchOpen}/>{page}<HdFooter vertical={vertical} brand={cfg} setLead={setLead}/>{compare[vertical].length>0&&!path?.endsWith('/compare')&&<CompareTray {...ctx}/>}<MobileNav {...ctx}/><AskDCW open={botOpen} setOpen={setBotOpen} {...ctx}/>{searchOpen&&<SearchPanel {...ctx}/>} {lead&&<LeadFlow lead={lead} vertical={vertical} go={go} close={()=>setLead(null)} notify={notify}/>} {toast&&<div className="toast" role="status"><Check size={17}/>{toast}</div>}</div>}
 
 function MotionLayer(){
   const progressRef=useRef(null);
@@ -287,74 +178,6 @@ function MotionLayer(){
     return()=>{observer.disconnect();mutation.disconnect();cancelAnimationFrame(frame);removeEventListener('scroll',schedule);removeEventListener('resize',schedule);reduceMotion.removeEventListener('change',schedule)};
   },[]);
   return <><div className="scroll-progress" aria-hidden="true"><i ref={progressRef}/></div><button className={`scroll-top ${showTop?'show':''}`} aria-label="Scroll to top" tabIndex={showTop?0:-1} aria-hidden={!showTop} onClick={()=>scrollTo({top:0,behavior:'smooth'})}><ArrowUp/></button></>;
-}
-
-/* Where each kind of user lands after signing in. The public site and the
-   console share one account system, so the door you come through decides the
-   room, not the credentials. */
-const HOME_FOR={admin:'/admin',employer:'/admin/jobs',student:'/applications'};
-
-/* One masthead, not two bands. The brand and its tagline, the three verticals
-   as cards, then the utility links and the two account actions. */
-function Header({vertical,cfg,go,setSearchOpen,setLead,auth,catalog}){const user=auth?.user;/* Signed out, this used to read 'AK' — hardcoded initials that belong to a
-     real account on this install. A visitor who has never signed in was shown
-     somebody else's monogram and an "Open profile" button leading to a profile
-     that is not theirs. Signed out there is no one to abbreviate, so the avatar
-     becomes a neutral glyph that says what it does: sign in. */
-  const initials=user?user.name.replace(/\(.*\)/,'').trim().split(/\s+/).map(w=>w[0]).join('').slice(0,2).toUpperCase():null;/* The black live rail that used to sit above this is gone. Everything it
-     carried now has a home inside the masthead or just below it: the signed-in
-     name and the console link are the two controls on the right, the role doors
-     are the tabs on /login, and the live catalogue count is the middle item of
-     the trust strip under the hero. A second full-width band repeating them was
-     the first thing on the page and the least useful. */
-  return <><header><button className="brand vertical-brand" onClick={()=>go(`/${vertical}`)} aria-label={`${V[vertical].logoAlt} home`}><VerticalLogo vertical={vertical}/><span><b>{V[vertical].logoAlt}</b><small>{V[vertical].tagline}</small></span></button>{/* Each vertical is a card with its own mark and its own one-line promise,
-        not a word in a flat list — requirement 2. The active one is outlined in
-        the accent so which house you are standing in is readable without
-        comparing weights. Below 900 the same markup collapses to a three-segment
-        control; the sub-line is dropped there and the two-word title gives way
-        to the one-word one, because three equal segments on a 360px screen
-        cannot hold "Distance Courses" without truncating it mid-word. Both
-        spellings ship and CSS picks one, so `aria-label` carries the full title
-        at every width — the hidden half is excluded from the accessible name,
-        and the name should not change when the viewport does. */}
-    <nav className="verticals" aria-label="Choose a service">{Object.entries(V).map(([k,v])=><button key={k} aria-current={vertical===k?'page':undefined} aria-label={v.navTitle} className={vertical===k?'active':''} onClick={()=>go(`/${k}`)}><i className="vs-icon" aria-hidden="true">{VERTICAL_ICON[k]}</i><span aria-hidden="true"><em className="vs-full">{v.navTitle}</em><em className="vs-abbr">{v.label}</em></span><small>{v.navSub}</small></button>)}</nav><div className="header-actions"><button className="header-icon" aria-label="Search" onClick={()=>setSearchOpen(true)}><Search size={19}/></button><button className="header-link" onClick={()=>go('/about')}>About</button><button className="header-link" onClick={()=>setLead({title:'Talk to a DCW counsellor',interest:vertical})}>Help</button><button className="header-icon" aria-label="Saved items" onClick={()=>go('/saved')}><Bookmark size={19}/></button><button className="header-icon" aria-label="Notifications" onClick={()=>go('/notifications')}><Bell size={19}/><i/></button>{user
-      ?<><button className="avatar" aria-label={`Open profile — signed in as ${user.name}`} onClick={()=>go('/profile')}>{initials}</button><button className="talk" onClick={()=>go(HOME_FOR[user.role]||'/')}>My {user.role==='student'?'dashboard':'console'}<ArrowRight aria-hidden="true"/></button></>
-      :<><button className="btn outline small hd-login" onClick={()=>go('/login')}>Login</button><button className="talk" onClick={()=>setLead({title:`Register with ${V[vertical].logoAlt}`,interest:vertical})}>Register<ArrowRight aria-hidden="true"/></button></>}</div></header></>}
-
-/* useLayoutEffect on the client, useEffect on the server — the standard escape
-   from React's SSR warning. It matters here because the counter has to be reset
-   to zero *before* the first paint, or the strip flashes its final figure and
-   then jumps back to nothing. */
-const useIsoEffect=typeof window!=='undefined'?useLayoutEffect:useEffect;
-
-/* A statistic that arrives already finished is a picture of a number; one that
-   tallies up is the number being counted. Only genuine quantities animate —
-   "1:1" is a ratio with nothing to accumulate, so it is rendered straight, and
-   so is everything when the reader has asked for reduced motion. The markup
-   still ships the true figure, so a reader without JS sees the fact, not a nil. */
-function StatNumber({value,delay=0}){
-  const m=/^([^0-9]*)([0-9,]+)(.*)$/.exec(value);
-  const target=m&&!value.includes(':')?Number(m[2].replace(/,/g,'')):null;
-  const [n,setN]=useState(null);
-  useIsoEffect(()=>{
-    if(target===null)return;
-    if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-    setN(0);
-    let raf,start,timer;
-    const dur=1150;
-    const run=t=>{
-      if(start===undefined)start=t;
-      const p=Math.min(1,(t-start)/dur);
-      /* ease-out quart: most of the count happens early and the last hundred
-         settle slowly, which is how a tally actually feels landing. */
-      setN(Math.round(target*(1-Math.pow(1-p,4))));
-      if(p<1)raf=requestAnimationFrame(run);
-    };
-    timer=setTimeout(()=>{raf=requestAnimationFrame(run)},delay);
-    return()=>{clearTimeout(timer);cancelAnimationFrame(raf)};
-  },[target,delay]);
-  if(target===null||n===null)return <b>{value}</b>;
-  return <b>{m[1]}{n.toLocaleString('en-IN')}{m[3]}</b>;
 }
 
 /* ---------- Hero proof, derived ---------------------------------------------
@@ -459,101 +282,6 @@ const HERO={
     alt:'Young Indian professionals collaborating at work'
   }
 };
-/* The photographic stage is a set of three useful front doors, not an ad
-   carousel: every slide has its own working destination. The first image is
-   prioritised, the others are local assets and arrive lazily. */
-const HERO_STORIES={
-  distance:[
-    {image:'dcw-journey-hero',kicker:'DISTANCE COURSES WALA',label:'Find a university',title:'Learn your way.',highlight:'Move your life forward.',body:'Recognised distance and online programmes that fit around the life you already have.',cta:'Explore universities',href:'/distance/universities'},
-    {image:'home-study',kicker:'OPEN SCHOOLING',label:'Finish school',title:'A gap is not',highlight:'the end of your story.',body:'See flexible ways to complete your 10th or 12th and take the next step with confidence.',cta:'Compare open boards',href:'/distance/boards'},
-    {image:'counsellor-desk',kicker:'FREE HUMAN GUIDANCE',label:'Talk it through',title:'Not sure which',highlight:'path is yours?',body:'Tell us where you stopped. A counsellor will help you see what is open to you now.',cta:'Ask a counsellor',href:null}
-  ],
-  colleges:[
-    {image:'campus-editorial',kicker:'COLLEGES WALA',label:'Explore colleges',title:'Find the college',highlight:'that feels right.',body:'Compare seats, cutoffs and the full cost before you decide where to apply.',cta:'Explore colleges',href:'/colleges/search'},
-    {image:'campus-steps',kicker:'NEET DECISION TOOL',label:'Check your chances',title:'Your rank is a',highlight:'starting point.',body:'Turn your NEET rank into strong, possible and backup choices in a few steps.',cta:'Open NEET predictor',href:'/colleges/neet-predictor'},
-    {image:'classroom-session',kicker:'FIND YOUR STREAM',label:'Compare your options',title:'Look beyond',highlight:'the brochure.',body:'Study the numbers side by side, then build a shortlist you can explain at home.',cta:'Compare colleges',href:'/colleges/search'}
-  ],
-  jobs:[
-    {image:'career-editorial',kicker:'BEROJGAR BHARAT',label:'Find jobs',title:'Your next job',highlight:'starts here.',body:'Browse clear job listings with the employer, location and pay shown upfront.',cta:'Explore jobs',href:'/jobs/search'},
-    {image:'workplace-team',kicker:'FREE RESUME BUILDER',label:'Build your resume',title:'Show what you',highlight:'can do.',body:'Make a clean, focused resume in three guided steps. No fee and no guesswork.',cta:'Build my resume',href:'/jobs/resume-builder'},
-    {image:'office-front',kicker:'WORK NEAR YOU',label:'Jobs near home',title:'Opportunity',highlight:'closer to home.',body:'Start with local openings and see what each role asks for before you apply.',cta:'See Patna jobs',href:'/jobs/search?city=Patna'}
-  ]
-};
-function Hero({vertical,go,setSearchOpen,setLead,query,setQuery}){
-  const h=HERO[vertical];
-  const [cat,setCat]=useState(0),[slide,setSlide]=useState(0),[paused,setPaused]=useState(false);
-  const slides=HERO_STORIES[vertical];
-  useEffect(()=>{setSlide(0)},[vertical]);
-  useEffect(()=>{
-    if(paused||typeof window==='undefined'||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
-    const timer=setInterval(()=>{if(!document.hidden)setSlide(i=>(i+1)%slides.length)},7000);
-    return()=>clearInterval(timer);
-  },[paused,slides]);
-  const story=slides[slide];
-  const submit=e=>{e.preventDefault();if(query.trim()){setSearchOpen(true);return}go(h.cats[cat][1]??h.all)};
-  const visit=()=>story.href?go(story.href):setLead({title:h.cta,interest:vertical});
-  return <section className="hero home-hero" aria-label={`${V[vertical].logoAlt} introduction`}><div className="container hero-stage">
-    <div className="hero-showcase" onMouseEnter={()=>setPaused(true)} onMouseLeave={e=>{setPaused(false);e.currentTarget.style.removeProperty('--pointer-x');e.currentTarget.style.removeProperty('--pointer-y')}} onPointerMove={e=>{if(e.pointerType!=='mouse')return;const rect=e.currentTarget.getBoundingClientRect();e.currentTarget.style.setProperty('--pointer-x',`${((e.clientX-rect.left)/rect.width*100).toFixed(1)}%`);e.currentTarget.style.setProperty('--pointer-y',`${((e.clientY-rect.top)/rect.height*100).toFixed(1)}%`)}} onFocusCapture={()=>setPaused(true)} onBlurCapture={e=>{if(!e.currentTarget.contains(e.relatedTarget))setPaused(false)}}>
-      <div className="hs-images" aria-hidden="true">{slides.map((s,i)=><Photo key={s.image} name={s.image} priority={i===0} className={i===slide?'active':''}/>)}</div>
-      <span className="hs-scrim" aria-hidden="true"/>
-      <div className="hs-copy" key={`${vertical}-${slide}`}>
-        <span className="hs-eyebrow"><Sparkles size={16} aria-hidden="true"/>{story.kicker}</span>
-        <h1>{story.title}<br/><em>{story.highlight}</em></h1>
-        <p>{story.body}</p>
-        <div className="hs-actions">
-          <button className="btn hs-primary" onClick={visit}>{story.cta}<ArrowRight aria-hidden="true"/></button>
-          <button className="btn hs-secondary" onClick={()=>setLead({title:'Talk to a DCW counsellor',interest:vertical})}>Get free guidance<MessageCircle aria-hidden="true"/></button>
-        </div>
-      </div>
-      <div className="hs-bottom">
-        <div className="hs-slides" aria-label="Featured paths">{slides.map((s,i)=><button key={s.kicker} type="button" className={i===slide?'active':''} aria-label={`Show ${s.label}`} aria-current={i===slide?'true':undefined} onClick={()=>setSlide(i)}><b>0{i+1}</b><span>{s.label}</span><i aria-hidden="true"/></button>)}</div>
-        <div className="hs-arrows"><button type="button" aria-label="Previous feature" onClick={()=>setSlide(i=>(i+slides.length-1)%slides.length)}><ChevronLeft/></button><button type="button" aria-label="Next feature" onClick={()=>setSlide(i=>(i+1)%slides.length)}><ChevronRight/></button></div>
-      </div>
-    </div>
-    <div className="hero-discovery">
-      <div className="hd-intro"><span className="kicker">EXPLORE WITH CONFIDENCE</span><h2>What are you looking for?</h2><p>Search the options, or start with a popular path.</p></div>
-      <form className="hh-search" role="search" onSubmit={submit}>
-        <Search size={18} aria-hidden="true"/>
-        <input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={h.ph} aria-label={h.ph}/>
-        <select value={cat} onChange={e=>setCat(Number(e.target.value))} aria-label="Narrow by category">{h.cats.map((c,i)=><option key={c[0]} value={i}>{c[0]}</option>)}</select>
-        <button type="submit" className="btn primary">Search<ArrowRight/></button>
-      </form>
-      <div className="hh-popular"><span>Popular:</span>{h.popular.map(([t,href])=><button key={t} type="button" onClick={()=>go(href)}>{t}</button>)}</div>
-    </div>
-  </div></section>;
-}
-/* A horizontal rail with working arrows. It is a real scroller rather than a
-   transform carousel so that a trackpad, a touchscreen and the Tab key all move
-   it the same way; the buttons only nudge scrollLeft, and they disable
-   themselves at each end instead of wrapping, which is what the arrows in the
-   reference are doing. */
-function RailArrows({target,label}){
-  const [at,setAt]=useState({start:true,end:true});
-  const read=useCallback(()=>{const el=target.current;if(!el)return;
-    setAt({start:el.scrollLeft<8,end:el.scrollLeft>=el.scrollWidth-el.clientWidth-8})},[target]);
-  /* The rail is a sibling that renders a skeleton first, so on the render where
-     this mounts `target.current` is still null. Giving up there is how the
-     arrows went missing entirely: nothing re-renders this component when the
-     catalogue lands, so a one-shot effect never saw the element. It waits for
-     it instead, then observes — the ResizeObserver covers the rail changing
-     width, the scroll listener covers it being moved by any other means. */
-  useEffect(()=>{
-    let raf=0,stop=null;
-    const attach=()=>{const el=target.current;
-      if(!el){raf=requestAnimationFrame(attach);return}
-      read();
-      const ro=new ResizeObserver(read);ro.observe(el);
-      el.addEventListener('scroll',read,{passive:true});addEventListener('resize',read);
-      stop=()=>{ro.disconnect();el.removeEventListener('scroll',read);removeEventListener('resize',read)}};
-    attach();
-    return()=>{cancelAnimationFrame(raf);stop?.()}},[read,target]);
-  const nudge=d=>{const el=target.current;if(el)el.scrollBy({left:d*(el.clientWidth*.8),behavior:'smooth'})};
-  if(at.start&&at.end)return null;
-  return <span className="rail-arrows">
-    <button type="button" aria-label={`Scroll ${label} left`} disabled={at.start} onClick={()=>nudge(-1)}><ChevronLeft size={18}/></button>
-    <button type="button" aria-label={`Scroll ${label} right`} disabled={at.end} onClick={()=>nudge(1)}><ChevronRight size={18}/></button>
-  </span>;
-}
 /* Thumbnails for the category tiles, in the order categories() returns them.
    These are the one band allowed to repeat a photograph the page has already
    shown: they are small, an icon sits over them, and there are only ten
@@ -565,64 +293,35 @@ const CATEGORY_PHOTOS={
   colleges:['classroom-session','workplace-team','career-editorial','campus-editorial','university-campus','campus-steps'],
   jobs:['office-front','home-study','classroom-session','counsellor-desk']
 };
-function HomePage(ctx){const {vertical,go,catalog}=ctx;const pool=catalog.rows;
+function HomePage(ctx){const {vertical,catalog,setLead}=ctx;const pool=catalog.rows;
   const listAll=vertical==='distance'?'/distance/universities':`/${vertical}/search`;
-  const noun=vertical==='jobs'?'roles':vertical==='colleges'?'colleges':'universities';
-  const rail=useRef(null);
-  return <main id="main" tabIndex={-1}><Hero {...ctx}/>
-  {/* The reference's opening sequence, in its order: the banner, then the three
-      things a visitor came to do, then how to reach a human, then the reasons to
-      believe us. Each card below opens a route that already existed — this band
-      is a better-signposted front door onto the same site, not a new one. */}
-  <OfferCards vertical={vertical} go={go}/>
-  <ContactStrip vertical={vertical}/>
-  <section className="trust-strip"><div className="container"><span><ShieldCheck/>Data checked by our research team</span><span><Users/>{catalog.state==='ready'?`${pool.length} ${noun} on record`:catalog.state==='error'?'Catalogue unavailable':'Catalogue loading'}</span><span><Clock3/>Updated every admission cycle</span></div></section>
-  {/* What happens after the enquiry, before the catalogue that provokes it.
-      Somebody deciding whether to call wants to know what calling starts. */}
-  <ProcessSteps vertical={vertical}/>
-  {/* The six doors of the reference, as one compact strip rather than six tall
-      cards. A category is a turning, not a destination, so it gets one line of
-      explanation and a chevron — the height goes to the listing it opens. */}
-  <section className="section container category-band"><SectionTitle kicker="WHERE DO YOU WANT TO START?" title={vertical==='jobs'?'Start with what you need today':vertical==='colleges'?'Explore by your ambition':'Find the course that fits your life'} sub={vertical==='jobs'?'Pick the one closest to where you are right now.':vertical==='colleges'?'Pick a stream and compare the colleges that teach it.':'Pick where you stopped studying, or where you want to go next.'} action="View everything" onAction={()=>go(listAll)}/>
-    <div className="cat-strip">{categories(vertical).map((x,i)=><button key={x.name} type="button" className="cat-tile" onClick={()=>go(x.href)}><span className="ct-photo" aria-hidden="true"><Photo name={CATEGORY_PHOTOS[vertical][i]}/><i className="ct-icon">{x.icon}</i></span><span className="ct-text"><b>{x.name}</b><small>{x.tag??x.kicker}</small></span><ChevronRight className="ct-go" size={18} aria-hidden="true"/></button>)}</div></section>
-  {/* The reference's wide photographic banner, at the point where it puts one:
-      after the visitor has seen the doors and before the catalogue. It sits
-      mid-page rather than at the end so the two dark bands on this page are a
-      screen apart — stacked, they read as one long basement. */}
-  <PhotoCta vertical={vertical} go={go} setLead={ctx.setLead}/>
-  {/* The rail the reference asks for. It shows five rather than three because a
-      carousel that cannot scroll is a grid with extra controls. */}
-  <section className="section wash"><div className="container"><SectionTitle kicker={vertical==='jobs'?'HIRING NOW':vertical==='colleges'?'TOP COLLEGES':'TOP UNIVERSITIES'} title={vertical==='jobs'?'Real Openings, Real Employers.':vertical==='colleges'?'Good Colleges, Honest Numbers.':'Trusted Universities, Real Opportunities.'} sub={vertical==='jobs'?'Every role below states its salary and the employer behind it.':vertical==='colleges'?'Cutoffs, total cost and seats — checked at source, not copied.':'Explore UGC-approved universities offering distance and online programs.'} action={`View all ${noun}`} onAction={()=>go(listAll)}>
-      <RailArrows target={rail} label={noun}/>
-    </SectionTitle>
-    <CatalogGrid catalog={catalog} skeleton={3}><div className="rail" ref={rail}>{vertical==='distance'&&<article className="university-feature"><div className="uf-photo" aria-hidden="true"><Photo name="university-campus"/><span>Illustrative campus image</span></div><div className="uf-copy"><span className="kicker">UNIVERSITY FINDER</span><h3>Find your next place to learn.</h3><p>Compare recognition, course format, fees and exam mode before you choose.</p><button type="button" className="btn primary" onClick={()=>go('/distance/universities')}>See all universities<ArrowRight aria-hidden="true"/></button></div></article>}{pool.slice(0,5).map(x=><EntityCard key={x.id} item={x} {...ctx}/>)}</div></CatalogGrid></div></section>
-  {/* Recognition & Approval, then Proof of Work — both on all three verticals,
-      both counted out of the catalogue rather than written into this page, so
-      the console is what changes them. Straight after the rail because they are
-      the answer to the question the rail provokes: on whose say-so? */}
-  <Credentials vertical={vertical} go={go} notify={ctx.notify}/>
-  {vertical!=='distance'&&<section className="section container section-plate"><SectionTitle kicker={vertical==='colleges'?'STUDY ABROAD':'SKILL TO JOB'} title={vertical==='colleges'?'Intake and total cost, country by country':'Short courses that lead to a job'} action={vertical==='colleges'?'Compare countries':'See all courses'} onAction={()=>go(vertical==='colleges'?'/colleges/search':'/jobs/search')}/><div className="path-grid">{(vertical==='colleges'?[{name:'Georgia',kicker:'MBBS',desc:'₹24L total · September intake · NMC-approved universities.',icon:<Plane/>},{name:'Russia',kicker:'MBBS',desc:'₹19L total · August intake · English-medium teaching.',icon:<Plane/>},{name:'Canada',kicker:'PG DIPLOMA',desc:'₹18L · January intake · post-study work pathway.',icon:<Plane/>},{name:'UK',kicker:'MSc · 1 YEAR',desc:'₹22L · September intake · one-year master’s.',icon:<Plane/>}]:[{name:'Digital Marketing',kicker:'6 WEEKS',desc:'Certificate on completion, portfolio project included.',icon:<TrendingUp/>},{name:'Tally + GST',kicker:'8 WEEKS',desc:'Job assistance for accounts and back-office roles.',icon:<Calculator/>},{name:'Spoken English',kicker:'12 WEEKS',desc:'Live classes with practice partners, not recordings.',icon:<MessageCircle/>},{name:'Interview Prep',kicker:'MOCK + REVIEW',desc:'Mock interviews and a line-by-line resume review.',icon:<Briefcase/>}]).map((x,i,a)=><PathCard key={x.name} item={x} i={i} featured={i===0&&(a.length+1)%3!==1} cta={vertical==='colleges'?'See cost':'See course'} onClick={()=>go(vertical==='colleges'?'/colleges/search':'/jobs/search')}/>)}</div></section>}
-  <DecisionBlock {...ctx}/>
-  {/* Distance only. The reviews store is shared across the three verticals, so
-      the band would run the same eight cards on Colleges Wala and Berojgar
-      Bharat — promotion for DCW, on somebody else's home page. Placed between
-      the ink block and the blue stat band so the page reads ink · wash · blue,
-      and renders nothing at all until /api/reviews has rows, so a cold
-      catalogue shows one less section instead of an empty promotional band. */}
-  {vertical==='distance'&&<ReviewMarquee go={go}/>}
-  {/* Last objections, then the ask. An FAQ placed above the closing enquiry band
-      is the one place on the page where answering a question converts directly
-      into the next click. */}
-  <HomeFaq vertical={vertical} go={go} setLead={ctx.setLead}/>
-  {/* The band that closes the page. The four figures are the ones already
-      computed from the live catalogue for the old hero strip — moved here rather
-      than reinvented, because a number on a homepage should be one somebody can
-      click through and check. */}
-  <section className="stat-band"><div className="container">
-    <div className="proof">{heroProof(vertical,catalog).map(([n,l,href,Icon,share,note],i)=><button key={l} onClick={()=>href==='#counsellor'?ctx.setLead({title:'Talk to a DCW counsellor',interest:vertical}):go(href)} style={{'--i':i}}><span className="stat-i" aria-hidden="true"><Icon/></span><StatNumber value={n} delay={140+i*110}/><small>{l}</small><span className="stat-note">{note}</span></button>)}</div>
-    <div className="sb-foot"><p><b>Need guidance?</b> Talk to our education experts — free, and with nothing to sell you.</p><button className="btn light" onClick={()=>ctx.setLead({title:'Talk to a DCW counsellor',interest:vertical})}>Talk to an expert<ArrowRight/></button></div>
-    <span className="sb-script" aria-hidden="true">Better education. Brighter India.</span>
-  </div></section>
+  const noun=vertical==='jobs'?'jobs':vertical==='colleges'?'colleges':'universities';
+  const h=HERO[vertical];
+  /* The live figures the old closing band computed, carried into the strip
+     under the offer cards — a number on a homepage should be one somebody can
+     click through and check. */
+  const proof=[...heroProof(vertical,catalog).map(([n,l])=>({value:n,label:l.replace(/^./,c=>c.toUpperCase())})),{value:'Free',label:`Guidance from ${V[vertical].logoAlt}`}];
+  const cats=categories(vertical);
+  const catTitle=vertical==='jobs'?['Start With What','You Need Today']:vertical==='colleges'?['Explore by','Your Ambition']:['Find the Course','That Fits Your Life'];
+  const catSub=vertical==='jobs'?'Pick the one closest to where you are right now.':vertical==='colleges'?'Pick a stream and compare the colleges that teach it.':'Pick where you stopped studying, or where you want to go next.';
+  const featured=vertical==='jobs'?{kicker:'Hiring Now',title:'Real Openings, Real Employers',sub:'Every role below states its salary and the employer behind it.'}
+    :vertical==='colleges'?{kicker:'Top Colleges',title:'Good Colleges, Honest Numbers',sub:'Cutoffs, total cost and seats — checked at source, not copied.'}
+    :{kicker:'Top Universities',title:'Trusted Universities, Real Opportunities',sub:'Explore UGC-approved universities offering distance and online programs.'};
+  return <main id="main" tabIndex={-1}>
+    <HdHero vertical={vertical} brand={V[vertical]} h={h} image={{distance:'university-campus',colleges:'counsellor-desk',jobs:'workplace-team'}[vertical]} setLead={setLead}/>
+    <HdStreams vertical={vertical} items={cats} photos={CATEGORY_PHOTOS[vertical]} title={catTitle} sub={catSub} listAll={listAll}/>
+    <HdFeatured vertical={vertical} catalog={catalog} copy={featured} listAll={listAll} noun={noun}/>
+    <HdOffers vertical={vertical} proof={proof} brand={V[vertical]}/>
+    <HdSteps vertical={vertical}/>
+    {/* Recognition & Approval and Proof of Work — counted out of the catalogue,
+        so the console is what changes them. */}
+    <Credentials vertical={vertical} go={ctx.go} notify={ctx.notify}/>
+    <HdBlog vertical={vertical}/>
+    {/* Distance only: the reviews store is shared, and would run DCW's cards on
+        the other two houses' home pages. */}
+    {vertical==='distance'&&<ReviewMarquee go={ctx.go}/>}
+    <HdFaq vertical={vertical} brand={V[vertical]} setLead={setLead}/>
+    <HdCta vertical={vertical}/>
   </main>}
 function categories(v){if(v==='distance')return[{name:'10th / 12th Courses',tag:'Build your foundation',kicker:'OPEN SCHOOL',desc:'Recognised open boards with flexible exam cycles \u2014 gap years are fine.',icon:<ScrollText/>,href:'/distance/boards'},{name:'Graduation',tag:'BA, B.Com, BSc & more',kicker:'BACHELOR\u2019S',desc:'UG degrees from UGC-DEB universities, built around a job or a family.',icon:<GraduationCap/>,href:'/distance/universities?path=ug'},{name:'Post Graduation',tag:'MA, MBA, MCA & more',kicker:'MASTER\u2019S',desc:'Master\u2019s programmes you can finish without leaving your work.',icon:<Award/>,href:'/distance/universities?path=pg'},{name:'Professional Courses',tag:'Certification & diploma',kicker:'SHORT COURSES',desc:'Job-linked certificates and diplomas, from six weeks.',icon:<Briefcase/>,href:'/jobs/search'},{name:'Government Exams',tag:'Prepare for a better future',kicker:'BSSC \u00b7 SSC \u00b7 RAILWAY',desc:'Form dates and eligibility, pushed before the deadline closes.',icon:<ShieldCheck/>,href:'/jobs/search'},{name:'International Programs',tag:'Global learning options',kicker:'STUDY ABROAD',desc:'Country-wise cost, approvals and intake timelines.',icon:<Plane/>,href:'/colleges/search?abroad=1'}];if(v==='colleges')return[{name:'Medical',kicker:'MBBS & BDS',desc:'Cutoffs, seats and the full cost \u2014 not just tuition.',icon:<Stethoscope/>,href:'/colleges/search?stream=Medical'},{name:'Engineering',kicker:'B.TECH',desc:'JEE percentile, branch-wise fees and placement records.',icon:<Cog/>,href:'/colleges/search?stream=Engineering'},{name:'Management',kicker:'BBA & MBA',desc:'Entrance accepted, fee versus average package.',icon:<TrendingUp/>,href:'/colleges/search?stream=Management'},{name:'Law',kicker:'BA LLB',desc:'CLAT and state law entrances with five-year options.',icon:<Scale/>,href:'/colleges/search?stream=Law'},{name:'Study abroad',kicker:'GLOBAL OPTIONS',desc:'Country-wise cost, approvals and intake timelines.',icon:<Plane/>,href:'/colleges/search?abroad=1'},{name:'Commerce',kicker:'B.COM',desc:'Regular and honours streams with CA-friendly timing.',icon:<Calculator/>,href:'/colleges/search?stream=Commerce'}];return[{name:'Jobs near me',kicker:'LOCAL ROLES',desc:'Verified Patna openings with the salary stated upfront.',icon:<MapPin/>,href:'/jobs/search?city=Patna'},{name:'Free resume builder',kicker:'3 SIMPLE STEPS',desc:'Create a clean, recruiter-ready resume in minutes.',icon:<FileText/>,href:'/jobs/resume-builder'},{name:'Skill to job',kicker:'SHORT COURSES',desc:'Job-linked courses from six weeks, with placement help.',icon:<Wrench/>,href:'/jobs/search'},{name:'Sarkari exam alerts',kicker:'BSSC \u00b7 SSC \u00b7 RAILWAY',desc:'Form dates and eligibility, pushed before the deadline.',icon:<Bell/>,href:'/jobs/search'}]}
 
@@ -634,428 +333,6 @@ function NotFoundPage({go,vertical}){
   </div></main>;
 }
 
-function DecisionBlock({vertical,go}){const data=vertical==='distance'?['BOARD DECISION GUIDE','NIOS, BOSSE or BBOSE?','Compare recognition, exam speed, fees and flexibility side by side.','/distance/boards',['NIOS','BOSSE','BBOSE']]:vertical==='colleges'?['NEET COLLEGE PREDICTOR','Turn one rank into a practical shortlist.','Get strong, possible and backup choices based on category, state and budget.','/colleges/neet-predictor',['Strong chance','Possible','Backup']]:['FREE RESUME BUILDER','Your experience deserves a clear story.','Build a focused fresher resume with guided prompts and two polished templates.','/jobs/resume-builder',['Profile','Skills','Preview']];return <section className="section ink"><div className="container decision"><div><span className="kicker">{data[0]}</span><h2>{data[1]}</h2><p>{data[2]}</p><button className="btn light" onClick={()=>go(data[3])}>Try the free tool<ArrowRight/></button></div><div className="route-visual"><svg viewBox="0 0 520 220"><path d="M30 170 C150 170, 125 45, 250 85 S385 195, 495 48"/><circle cx="30" cy="170" r="8"/><circle cx="250" cy="85" r="8"/><circle cx="495" cy="48" r="8"/></svg>{/* Each chip labels one of the three dots on the curve, so it is anchored to
-    its dot instead of always by its left edge. The old `left:${i*42+4}%`
-    put the third chip's left edge at 88% and let its ~88px of text run past
-    the box, which `.route-visual{overflow:hidden}` then cut off — at every
-    width measured, from 320px (46px of the label lost) to 1440px (5px).
-    The percentages now match the circles in the viewBox above (x=30, 250,
-    495 of 520) and the transform anchors the chips left, centre, right. */}
-{data[4].map((x,i)=><span key={x} style={{left:['5.8%','48.1%','95.2%'][i],top:['72%','25%','5%'][i],transform:['none','translateX(-50%)','translateX(-100%)'][i]}}><b>0{i+1}</b>{x}</span>)}</div></div></section>}
-/* ---------- Listing --------------------------------------------------------
-   Shared by all three verticals, but jobs are a genuinely different search:
-   people filter a course by money and a job by PLACE first. So the jobs branch
-   leads with an editorial hero and a locator band (city chips + "use my
-   location"), and only then falls into the shared filter/results layout. */
-function Listing(ctx){
-  const {vertical,setLead,catalog,go}=ctx;
-  const isJobs=vertical==='jobs';
-  /* The catalogue for this vertical, fetched once by App(). Everything below —
-     counts, facets, distances — derives from it, so an admin edit shows up here
-     without a second copy of the data existing in this file. */
-  const initial=catalog.rows;
-  const ready=catalog.state==='ready';
-  /* Counts are facts about the catalogue. While it is still in flight there is
-     no fact to state, so they show an em dash rather than a confident zero. */
-  const count=n=>ready?n:'—';
-  const limit=isJobs?600000:15000000;
-  const MUSTS=isJobs?['Verified salary','Freshers welcome','Work from home','Posted this week']
-                    :['Verified data','Clear fees / salary','Student support','Latest intake'];
-  const [type,setType]=useState('All'),[sort,setSort]=useState('Recommended'),[max,setMax]=useState(limit);
-  /* Measured on a 390x844 phone: the filter panel is 613px tall and sits above
-     the results, so the first university card began at document y=1516 — nearly
-     two full screens of controls before a single result. The panel is worth the
-     space it takes on a desktop sidebar and is worth none of it on a phone, so
-     below the width where the sidebar stops being a sidebar it collapses to a
-     summary line the person opens on purpose. Closed is the default because the
-     job of the page is results, not filters. Desktop ignores this state
-     entirely — the media query keeps `.filter-body` displayed above 940px, so
-     the sidebar never depends on a click to exist. */
-  const [filtersOpen,setFiltersOpen]=useState(false);
-  const [must,setMust]=useState(isJobs?[]:['Verified data']);
-  /* Which of the six /distance path cards the person arrived from, carried in
-     the URL so it survives a reload, a share and the back button. Before this
-     the cards were three links to one page: "UG distance", "PG distance" and
-     "Online degree" all landed on the same unfiltered six universities, and
-     nothing on the page acknowledged the choice that had just been made.
-     An unknown value falls back to null rather than filtering to nothing — a
-     mistyped query should show the catalogue, not an empty result. */
-  const params=useSearchParams();
-  const coursePath=vertical==='distance'&&PATHS[params.get('path')]?params.get('path'):null;
-  /* The colleges equivalent. Six cards — Medical, Engineering, Management,
-     Law, Study abroad, Commerce — all pointed at the same unfiltered list, so
-     the only thing distinguishing them was the word on the card. `stream` and
-     `abroad` are what they mean, read from the URL for the same reasons `path`
-     is: reload, share and Back all keep working. */
-  const isColleges=vertical==='colleges';
-  const stream=isColleges?readStream(params.get('stream')):null;
-  const abroad=isColleges&&params.get('abroad')==='1';
-  /* Seeded from the URL so the "Jobs near me" card lands on Patna openings
-     rather than on the same unfiltered list as every other card. It stays a
-     piece of state after that, because the city strip above the results is a
-     control the person keeps using; the URL only decides where they start.
-     An unrecognised city filters to nothing and the empty state offers Reset,
-     which clears the query string too. */
-  const cityParam=isJobs?params.get('city'):null;
-  /* The Recognition & Approval band sends people here with the body they
-     pressed — ?approval=UGC-DEB, ?approval=NMC. Matched against the card's own
-     approval labels, which is the same field /api/[vertical]/institutions
-     filters on server-side, so the two agree. URL-borne rather than state for
-     the same reason `path` and `stream` are: reload, share and Back keep it. */
-  const approvalParam=params.get('approval');
-  const [city,setCity]=useState(cityParam||'All'),[sector,setSector]=useState('All');
-  /* geo.state: idle -> asking -> ok | denied | unsupported | error.
-     Nothing is requested until the person presses the button — the browser
-     prompt is theirs to accept, and every other state has a written fallback. */
-  const [geo,setGeo]=useState({state:'idle'});
-  const [nearbyOpen,setNearbyOpen]=useState(false);
-  const reset=()=>{setType('All');setSort('Recommended');setMax(limit);setMust(isJobs?[]:['Verified data']);setCity('All');setSector('All');
-    // The URL-borne filters are not state, so clearing state alone would leave
-    // the address bar — and a reload, or a shared link — still filtered.
-    if(coursePath||stream||abroad||cityParam||approvalParam)go(`/${vertical}/${vertical==='distance'?'universities':'search'}`);};
-
-  function askLocation(){
-    if(typeof navigator==='undefined'||!navigator.geolocation){setGeo({state:'unsupported'});return}
-    setGeo({state:'asking'});
-    navigator.geolocation.getCurrentPosition(
-      pos=>{
-        const here=[pos.coords.latitude,pos.coords.longitude];
-        const [near,away]=nearestCity(here);
-        setGeo({state:'ok',here,label:near,away:Math.round(away)});
-        setSort('Nearest first');
-        setCity('All');
-        setNearbyOpen(true);
-      },
-      err=>setGeo({state:err.code===1?'denied':'error'}),
-      {enableHighAccuracy:false,timeout:10000,maximumAge:300000}
-    );
-  }
-  function clearLocation(){setGeo({state:'idle'});setNearbyOpen(false);setSort('Recommended')}
-
-
-  const here=geo.state==='ok'?geo.here:null;
-
-  const data=useMemo(()=>initial
-    .filter(x=>(type==='All'||x.type.includes(type))
-      &&x.fee<=max
-      /* An institution belongs on this list if it teaches at least one course
-         matching the path. For 'ug' and 'pg' every university here qualifies,
-         and saying so honestly is the point: the count stays 6 because all six
-         really do offer both. 'online' genuinely narrows it, because LPU and
-         IGNOU teach in distance mode. What changes in every case is what each
-         card leads with and what Apply preselects. */
-      &&(!coursePath||coursesOf(x).some(c=>matchesPath(c,coursePath)))
-      &&matchesStream(x,stream)
-      &&(!approvalParam||(x.approval??[]).some(a=>a.toLowerCase().includes(approvalParam.toLowerCase())))
-      &&(!abroad||isAbroad(x))
-      &&(!isJobs||city==='All'||x.city===city)
-      &&(!isJobs||sector==='All'||x.sector===sector)
-      &&must.every(m=>
-        m==='Verified data'?x.approval.length>0:
-        m==='Clear fees / salary'?x.fee>0:
-        m==='Student support'?true:
-        m==='Latest intake'?!x.deadline.includes('Sep'):
-        m==='Verified salary'?x.approval.some(a=>/salary/i.test(a)):
-        m==='Freshers welcome'?/fresher/i.test(x.approval.join(' ')+' '+x.course):
-        m==='Work from home'?!!x.wfh:
-        m==='Posted this week'?(x.postedDays??99)<=7:true))
-    .map(x=>isJobs?{...x,km:jobKm(x,here)}:x)
-    .sort((a,b)=>
-      sort==='Nearest first'?(a.km==null?1e9:a.km)-(b.km==null?1e9:b.km):
-      sort==='Newest first'?(a.postedDays??99)-(b.postedDays??99):
-      sort==='Price: low to high'||sort==='Salary: low to high'?a.fee-b.fee:
-      sort==='Price: high to low'||sort==='Salary: high to low'?b.fee-a.fee:
-      sort==='Rating'?b.rating-a.rating:
-      (b.featured?1:0)-(a.featured?1:0)),
-  [type,sort,max,must,initial,isJobs,city,sector,here,coursePath,stream,abroad,approvalParam]);
-
-  /* Non-null when the emptiness is the catalogue's rather than the filters'.
-     Measured against `initial` — every row the vertical holds, before a single
-     sidebar filter — so it can only say "nothing published" when that is
-     literally true. */
-  const unpublished=data.length===0&&stream&&!initial.some(x=>matchesStream(x,stream))?`${stream.toLowerCase()} colleges`
-    :data.length===0&&abroad&&!initial.some(isAbroad)?'colleges outside India'
-    :null;
-
-  /* The pop-up recommendation the location prompt earns: the three closest
-     roles, plus how many sit inside a realistic daily commute. */
-  const nearby=useMemo(()=>{
-    if(!here)return null;
-    const withKm=initial.map(j=>({...j,km:jobKm(j,here)}));
-    const commutable=withKm.filter(j=>j.km!=null&&j.km<=60);
-    return {
-      top:withKm.filter(j=>j.km!=null).sort((a,b)=>a.km-b.km).slice(0,3),
-      commutable:commutable.length,
-      remote:withKm.filter(j=>j.wfh).length
-    };
-  },[here,initial]);
-
-  /* A popover, not a modal: Escape dismisses it and focus starts inside, but
-     the tab is not trapped — the results behind it stay reachable. */
-  const nearbyRef=useDialogA11y(isJobs&&nearbyOpen&&!!nearby,()=>setNearbyOpen(false),{trap:false});
-
-  const sortOptions=isJobs
-    ?[...(here?['Nearest first']:[]),'Recommended','Newest first','Salary: high to low','Salary: low to high','Rating']
-    :['Recommended','Price: low to high','Price: high to low','Rating'];
-
-  const allCities=useMemo(()=>isJobs?jobCities(initial):[],[isJobs,initial]);
-  const allSectors=useMemo(()=>isJobs?jobSectors(initial):[],[isJobs,initial]);
-  const allTypes=useMemo(()=>isJobs?jobTypes(initial):[],[isJobs,initial]);
-  const cityChips=useMemo(()=>['All',...(isJobs?topJobCities(initial).slice(0,6):[])],[isJobs,initial]);
-  const activeFilters=[type!=='All'&&type,city!=='All'&&city,sector!=='All'&&sector,approvalParam,...must].filter(Boolean);
-  /* What the collapsed filter summary reports. `activeFilters` is the jobs
-     chip row and deliberately omits the cost ceiling because there is no chip
-     for it; the summary must not, or a closed panel could be filtering on a
-     slider nobody can see. */
-  const activeCount=activeFilters.length+(max<limit?1:0);
-
-  return <main id="main" tabIndex={-1} className={isJobs?'listing-page jobs-listing':'listing-page'}>
-
-    {isJobs?<section className="tool-hero jobs-hero">
-      <Photo name="career-editorial" alt="Young professionals starting work in an Indian office" priority/>
-      <span className="hero-shade" aria-hidden="true"/>
-      <div className="container tool-hero-copy">
-        <span className="kicker">BEROJGAR BHARAT · VERIFIED HIRING</span>
-        <h1>Work you can reach.<br/><em>Salary you can see.</em></h1>
-        <p>Every posting names the employer, the city and the actual pay band. Filter by the place you can travel to — or let us find the openings closest to you.</p>
-        <div className="tool-hero-cta">
-          <button className="btn primary" onClick={askLocation} disabled={geo.state==='asking'}>
-            <LocateFixed/>{geo.state==='asking'?'Finding you…':geo.state==='ok'?'Update my location':'Jobs near me'}
-          </button>
-          <a className="btn ghost" href="#results">Browse {count(initial.length)} openings<ArrowRight/></a>
-        </div>
-        <div className="hero-pills">
-          <span><ShieldCheck/>{count(initial.filter(j=>j.approval.some(a=>/verified/i.test(a))).length)} verified employers</span>
-          <span><Wifi/>{count(initial.filter(j=>j.wfh).length)} work from home</span>
-          <span><Flame/>{count(initial.filter(j=>(j.postedDays??99)<=7).length)} posted this week</span>
-        </div>
-      </div>
-    </section>
-    :<PageHero
-      photo={vertical==='distance'?'university-campus':'campus-editorial'}
-      alt={vertical==='distance'?'Illustrative university campus with students walking between academic buildings':'Students on an Indian university campus'}
-      kicker={`${V[vertical].label.toUpperCase()} · RESEARCHED, NOT RANKED BY ADS`}
-      title={vertical==='colleges'
-        ?<>Medical colleges,<br/><em>compared on the real numbers.</em></>
-        :<>Recognised degrees,<br/><em>studied on your schedule.</em></>}
-      lead={vertical==='colleges'
-        ?'Total cost, seat count, approval body and cut-off — side by side, from the records we keep rather than the brochures colleges send.'
-        :'UGC-entitled online and distance programmes with the fee, the approval and the exam mode stated up front. Filter it down, then shortlist.'}
-      pills={<>
-        <span><ShieldCheck/>{count(data.length)} verified {vertical==='colleges'?'colleges':'universities'}</span>
-        <span><Scale/>Compare up to 3 side by side</span>
-        <span><Clock3/>Updated every admission cycle</span>
-      </>}>
-      <a className="btn primary tactile" href="#results">Browse {count(data.length)} results<ArrowRight/></a>
-      <button className="btn ghost" onClick={()=>setLead({title:'Talk to a DCW counsellor',interest:vertical})}>Talk to a counsellor</button>
-    </PageHero>}
-
-    {isJobs&&<div className="container locator">
-      <div className="locator-head">
-        <span className="kicker"><MapPin/>WHERE DO YOU WANT TO WORK?</span>
-        {/* A persistent live region, not one created on demand: the whole
-            paragraph below is swapped when geolocation resolves, and a live
-            region that appears at the same moment as its content is announced
-            unreliably. Pressing "Use my location" re-sorts all twenty cards to
-            "Nearest first" — a large change that was, until this wrapper,
-            completely silent to a screen reader. `polite` because it follows a
-            deliberate button press and must not interrupt. */}
-        <div className="locator-msg" role="status">
-        {geo.state==='ok'
-          ?<p className="locator-live"><span className="pulse" aria-hidden="true"/>Closest to <b>{geo.label}</b> · {nearby?.commutable??0} within a 60&nbsp;km commute<button className="linkish" onClick={clearLocation}>Clear</button></p>
-          :geo.state==='denied'?<p className="locator-note">Location is off, so pick your city below — nothing else changes.</p>
-          :geo.state==='error'?<p className="locator-note">We could not read your location. Pick your city below instead.</p>
-          :geo.state==='unsupported'?<p className="locator-note">This browser cannot share a location. Pick your city below.</p>
-          :<p className="locator-note">Pick a city, or share your location once and we will rank every opening by how far it actually is.</p>}
-        </div>
-      </div>
-      <div className="locator-row">
-        <div className="city-chips" role="group" aria-label="Filter by city">
-          {cityChips.map(c=><button key={c} type="button" aria-pressed={city===c}
-            className={city===c?'chip on':'chip'} onClick={()=>setCity(c)}>
-            {c==='Remote'&&<Wifi/>}{c==='All'?`All cities`:c}
-            <small>{c==='All'?initial.length:initial.filter(j=>j.city===c).length}</small>
-          </button>)}
-        </div>
-        <button className={geo.state==='ok'?'btn outline small locate on':'btn outline small locate'}
-          onClick={askLocation} disabled={geo.state==='asking'}>
-          <LocateFixed/>{geo.state==='asking'?'Finding you…':geo.state==='ok'?'Located':'Use my location'}
-        </button>
-      </div>
-    </div>}
-
-    <div className="container listing-layout" id="results">
-      <aside className="filters" data-open={filtersOpen?'yes':'no'}>
-        <div className="filter-title">
-          <b><Filter/>Filters</b>
-          {/* Only rendered as a control below 940px; above it the label is the
-              panel's own heading and this button is display:none. The count
-              travels with the summary so a closed panel never hides the fact
-              that something is filtering the list. */}
-          <button type="button" className="filter-toggle" aria-expanded={filtersOpen} aria-controls="filter-body"
-            onClick={()=>setFiltersOpen(o=>!o)}>
-            {filtersOpen?'Hide':'Show'}{activeCount>0?` · ${activeCount}`:''}
-          </button>
-          <button onClick={reset}>Reset</button>
-        </div>
-        <div className="filter-body" id="filter-body">
-        {isJobs&&<label>City<select value={city} onChange={e=>setCity(e.target.value)}>
-          <option>All</option>{allCities.map(c=><option key={c}>{c}</option>)}
-        </select></label>}
-        {isJobs&&<label>Industry<select value={sector} onChange={e=>setSector(e.target.value)}>
-          <option>All</option>{allSectors.map(c=><option key={c}>{c}</option>)}
-        </select></label>}
-        <label>{isJobs?'Job type':'Type'}<select value={type} onChange={e=>setType(e.target.value)}>
-          <option>All</option>
-          {isJobs?allTypes.map(t=><option key={t}>{t}</option>)
-                 :<><option>Private</option><option>Government</option><option>Deemed</option></>}
-        </select></label>
-        <label>{isJobs?'Maximum annual salary':'Maximum total cost'}
-          <input type="range" min="0" max={limit} step={isJobs?10000:100000} value={max} onChange={e=>setMax(+e.target.value)}/>
-          <span>Up to {fmt(max)}</span>
-        </label>
-        <div className="check-list"><b>Must have</b>
-          {MUSTS.map(x=><label key={x}><input type="checkbox" checked={must.includes(x)}
-            onChange={()=>setMust(s=>s.includes(x)?s.filter(y=>y!==x):[...s,x])}/>{x}</label>)}
-        </div>
-        </div>
-      </aside>
-
-      <div className="results">
-        <div className="results-head">
-          <h2 className="rh-count"><b>{count(data.length)}</b> matching {(isJobs?'opening':'result')+(data.length===1?'':'s')}{isJobs&&city!=='All'?` in ${city}`:''}{coursePath?` offering ${PATHS[coursePath].toLowerCase()}`:''}{stream?` offering ${stream}`:''}{abroad?' outside India':''}</h2>
-          <label>Sort by<select value={sort} onChange={e=>setSort(e.target.value)}>
-            {sortOptions.map(o=><option key={o}>{o}</option>)}
-          </select></label>
-        </div>
-        {(coursePath||stream||abroad)&&<div className="active-filters">
-          {coursePath&&<span>{PATHS[coursePath]}</span>}
-          {stream&&<span>{stream}</span>}
-          {abroad&&<span>{ABROAD_LABEL}</span>}
-          {/* Clearing navigates rather than setting state, because these
-              filters live in the URL: dropping them from state alone would
-              leave the address bar claiming a filter that is no longer
-              applied. */}
-          <button className="linkish" onClick={()=>go(isColleges?'/colleges/search':'/distance/universities')}>
-            {isColleges?'Show all colleges':'Show all universities'}
-          </button>
-        </div>}
-        {isJobs&&activeFilters.length>0&&<div className="active-filters">
-          {activeFilters.map(f=><span key={f}>{f}</span>)}
-          <button className="linkish" onClick={reset}>Clear all</button>
-        </div>}
-        {/* Four outcomes, not two: still loading, failed, loaded-but-filtered-to-
-            nothing, and results. The middle two used to be indistinguishable. */}
-        <CatalogGrid catalog={catalog} skeleton={4}
-          empty={<EmptyState title="Nothing listed here yet"
-            body={isJobs?'No openings are live for this vertical right now.':'No institutions are published for this vertical right now.'}/>}>
-          {data.length
-            /* {...ctx} first: it carries a `path` of its own — the router pathname —
-               and a spread placed after an explicit prop silently overwrites it.
-               That is exactly how the crash below was introduced, so the
-               narrowing prop is named `coursePath` and set last. */
-            ?data.map(x=><EntityCard key={x.id} item={x} {...ctx} coursePath={coursePath}/>)
-            /* Two different emptinesses, and conflating them would mislead.
-               "Reset filters" is the right advice only when the catalogue does
-               hold something for this stream and the sidebar removed it. When
-               the catalogue holds nothing of the kind at all, resetting will
-               not produce a single row, and saying so is the only honest
-               answer — the demo catalogue publishes medical and engineering
-               colleges, and a Law card that pretended otherwise would be the
-               fabrication this work is not allowed to make. */
-            :unpublished
-              ?<EmptyState title={`No ${unpublished} listed yet`}
-                 body={`We publish every college we have checked, and none of them is ${unpublished==='colleges outside India'?'outside India':`a ${stream.toLowerCase()} college`} yet. A counsellor can tell you what is opening for the next intake.`}
-                 actionLabel="See every college" onAction={()=>go('/colleges/search')}/>
-              :<EmptyState title="No exact matches" body="Adjust the filters or reset them to see every option." actionLabel="Reset filters" onAction={reset}/>}
-        </CatalogGrid>
-      </div>
-    </div>
-
-    {isJobs&&nearbyOpen&&nearby&&<div className="nearby-pop" ref={nearbyRef} role="dialog" aria-label="Jobs near you">
-      <div className="np-head">
-        <span className="kicker"><Navigation/>NEAR YOU</span>
-        <button aria-label="Dismiss nearby jobs" onClick={()=>setNearbyOpen(false)}><X/></button>
-      </div>
-      <p>Closest to <b>{geo.label}</b>. {nearby.commutable} {nearby.commutable===1?'opening is':'openings are'} within 60&nbsp;km, plus {nearby.remote} you can do from home.</p>
-      <ul className="np-list">
-        {nearby.top.map(j=><li key={j.id}>
-          <span className="np-mark" aria-hidden="true">{j.mark}</span>
-          <span className="np-copy"><b>{j.name}</b><small>{j.company} · {j.area?`${j.area}, `:''}{j.city}</small></span>
-          <span className="np-km">{j.km<1?'<1':Math.round(j.km)}<small>km</small></span>
-        </li>)}
-      </ul>
-      <div className="np-foot">
-        <button className="btn primary small" onClick={()=>{setSort('Nearest first');setNearbyOpen(false);document.getElementById('results')?.scrollIntoView({behavior:'smooth'})}}>See all nearby<ArrowRight/></button>
-        <button className="btn outline small" onClick={()=>setNearbyOpen(false)}>Not now</button>
-      </div>
-    </div>}
-  </main>;
-}
-/* The listing card is a projection — enough to compare twenty options, not
-   enough to decide on one. The full record (approvals with their documents,
-   proof of work, the Google mapping) lives behind /api/[vertical]/institutions/
-   [slug], and the reviews written about this listing behind /api/reviews. Both
-   load after the card has already painted, so the page is readable immediately
-   and gains its evidence a moment later rather than blocking on it. */
-const onDay=iso=>{if(!iso)return null;const d=new Date(iso);return Number.isNaN(d.getTime())?null:d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})};
-function Detail(ctx){
-  const {entity,vertical,setLead,toggleSave,saved,toggleCompare,compare,go}=ctx;
-  const isJob=vertical==='jobs';
-  const {data:full}=useApi(isJob?null:`/api/${vertical}/institutions/${entity.slug??entity.id}`);
-  /* A job's evidence hangs off the employer, not the posting — see
-     lib/jobs-repo.js — so it is a second small fetch rather than a field on the
-     job. It stays out of `full` because the institution record shapes the plain
-     facts and the approvals, and an employer has neither. */
-  const {data:emp}=useApi(isJob&&entity.companyId?`/api/companies/${encodeURIComponent(entity.companyId)}`:null);
-  const {data:rv}=useApi(isJob
-    ?(entity.companyId?`/api/reviews?companyId=${encodeURIComponent(entity.companyId)}&limit=4`:null)
-    :`/api/reviews?institutionId=${encodeURIComponent(entity.id)}&limit=4`);
-  const facts=full?plainFacts(full):[];
-  const approvals=full?.approvals??[];
-  const proof=(isJob?emp?.proofOfWork:full?.proofOfWork)??[];
-  const google=full?.googleRating??null;
-  const map=full?.map??null;
-  const reviews=rv?.rows??[];
-  const rsum=rv?.summary??null;
-  const reviewHref=isJob
-    ?(entity.companyId?`/reviews?companyId=${encodeURIComponent(entity.companyId)}`:'/reviews')
-    :`/reviews?institutionId=${encodeURIComponent(entity.id)}&vertical=${vertical}`;
-  return <main id="main" tabIndex={-1} className="detail-page"><div className="container breadcrumbs">Home <ChevronRight/> {V[vertical].label} <ChevronRight/> <b>{entity.name}</b></div><section className="detail-banner">
-<Photo name={vertical==='jobs'?'career-editorial':'campus-editorial'} priority/>
-<span className="hero-shade" aria-hidden="true"/><div className="container db-copy">
-  <span className="db-kicker">{vertical==='jobs'?'Hiring now':vertical==='colleges'?'Campus profile':'Recognised institution'}</span>
-  {/* Deliberately not a heading. This band names the employer (or, for a
-      college, a shortened form of the page title) over the hero image, and it
-      renders above the <h1>. As an <h2> it put a level-2 heading ahead of the
-      page's own title in the outline, so anyone navigating by heading met a
-      section before they met the page. The employer is still reachable as
-      text — it is the "Employer" row of the role facts list — so nothing is
-      lost by taking this out of the outline. */}
-  <span className="db-name">{vertical==='jobs'?entity.company||entity.place.split(' \u2022 ')[0]:entity.name.replace(/ (University|Online).*$/,'')}</span>
-  <p><MapPin/>{vertical==='jobs'?<>{entity.wfh?'Work from home':`${entity.area?entity.area+', ':''}${entity.city}`} · {entity.sector}</>:<>{entity.place} · {entity.mode}</>}</p>
-</div></section><section className="container detail-hero">{entity.image?<span className="detail-plate"><Plate seed={entity.name} mark={entity.mark} image={entity.imageFull} alt={entity.imageAlt||''} note={entity.imageIllustrative?'Illustrative':null} ratio="1"/></span>:<span className="entity-mark large">{entity.mark}</span>}<div className="detail-copy"><span className="verified"><ShieldCheck/>{entity.approval.join(' • ')}</span><h1>{entity.name}</h1><p><MapPin/>{entity.place} · {entity.type}</p><div className="detail-tags"><span><Star/> {entity.rating} ({entity.reviews} reviews)</span><span><CalendarDays/> {entity.deadline}</span><span><Clock3/> Updated today</span></div></div><div className="detail-action"><small>{vertical==='jobs'?'SALARY':'STARTING FROM'}</small><b>{vertical==='jobs'?entity.duration:fmt(entity.fee)}{entity.mrp&&<s className="mrp">{fmt(entity.mrp)}</s>}</b><button className="btn primary" onClick={()=>setLead({mode:'apply',title:`Apply to ${entity.name}`,interest:entity.id,interestType:vertical==='jobs'?'job':'course',course:vertical==='jobs'?entity.name:coursesOf(entity)[0].name,courses:vertical==='jobs'?null:coursesOf(entity).map(c=>c.name),where:entity.place})}>Apply now<ArrowRight/></button><button className="btn outline" onClick={()=>setLead({title:`Talk about ${entity.name}`,interest:entity.id})}>Request a callback<MessageCircle/></button><button className="btn outline" onClick={()=>toggleSave(entity.id)}>{saved.includes(entity.id)?'Saved':'Save for later'}<Heart/></button></div></section><nav className="anchor-nav"><div className="container">{facts.length>0&&<a href="#plain">In simple words</a>}<a href="#overview">Overview</a><a href="#fees">{vertical==='jobs'?'Role details':'Courses & fees'}</a><a href="#proof">{vertical==='jobs'?'Company':'Recognition'}</a>{proof.length>0&&<a href="#work">Proof of work</a>}{map?.mapped&&<a href="#location">Location</a>}<a href="#reviews">Reviews</a><a href="#process">Process</a><a href="#faq">FAQs</a></div></nav><div className="container detail-layout"><div>{facts.length>0&&<section id="plain" className="detail-section plain-section"><span className="kicker">IN SIMPLE WORDS</span><h2>The six things you actually need to know</h2>{full.plainSummary&&<p className="plain-lead">{full.plainSummary}</p>}<dl className="plain-qa">{facts.map(f=><div key={f.q}><dt>{f.q}</dt><dd>{f.a}</dd></div>)}</dl><button className="btn primary" onClick={()=>setLead({title:`Talk about ${entity.name}`,interest:entity.id})}>Ask a counsellor — free<MessageCircle/></button></section>}<section id="overview" className="detail-section"><span className="kicker">AT A GLANCE</span><h2>{vertical==='jobs'?'A clear role with a clear starting point':'Everything important, without the brochure language'}</h2><p>{vertical==='jobs'?`This ${entity.type.toLowerCase()} opportunity is open to ${entity.course}. The salary range is disclosed and the employer has been verified by the DCW jobs team.`:`${entity.name} offers ${entity.course} in ${entity.mode.toLowerCase()} mode. We show the total fee, approval status, expected duration and deadline together so you can make a practical comparison.`}</p><div className="fact-grid"><span><small>Mode</small><b>{entity.mode}</b></span><span><small>Duration / salary</small><b>{entity.duration}</b></span><span><small>Deadline</small><b>{entity.deadline}</b></span><span><small>Student support</small><b>Dedicated mentor</b></span></div></section><section id="fees" className="detail-section"><span className="kicker">TRANSPARENT NUMBERS</span><h2>{vertical==='jobs'?'Role, requirements and benefits':'Course-wise fee structure'}</h2>{vertical==='jobs'?<div className="role-panel"><div className="rp-main"><h3>What you will actually do</h3><ul>{dutiesOf(entity).map(d=><li key={d}><Check/>{d}</li>)}</ul><div className="rp-pay"><span><small>MONTHLY PAY</small><b>{entity.duration}</b></span><span><small>ANNUAL (INDICATIVE)</small><b>{fmt(entity.fee)}</b></span><span><small>OPENINGS</small><b>{entity.emi}</b></span></div></div><dl className="rp-facts"><div><dt>Employer</dt><dd>{entity.company||entity.place.split(' \u2022 ')[0]}</dd></div><div><dt>Where</dt><dd>{entity.wfh?'Work from home':`${entity.area?entity.area+', ':''}${entity.city}`}</dd></div><div><dt>Industry</dt><dd>{entity.sector}</dd></div><div><dt>Shift / mode</dt><dd>{entity.mode}</dd></div><div><dt>Eligibility</dt><dd>{entity.course}</dd></div><div><dt>Interview</dt><dd>In-person or video · no fee</dd></div></dl></div>:<div className="course-table" role="table" aria-label="Courses, fees and how to apply"><div className="ct-head" role="row"><span role="columnheader">Course</span><span role="columnheader">Duration</span><span role="columnheader">Total fee</span><span role="columnheader"><span className="sr-only">Apply</span></span></div>{coursesOf(entity).map(c=><div className="ct-row" role="row" key={c.name}><span role="cell"><b>{c.name}</b>{c.note&&<small>{c.note}</small>}</span><span role="cell" data-lbl="Duration">{c.duration}</span><span role="cell" data-lbl="Total fee"><b>{fmt(c.fee)}</b>{c.mrp&&<s className="mrp">{fmt(c.mrp)}</s>}</span><span role="cell"><button className="btn primary small" onClick={()=>setLead({mode:'apply',title:`Apply to ${entity.name}`,interest:entity.id,interestType:'course',course:c.name,courses:coursesOf(entity).map(x=>x.name),where:entity.place})}>Apply<ArrowRight/></button></span></div>)}</div>}<p className="note"><ShieldCheck/> Indicative demo data. Verify the final offer with the institution or employer.</p></section>{/* Recognition and approval, with the paperwork attached. This used to be a
-    row of buttons that opened nothing — each one raised a toast saying a
-    preview had opened. The records now come from the institution, and where an
-    admin has uploaded the certificate the link goes to the actual file at
-    /api/documents/:id. Where nobody has, the listing says so rather than
-    implying a document exists. */}
-<section id="proof" className="detail-section"><span className="kicker">RECOGNITION &amp; APPROVAL</span><h2>{isJob?'What the employer has declared':'The approvals this listing rests on'}</h2>
-{approvals.length>0
-  ?<ul className="approval-list">{approvals.map((a,i)=>{const href=a.documentId?`/api/documents/${a.documentId}`:a.certificateUrl;const till=onDay(a.validTill);return <li key={`${a.body}-${i}`}><span className="al-mark"><ShieldCheck/></span><div className="al-copy"><b>{a.body}{a.grade?` · ${a.grade}`:''}</b><small>{[a.scope,till?`Valid till ${till}`:null,a.verified?'Checked by DCW':'On file, not yet checked by DCW'].filter(Boolean).join(' · ')}</small>{a.note&&<p>{a.note}</p>}</div>{href
-    ?<a className="btn outline small" href={href} target="_blank" rel="noopener noreferrer">{a.documentName?'Open document':'Open certificate'}<ExternalLink/></a>
-    :<span className="al-none">No document uploaded yet</span>}</li>})}</ul>
-  :<div className="proof-tags">{(entity.approval??[]).map(x=><span key={x}><ShieldCheck/>{x}</span>)}{!(entity.approval??[]).length&&<p className="note">Nothing on record for this listing yet. Ask a counsellor before you pay anything.</p>}</div>}
-{!isJob&&approvals.length>0&&<p className="note"><ShieldCheck/> An approval is a permission to run the course. A grade — NAAC A++, for example — is a quality rating, and is not the same thing.</p>}</section>
-{proof.length>0&&<section id="work" className="detail-section"><span className="kicker">PROOF OF WORK</span><h2>{isJob?'Evidence from this employer':'Evidence from this institution'}</h2><div className="pow-grid">{proof.map(p=>{const img=/^image\//.test(p.mimeType??'');return <figure key={p.id} className="pow-card">{img&&p.url?<img src={p.url} alt={p.title} loading="lazy"/>:<span className="pow-icon"><FileText/></span>}<figcaption><b>{p.title}</b><small>{[p.kind,p.courseName,p.year].filter(Boolean).join(' · ')}</small>{p.summary&&<p>{p.summary}</p>}{p.url&&<a href={p.url} target="_blank" rel="noopener noreferrer">{img?'View full size':'Open document'}<ExternalLink/></a>}</figcaption></figure>})}</div></section>}
-{map?.mapped&&<section id="location" className="detail-section"><span className="kicker">WHERE IT IS</span><h2>Location, and what Google says</h2>{map.embed&&<iframe className="map-frame" src={map.embed} title={`Map showing ${entity.name}`} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen/>}<div className="map-meta"><p><MapPin/>{map.address??entity.place}</p><div className="map-links">{map.place&&<a className="btn outline small" href={map.place} target="_blank" rel="noopener noreferrer">Open in Google Maps<ExternalLink/></a>}{map.directions&&<a className="btn outline small" href={map.directions} target="_blank" rel="noopener noreferrer">Get directions<Navigation/></a>}</div>{google?.available
-  ?<div className="google-rating"><b><Star/>{google.rating}</b><span>on Google, from {google.total.toLocaleString('en-IN')} rating{google.total===1?'':'s'}</span><small>This is Google&rsquo;s figure, shown as Google reports it. It is deliberately kept apart from the DCW reviews below — the two count different things, and averaging them would produce a number neither of us stands behind.</small></div>
-  :<p className="note">Google has no rating on record for this place yet.</p>}</div></section>}
-<section id="reviews" className="detail-section"><span className="kicker">STUDENT REVIEWS</span><h2>{rsum?.count?`What ${rsum.count} student${rsum.count===1?'':'s'} told us`:'No reviews yet'}</h2>
-{reviews.length>0
-  ?<><div className="rv-summary"><b>{rsum.average}</b><span><Star/> average of {rsum.count} published review{rsum.count===1?'':'s'}{rsum.verified>0?` · ${rsum.verified} from a confirmed applicant`:''}</span></div><ul className="rv-list">{reviews.map(r=><li key={r.id}><div className="rv-top"><b>{r.name}{r.city?` · ${r.city}`:''}</b><span className="rv-stars">{'★'.repeat(r.rating)}<i>{'★'.repeat(5-r.rating)}</i></span></div><small>{r.subject}{r.verified?' · Verified applicant':''}</small><p>{r.text}</p></li>)}</ul></>
-  :<p>Nobody has reviewed this listing on DCW yet. If you have studied or applied here, yours would be the first — and the most useful.</p>}
-<div className="rv-actions"><button className="btn outline" onClick={()=>go(reviewHref)}>{reviews.length>0?'Read all reviews':'Write the first review'}<ArrowRight/></button></div></section><section id="process" className="detail-section"><span className="kicker">WHAT HAPPENS NEXT</span><h2>A simple, visible process</h2><ol className="steps">{(vertical==='jobs'?['Apply with your basic profile','Get interview details on WhatsApp','Attend and track your status']:['Speak with a counsellor','Check eligibility and documents','Submit to the institution','Track your application']).map((x,i)=><li key={x}><span>0{i+1}</span><b>{x}</b></li>)}</ol></section><section id="faq" className="detail-section"><span className="kicker">COMMON QUESTIONS</span><h2>Before you decide</h2><Accordion title="Is this information verified?">Our research team checks approvals, fees and key facts against official sources each admission cycle. This prototype uses clearly marked indicative data.</Accordion><Accordion title="Does counselling cost anything?">No. DCW discovery and counselling are free for students.</Accordion><Accordion title="Can I save this and decide later?">Yes. Saved items remain available on this device.</Accordion></section></div><aside className="side-card"><span className="kicker">YOUR SHORTLIST</span><h3>Compare before you decide</h3><p>Add up to three options and see fees, duration, approvals and ratings together.</p>{vertical!=='jobs'&&<button className="btn outline" onClick={()=>toggleCompare(entity.id)}>{compare[vertical].includes(entity.id)?'Remove from compare':'Add to compare'}</button>}<button className="btn primary" onClick={()=>setLead({title:`Talk about ${entity.name}`,interest:entity.id})}>Talk to a counsellor</button></aside></div></main>}
 function AskDCW({open,setOpen,vertical,go,setLead,compare}){const [view,setView]=useState('home');const actions=vertical==='jobs'?[['Find matching jobs','jobs'],['Improve my resume','resume'],['Check application status','status']]:vertical==='colleges'?[['Predict from my NEET rank','predict'],['Compare two colleges','compare'],['Talk to a counsellor','human']]:[['Find my best program','find'],['Compare two choices','compare'],['Check board validity','boards']];const choose=id=>{if(id==='jobs'||id==='find'){setOpen(false);go(vertical==='jobs'?'/jobs/search':'/distance/universities')}else if(id==='resume'){setOpen(false);go('/jobs/resume-builder')}else if(id==='status'){setOpen(false);go('/applications')}else if(id==='predict'){setOpen(false);go('/colleges/neet-predictor')}else if(id==='compare'){if(compare[vertical].length>=2){setOpen(false);go(`/${vertical}/compare`)}else setView('need-compare')}else if(id==='boards'){setOpen(false);go('/distance/boards')}else {setOpen(false);setLead({title:'Talk to a DCW counsellor',interest:vertical})}};return <div className={`bot-wrap ${open?'open':''}`}>{open&&<section className="bot-panel glass"><header><span><MessageCircle/><b>Ask DCW</b><small>Rule-based demo assistant</small></span><button aria-label="Close assistant" onClick={()=>setOpen(false)}><X/></button></header><div className="bot-body">{view==='home'?<><div className="bot-message">Hi—what would make your next decision easier?</div>{actions.map(x=><button className="bot-action" key={x[1]} onClick={()=>choose(x[1])}><span>{x[0]}</span><ArrowRight/></button>)}</>:<><div className="bot-message">Add at least two choices from the listing. I’ll keep them in a comparison tray for you.</div><button className="bot-action" onClick={()=>{setOpen(false);go(vertical==='distance'?'/distance/universities':`/${vertical}/search`)}}>Browse choices<ArrowRight/></button><button className="bot-reset" onClick={()=>setView('home')}><RotateCcw/>Back</button></>}</div><footer><ShieldCheck/> Indicative guidance • Human handoff available</footer></section>}<button className="bot-launch tactile" aria-label="Ask DCW assistant" onClick={()=>{setOpen(!open);setView('home')}}><MessageCircle/><i/></button></div>}
 function SearchPanel({vertical,setSearchOpen,query,setQuery,go,catalog}){const [active,setActive]=useState(0);const dialogRef=useDialogA11y(true,()=>setSearchOpen(false));const pool=catalog.rows;const results=query?pool.filter(x=>`${x.name} ${x.course} ${x.place}`.toLowerCase().includes(query.toLowerCase())):pool.slice(0,3);const open=x=>{setSearchOpen(false);go(vertical==='distance'?`/distance/university/${x.id}`:vertical==='colleges'?`/colleges/college/${x.id}`:`/jobs/${x.id}`)};useEffect(()=>{const key=e=>{if(e.key==='Escape')setSearchOpen(false);if(e.key==='ArrowDown'){e.preventDefault();setActive(x=>Math.min(x+1,results.length-1))}if(e.key==='ArrowUp'){e.preventDefault();setActive(x=>Math.max(x-1,0))}if(e.key==='Enter'&&results[active]){e.preventDefault();open(results[active])}};addEventListener('keydown',key);return()=>removeEventListener('keydown',key)},[results,active]);const chips=vertical==='distance'?['MBA','BCA','IGNOU','Delhi']:vertical==='colleges'?['MBBS','Patna','Government','Manipal']:['Fresher','Patna','Remote','Accounts'];return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget)setSearchOpen(false)}}><div className="command" ref={dialogRef} role="dialog" aria-label={`Search ${V[vertical].label}`}><div className="command-input"><Search/><input autoFocus value={query} onChange={e=>{setQuery(e.target.value);setActive(0)}} placeholder="Search by course, institution, role or city"/><button aria-label="Close search" onClick={()=>setSearchOpen(false)}><X/></button></div><div className="intent-chips"><span>{query?'MATCHING RESULTS':'POPULAR RIGHT NOW'}</span>{chips.map(x=><button key={x} onClick={()=>{setQuery(x);setActive(0)}}>{x}</button>)}</div><div className="command-results">{results.length?results.map((x,i)=><button className={active===i?'active':''} key={x.id} onMouseEnter={()=>setActive(i)} onClick={()=>open(x)}><span className="entity-mark">{x.mark}</span><span><b>{x.name}</b><small>{x.course} · {x.place}</small></span><ArrowRight/></button>):<div className="empty"><Search/><h3>Nothing exact yet</h3><p>Try a broader keyword or explore the complete listing.</p><button className="btn primary" onClick={()=>{setSearchOpen(false);go(vertical==='distance'?'/distance/universities':`/${vertical}/search`)}}>Browse everything</button></div>}</div><footer><span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span><span><kbd>ENTER</kbd> Open · <kbd>ESC</kbd> Close</span></footer></div></div>}
 /* One flow serves both an enquiry and a course application. `lead.mode==='apply'`
@@ -1242,66 +519,4 @@ return <div className="overlay" onMouseDown={e=>{if(e.target===e.currentTarget&&
 </aside>}</div></div>}
 function CompareTray({vertical,compare,go}){return <div className="compare-tray glass-dark"><span><b>{compare[vertical].length} of 3 selected</b><small>{compare[vertical].length<2?'Add one more for a useful comparison':'Ready to compare side by side'}</small></span><button disabled={compare[vertical].length<2} onClick={()=>go(`/${vertical}/compare`)}>Compare now<ArrowRight/></button></div>}
 function MobileNav({vertical,go,setSearchOpen,path}){return <nav className="mobile-nav" aria-label="Mobile navigation"><button className={path===`/${vertical}`?'active':''} onClick={()=>go(`/${vertical}`)}><Home/>Home</button><button className={path?.includes('search')||path?.includes('universities')?'active':''} onClick={()=>go(vertical==='distance'?'/distance/universities':`/${vertical}/search`)}><Search/>Explore</button><button className="mobile-main" onClick={()=>setSearchOpen(true)}><Search/>Search</button><button className={path==='/saved'?'active':''} onClick={()=>go('/saved')}><Heart/>Saved</button><button className={path==='/profile'?'active':''} onClick={()=>go('/profile')}><UserRound/>Profile</button></nav>}
-function Footer({go,vertical,path}){const brand=V[vertical];return <footer className="footer"><div className="container"><div><div className="brand inverse"><BrandLockup vertical={vertical}/><span><b>{brand.logoAlt}</b><small>Your next move, made visible.</small></span></div><p>Clear education and career decisions for students across India.</p>{/* The reference puts a gradient pill under its logo carrying a founding
-      year. We do not publish one, and a year is a claim rather than a
-      decoration — so the slot takes the vertical's own tagline, which is
-      already in V[] and already on the masthead. */}<span className="footer-tagline">{brand.tagline}</span><button className="automation-link" onClick={()=>go('/automations')}><Workflow/>Automation centre</button></div><div><b>Distance</b><button onClick={()=>go('/distance/universities')}>Universities</button><button onClick={()=>go('/distance/boards')}>Board comparison</button></div><div><b>Colleges</b><button onClick={()=>go('/colleges/search')}>Find colleges</button><button onClick={()=>go('/colleges/neet-predictor')}>NEET predictor</button></div><div><b>Jobs</b><button onClick={()=>go('/jobs/search')}>Find jobs</button><button onClick={()=>go('/jobs/resume-builder')}>Resume builder</button></div><div><b>Company</b><button onClick={()=>go('/about')}>About us</button><button onClick={()=>go('/blog')}>Blog</button><button onClick={()=>go('/reviews')}>Reviews</button></div></div>
-  {/* One contact row, in the footer, because the footer is the only thing that
-      renders on every page of all three verticals — Distance Courses Wala,
-      Colleges Wala and Berojgar Bharat share this component, so the office
-      appears on all three without three copies of the address. Read from
-      lib/contact.js; the About page and the office map read the same module. */}
-  <div className="container footer-contact">
-    <a href={CONTACT.phone.href}><i aria-hidden="true"><Phone/></i><span><b>Call Us</b><small>{CONTACT.phone.display}</small></span></a>
-    <a href={CONTACT.email.href}><i aria-hidden="true"><Mail/></i><span><b>Email Us</b><small>{CONTACT.email.display}</small></span></a>
-    <a href={officePlaceUrl()} target="_blank" rel="noopener noreferrer"><i aria-hidden="true"><MapPin/></i><span><b>Visit Us</b><small>{CONTACT.address.full}</small></span></a>
-  </div>
-  {/* The office drawn, not just written out. It lives beside the contact row for
-      the same reason that row is here at all — this footer is the only thing
-      every page of all three verticals renders — so "where are you actually
-      based" is answered at the bottom of the home page, a search result and a
-      university detail alike, without three copies of an address or a map.
-
-      `loading="lazy"` matters more than usual here: this is below the fold on
-      every page it appears on, so the embed costs nothing until somebody
-      scrolls to the end. The two links are the same ones the About page uses
-      and go to the real Maps app, because an iframe cannot give directions.
-
-      Everywhere except /about, which already gives the office a section of its
-      own with a taller map in it. Two maps of the same pin on one page is the
-      kind of repetition that makes a site feel generated rather than written. */}
-  {path!=='/about'&&<div className="container footer-map">
-    <iframe src={officeEmbedUrl()} title={`Map showing the ${brand.logoAlt} office at Kankarbagh, Patna`}
-      loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen/>
-    <div className="fm-side">
-      {/* Deliberately not the address again. The "Visit Us" cell three rows up
-          already carries it in full and the map is between the two — printing
-          it a second time here made the footer say one thing twice and pushed
-          the buttons off a phone screen. What this panel adds is the part the
-          address cannot: when the door is open, and two ways to set off. */}
-      <b>Visit the Patna office</b>
-      <small>{CONTACT.hours}</small>
-      <div className="fm-links">
-        <a href={officeDirectionsUrl()} target="_blank" rel="noopener noreferrer">Get directions<Navigation/></a>
-        <a href={officePlaceUrl()} target="_blank" rel="noopener noreferrer">Open in Maps<ExternalLink/></a>
-      </div>
-    </div>
-  </div>}
-  {/* The pale band the reference runs above its bottom bar: one line of voice
-      on the left, round icon buttons on the right. Its circles are social
-      profiles; ours are the three channels this company actually answers on,
-      because a round icon that goes nowhere is a broken button with a nice
-      shape. All three are the same hrefs the contact row above already uses. */}
-  <div className="container footer-social">
-    <p>{brand.tagline}</p>
-    <span className="fs-links">
-      <a href={CONTACT.phone.href} aria-label={`Call ${brand.logoAlt} on ${CONTACT.phone.display}`}><Phone/></a>
-      {/* The raw digits, not phoneDigits(): that helper strips the country code
-          to get a 10-digit Indian subscriber number, and wa.me needs the code.
-          Same expression ContactStrip already uses for its WhatsApp link. */}
-      <a href={`https://wa.me/${CONTACT.phone.href.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer" aria-label={`Message ${brand.logoAlt} on WhatsApp`}><MessageCircle/></a>
-      <a href={CONTACT.email.href} aria-label={`Email ${brand.logoAlt} at ${CONTACT.email.display}`}><Mail/></a>
-    </span>
-  </div>
-  <div className="container footer-bottom">© 2026 {brand.legal} <span>Prototype with indicative dummy data</span></div></footer>}
 export default App;
