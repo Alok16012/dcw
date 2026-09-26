@@ -2,7 +2,7 @@
 import {useState} from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import {Menu,X,Phone,TrendingUp,ScrollText,FileText,GraduationCap,Briefcase,Handshake,ChevronRight,Search,Users,Settings} from 'lucide-react';
+import {Menu,X,Phone,TrendingUp,ScrollText,FileText,GraduationCap,Briefcase,Handshake,ChevronRight,Search,Users,Settings,Heart} from 'lucide-react';
 import {CONTACT} from '@/lib/contact.js';
 import {CRM,SITES} from '@/lib/crm.js';
 
@@ -106,6 +106,10 @@ export function HdNavbar({vertical,brands,path,auth,setSearchOpen}){
     {isOpen&&<div className="lg:hidden bg-white border-t border-gray-100 px-4 py-4 space-y-3 shadow-sm">
       {navLinks.map(link=><Link key={link.label} href={link.href} onClick={()=>setIsOpen(false)}
         className={`block text-sm font-medium py-2 ${link.active?'text-brand-600':'text-gray-700 hover:text-brand-600'}`}>{link.label}</Link>)}
+      <div className="flex gap-2 pt-1">
+        <button type="button" onClick={()=>{setIsOpen(false);setSearchOpen(true)}} className="flex-1 flex items-center justify-center gap-2 text-sm text-gray-700 bg-gray-50 border border-gray-200 px-4 py-2 rounded-lg font-medium"><Search className="w-4 h-4"/>Search</button>
+        <Link href="/saved" onClick={()=>setIsOpen(false)} className="flex-1 flex items-center justify-center gap-2 text-sm text-gray-700 bg-gray-50 border border-gray-200 px-4 py-2 rounded-lg font-medium"><Heart className="w-4 h-4"/>Saved</Link>
+      </div>
       <div className="pt-2 flex flex-col gap-2">
         <Link href={tool.href} onClick={()=>setIsOpen(false)} className="flex items-center justify-center gap-2 text-sm bg-cta-600 text-white px-4 py-2.5 rounded-lg font-bold shadow-md">
           <ToolIcon className="w-4 h-4"/>{tool.label}

@@ -2,8 +2,9 @@
 import {useState} from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import {MapPin,Phone,Mail,Clock,MessageCircle} from 'lucide-react';
+import {MapPin,Phone,Mail,Clock} from 'lucide-react';
 import {CONTACT,officePlaceUrl} from '@/lib/contact.js';
+import {WhatsAppGlyph} from '@/components/hd/whatsapp.jsx';
 
 /* HelloDoctor's Footer (src/components/Footer.tsx): a brand-colour updates
    band, then gray-900 with the brand and contact block over two columns and
@@ -21,7 +22,7 @@ export function HdFooter({vertical,brand,setLead}){
   const wa=`https://wa.me/${CONTACT.phone.href.replace(/\D/g,'')}`;
   const social=[
     {label:`Call ${brand.logoAlt}`,href:CONTACT.phone.href,icon:<Phone className="w-4 h-4"/>},
-    {label:`WhatsApp ${brand.logoAlt}`,href:wa,icon:<MessageCircle className="w-4 h-4"/>,ext:true},
+    {label:`WhatsApp ${brand.logoAlt}`,href:wa,icon:<WhatsAppGlyph className="w-4 h-4"/>,ext:true},
     {label:`Email ${brand.logoAlt}`,href:CONTACT.email.href,icon:<Mail className="w-4 h-4"/>},
     {label:'Open the office in Maps',href:officePlaceUrl(),icon:<MapPin className="w-4 h-4"/>,ext:true}
   ];

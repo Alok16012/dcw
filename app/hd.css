@@ -156,3 +156,10 @@
 .app .board-card { scroll-margin-top: 140px; }
 .app .board-card.is-target { outline: 3px solid var(--hd-500); outline-offset: 4px; transition: outline-color .4s; }
 .app .reviews-page .review-card .rv-subject { font-size: 17px; font-weight: 700; line-height: 1.35; color: #111827; }
+
+/* The bottom tab bar is gone, so phones no longer reserve 70px for it; the
+   compare tray drops to sit above the WhatsApp button instead. */
+@media (max-width: 760px) {
+  body { padding-bottom: 0 !important; }
+  .app .compare-tray { bottom: 88px; }
+}
