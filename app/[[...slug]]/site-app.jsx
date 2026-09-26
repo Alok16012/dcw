@@ -33,6 +33,7 @@ import HdDetail from '@/components/hd/detail.jsx';
    /about, /blog and /reviews are the pages a stranger reads before deciding
    whether to trust us, and they have to arrive as HTML. */
 const Boards=dynamic(()=>import('@/components/tools/boards.jsx'));
+const BoardDetail=dynamic(()=>import('@/components/hd/board-detail.jsx'));
 const Predictor=dynamic(()=>import('@/components/tools/predictor.jsx'));
 const ResumeBuilder=dynamic(()=>import('@/components/tools/resume-builder.jsx'));
 const AboutPage=dynamic(()=>import('@/components/hd/about.jsx'));
@@ -118,7 +119,7 @@ useEffect(()=>{
   return()=>clearTimeout(t);
 },[path,vertical,auth.state,auth.user,lead,searchOpen,botOpen]);
 const ctx={path,vertical,cfg,go,saved,toggleSave,compare,toggleCompare,setLead,query,setQuery,setSearchOpen,notify,auth,catalog};
-let page;if(path==='/about')page=<AboutPage {...ctx}/>;else if(path?.startsWith('/blog'))page=<BlogPage {...ctx}/>;else if(path==='/reviews')page=<ReviewsPage {...ctx}/>;else if(path==='/saved')page=<SavedPage {...ctx}/>;else if(path==='/applications')page=<ApplicationsPage {...ctx}/>;else if(path==='/notifications')page=<AccountPage type="notifications" {...ctx}/>;else if(path==='/profile')page=<AccountPage type="profile" {...ctx}/>;else if(path==='/automations')page=<AutomationCenter {...ctx}/>;else if(path?.endsWith('/compare'))page=<ComparePage {...ctx}/>;else if(path?.includes('resume-builder'))page=<ResumeBuilder {...ctx}/>;else if(path?.includes('neet-predictor'))page=<Predictor {...ctx}/>;else if(path?.includes('boards'))page=<Boards {...ctx}/>;else if(path?.includes('universities')||path?.includes('/search')||path?.includes('/list'))page=<HdListing {...ctx}/>;else{
+let page;if(path==='/about')page=<AboutPage {...ctx}/>;else if(path?.startsWith('/blog'))page=<BlogPage {...ctx}/>;else if(path==='/reviews')page=<ReviewsPage {...ctx}/>;else if(path==='/saved')page=<SavedPage {...ctx}/>;else if(path==='/applications')page=<ApplicationsPage {...ctx}/>;else if(path==='/notifications')page=<AccountPage type="notifications" {...ctx}/>;else if(path==='/profile')page=<AccountPage type="profile" {...ctx}/>;else if(path==='/automations')page=<AutomationCenter {...ctx}/>;else if(path?.endsWith('/compare'))page=<ComparePage {...ctx}/>;else if(path?.includes('resume-builder'))page=<ResumeBuilder {...ctx}/>;else if(path?.includes('neet-predictor'))page=<Predictor {...ctx}/>;else if(path?.includes('boards'))page=<Boards {...ctx}/>;else if(path?.startsWith('/distance/board/'))page=<BoardDetail {...ctx}/>;else if(path?.includes('universities')||path?.includes('/search')||path?.includes('/list'))page=<HdListing {...ctx}/>;else{
   const id=path?.split('/').pop();
   const entity=catalog.rows.find(x=>x.id===id);
   /* A detail URL carries at least two segments (/jobs/:id, /distance/university/:id).
@@ -308,7 +309,7 @@ function HomePage(ctx){const {vertical,catalog,setLead}=ctx;const pool=catalog.r
     :vertical==='colleges'?{kicker:'Top Colleges',title:'Good Colleges, Honest Numbers',sub:'Cutoffs, total cost and seats — checked at source, not copied.'}
     :{kicker:'Top Universities',title:'Trusted Universities, Real Opportunities',sub:'Explore UGC-approved universities offering distance and online programs.'};
   return <main id="main" tabIndex={-1}>
-    <HdHero vertical={vertical} brand={V[vertical]} h={h} image={{distance:'university-campus',colleges:'counsellor-desk',jobs:'workplace-team'}[vertical]} setLead={setLead}/>
+    <HdHero vertical={vertical} brand={V[vertical]} h={h} image={{distance:'hero1',colleges:'colleges-hero',jobs:'workplace-team'}[vertical]} setLead={setLead}/>
     <HdStreams vertical={vertical} items={cats} photos={CATEGORY_PHOTOS[vertical]} title={catTitle} sub={catSub} listAll={listAll}/>
     <HdFeatured vertical={vertical} catalog={catalog} copy={featured} listAll={listAll} noun={noun}/>
     <HdOffers vertical={vertical} proof={proof} brand={V[vertical]}/>

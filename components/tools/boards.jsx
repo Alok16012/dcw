@@ -84,7 +84,7 @@ export function Boards(ctx){const {setLead,go}=ctx;
             <p className="bc-best"><Check/>{b.bestFor}</p>
             <div className="bc-foot">
               <button className="btn primary small" onClick={()=>applyTo(b)}>Apply<ArrowRight/></button>
-              <button className="btn outline small" onClick={()=>setLead({title:`${b.name} eligibility check`,interest:b.id})}>Check eligibility</button>
+              <a className="btn outline small" href={`/distance/board/${b.id}`} onClick={e=>{e.preventDefault();go(`/distance/board/${b.id}`)}}>View details</a>
             </div>
           </div>
         </article>)}

@@ -9,6 +9,7 @@ import {Photo} from '@/components/ui/primitives.jsx';
    sky, a paper plane on a dotted trail, then badge · headline · line · three
    round-icon promises · two buttons. The words are this vertical's own, from
    HERO in site-app.jsx; the handwriting is its `script` line. */
+const SOFT=new Set(['hero1','colleges-hero']);
 export function HdHero({vertical,brand,h,image,setLead}){
   const words=h.script.replace(/\.$/,'').split(/\.\s*/);
   const pads=['','pl-2','pl-7','pl-14'];
@@ -16,9 +17,13 @@ export function HdHero({vertical,brand,h,image,setLead}){
     <div className="absolute inset-0 overflow-hidden">
     <Photo name={image} priority alt={h.alt}
       className="absolute inset-0 w-full h-full [&_img]:w-full [&_img]:h-full [&_img]:object-cover [&_img]:object-[75%_center] lg:[&_img]:object-[70%_30%]"/>
-    <div className="absolute inset-0 bg-gradient-to-r from-white/85 via-white/55 via-45% to-transparent to-75% lg:from-brand-50/95 lg:via-brand-50/75 lg:via-45% lg:to-transparent lg:to-72%"/>
+    {/* The two sky-left photographs take HelloDoctor's own light wash; the
+        busier office photo keeps a heavier one so the headline still reads. */}
+    <div className={SOFT.has(image)
+      ?'absolute inset-0 bg-gradient-to-r from-white/85 via-white/55 via-45% to-transparent to-75% lg:from-brand-50/90 lg:via-brand-50/50 lg:via-40% lg:to-transparent lg:to-60%'
+      :'absolute inset-0 bg-gradient-to-r from-white/85 via-white/55 via-45% to-transparent to-75% lg:from-brand-50/95 lg:via-brand-50/75 lg:via-45% lg:to-transparent lg:to-72%'}/>
 
-    <div aria-hidden="true" className="font-hand font-bold hidden lg:block absolute top-[8%] left-[63%] text-brand-700 text-4xl xl:text-5xl leading-[1.05] -rotate-12 select-none [text-shadow:0_1px_10px_rgba(255,255,255,0.9)]">
+    <div aria-hidden="true" className="font-hand font-bold hidden lg:block absolute top-[4%] left-[57%] text-brand-700 text-3xl xl:text-4xl leading-[1.05] -rotate-12 select-none [text-shadow:0_1px_10px_rgba(255,255,255,0.9)]">
       {words.map((w,i)=><div key={w} className={pads[i]??'pl-14'}>{w}</div>)}
       <svg viewBox="0 0 200 30" className="ml-10 -mt-1 w-40 h-6" fill="none">
         <path d="M4 24 C 60 10, 120 6, 196 4" stroke="currentColor" strokeWidth="4" strokeLinecap="round"/>
@@ -70,9 +75,9 @@ export function HdHero({vertical,brand,h,image,setLead}){
    universities list filtered to that level. */
 const PICKS={
   school:{label:'10th / 12th',icon:ScrollText,title:'Finish 10th or 12th through an open board',all:['Compare all three boards','/distance/boards'],items:[
-    {name:'NIOS',full:'National Institute of Open Schooling',note:'Widest acceptance — college admission and government jobs',href:'/distance/boards#board-nios',icon:Award},
-    {name:'BOSSE',full:'Board of Open Schooling & Skill Education, Sikkim',note:'Fastest legitimate route when a deadline is close',href:'/distance/boards#board-bosse',icon:ScrollText},
-    {name:'BBOSE',full:'Bihar Board of Open Schooling & Examination',note:'Lowest fee for Bihar learners on a schedule',href:'/distance/boards#board-bbose',icon:BookOpen}]},
+    {name:'NIOS',full:'National Institute of Open Schooling',note:'Widest acceptance — college admission and government jobs',href:'/distance/board/nios',icon:Award},
+    {name:'BOSSE',full:'Board of Open Schooling & Skill Education, Sikkim',note:'Fastest legitimate route when a deadline is close',href:'/distance/board/bosse',icon:ScrollText},
+    {name:'BBOSE',full:'Bihar Board of Open Schooling & Examination',note:'Lowest fee for Bihar learners on a schedule',href:'/distance/board/bbose',icon:BookOpen}]},
   degree:{label:'Degree',icon:GraduationCap,title:'Distance & online degrees from UGC-DEB universities',all:['See all universities','/distance/universities'],items:[
     {name:'UG Degree',full:'BA, B.Com, BSc, BBA, BCA',note:'Bachelor’s degrees you can study around a job',href:'/distance/universities?path=ug',icon:GraduationCap},
     {name:'PG Degree',full:'MA, M.Com, MBA, MCA',note:'Master’s programmes without leaving your work',href:'/distance/universities?path=pg',icon:Award},

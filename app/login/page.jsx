@@ -5,6 +5,7 @@ import Link from 'next/link';
 import './login.css';
 import { api, ApiError } from '@/lib/admin-client.js';
 import { IconAlert } from '../admin/icons.jsx';
+import { SITES } from '@/lib/crm.js';
 
 /**
  * The five doors. Each one lands somewhere it can actually be used — a student
@@ -38,6 +39,8 @@ function LoginForm() {
   const router = useRouter();
   const params = params0;
   const next = params.get('next') || '/admin';
+  // Each website's admin is entered from that website, so the screen says whose it is.
+  const site = SITES[params.get('site')] ? params.get('site') : null;
 
   useEffect(() => {
     api('/auth/login')
@@ -88,10 +91,10 @@ function LoginForm() {
   return (
     <div className="lg">
       <aside className="lg-aside">
-        <img src="/distance-lockup.png" alt="Distance Courses Wala" />
+        <img src={site ? SITES[site].logo : '/distance-lockup.png'} alt={site ? SITES[site].label : 'Distance Courses Wala'} />
         <div>
-          <h2>One account for every side of DCW.</h2>
-          <p>Courses, colleges and jobs run on the same verified data. Sign in to the side you work on.</p>
+          <h2>{site ? `${SITES[site].label} — website admin.` : 'One account for every side of DCW.'}</h2>
+          <p>{site ? `Manage ${SITES[site].label}'s listings, reviews, leads and pages. The other two websites are managed separately.` : 'Courses, colleges and jobs run on the same verified data. Sign in to the side you work on.'}</p>
           <div className="lg-roles">
             {ROLES.map(r => (
               <div key={r.key}>
@@ -106,7 +109,7 @@ function LoginForm() {
 
       <main className="lg-main">
         <form className="lg-form" onSubmit={submit}>
-          <h1>Sign in</h1>
+          <h1>{site ? `${SITES[site].label} admin` : 'Sign in'}</h1>
           <p>{active.blurb}</p>
 
           <div className="lg-tabs" role="group" aria-label="Account type">

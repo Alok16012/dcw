@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
-import { PageTop, useToast, useRefreshCounts } from '../AdminShell.jsx';
+import { PageTop, useToast, useRefreshCounts, useSite } from '../AdminShell.jsx';
 import { api, fmtDate } from '@/lib/admin-client.js';
 import { IconEmpty, IconAlert, IconStar, IconCheck, IconClose } from '../icons.jsx';
 
@@ -33,7 +33,9 @@ export default function ReviewsPage() {
   const [data, setData] = useState(null);
   const [err, setErr] = useState(null);
   const [status, setStatus] = useState('pending');
-  const [vertical, setVertical] = useState('');
+  // The console manages one website at a time; the rail's switcher picks it.
+  const vertical = useSite();
+  const setVertical = () => {};
   const [busyId, setBusyId] = useState(null);
 
   const load = useCallback(async () => {
@@ -83,13 +85,7 @@ export default function ReviewsPage() {
             <option value="published">Published</option>
             <option value="rejected">Hidden</option>
           </select>
-          <select value={vertical} onChange={e => setVertical(e.target.value)} aria-label="Filter by vertical">
-            <option value="">All three verticals</option>
-            <option value="distance">Distance Courses Wala</option>
-            <option value="colleges">Colleges Wala</option>
-            <option value="jobs">Berojgar Bharat</option>
-          </select>
-          {(status !== 'pending' || vertical) && (
+          {(status !== 'pending') && (
             <button className="adm-btn sm" onClick={() => { setStatus('pending'); setVertical(''); }}>Reset</button>
           )}
         </div>

@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState, useMemo } from 'react';
-import { PageTop } from '../AdminShell.jsx';
+import { PageTop, useSite } from '../AdminShell.jsx';
+import { SITES } from '@/lib/crm.js';
 import { api, fmtWhen, pillClass } from '@/lib/admin-client.js';
 import { IconSearch, IconEmpty, IconAlert } from '../icons.jsx';
 
@@ -11,7 +12,9 @@ export default function LeadsPage() {
   const [rows, setRows] = useState(null);
   const [err, setErr] = useState(null);
   const [q, setQ] = useState('');
-  const [vertical, setVertical] = useState('');
+  // The console manages one website at a time; the rail's switcher picks it.
+  const vertical = useSite();
+  const setVertical = () => {};
 
   useEffect(() => {
     api('/admin/leads')
@@ -38,14 +41,14 @@ export default function LeadsPage() {
   return (
     <>
       <PageTop title="Counselling leads"
-        sub="Enquiries captured across all three verticals and handed to the counselling team." />
+        sub={`Enquiries captured on ${SITES[vertical]?.label ?? 'this website'} and handed to the counselling team.`} />
 
       <div className="adm-body">
         {err && <div className="adm-note bad"><IconAlert />{err}</div>}
 
         {rows && (
           <div className="adm-stats">
-            <div className="adm-stat lead"><small>Total leads</small><b>{rows.length}</b><i>across every vertical</i></div>
+            <div className="adm-stat lead"><small>Total leads</small><b>{rows.length}</b><i>on this website</i></div>
             <div className="adm-stat"><small>Distance courses</small><b>{byVertical.distance}</b><i>Distance Courses Wala</i></div>
             <div className="adm-stat"><small>Colleges</small><b>{byVertical.colleges}</b><i>Colleges Wala</i></div>
             <div className="adm-stat"><small>Jobs</small><b>{byVertical.jobs}</b><i>Berojgar Bharat</i></div>
@@ -60,12 +63,6 @@ export default function LeadsPage() {
                 placeholder="Search name, phone, city or lead ID"
                 style={{ border: 0, outline: 0, background: 'none', padding: 0, minHeight: 36, flex: 1, width: '100%' }} />
             </span>
-            <select value={vertical} onChange={e => setVertical(e.target.value)} aria-label="Filter by vertical">
-              <option value="">All verticals</option>
-              <option value="distance">Distance courses</option>
-              <option value="colleges">Colleges</option>
-              <option value="jobs">Jobs</option>
-            </select>
           </div>
         )}
 
@@ -81,7 +78,7 @@ export default function LeadsPage() {
               <IconEmpty />
               <h3>{rows.length ? 'No leads match' : 'No leads yet'}</h3>
               <p>{rows.length
-                ? 'Try a different vertical or clear the search.'
+                ? 'Try a different search, or switch website in the rail.'
                 : 'Enquiries from the counselling forms across the site will collect here.'}</p>
             </div>
           </div>

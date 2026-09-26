@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { PageTop, useToast, useRefreshCounts } from '../AdminShell.jsx';
+import { PageTop, useToast, useRefreshCounts, useSite } from '../AdminShell.jsx';
 import AddWizard from './AddWizard.jsx';
 import { api, fmtWhen } from '@/lib/admin-client.js';
 import { IconPlus, IconSearch, IconEmpty, IconAlert, IconEdit, IconTrash, IconCheck } from '../icons.jsx';
@@ -26,7 +26,9 @@ function CatalogueInner() {
   const [data, setData] = useState(null);
   const [err, setErr] = useState(null);
   const [q, setQ] = useState('');
-  const [vertical, setVertical] = useState('');
+  // The console manages one website at a time; the rail's switcher picks it.
+  const vertical = useSite();
+  const setVertical = () => {};
   const [status, setStatus] = useState('');
   const [adding, setAdding] = useState(false);
   const [confirming, setConfirming] = useState(null);
@@ -94,7 +96,7 @@ function CatalogueInner() {
 
   return (
     <>
-      <PageTop title="Colleges & courses"
+      <PageTop title={vertical === 'distance' ? 'Universities & courses' : 'Colleges & courses'}
         sub="Every listing on Distance Courses Wala and Colleges Wala. What you publish here is what a student sees — fees, eligibility and all.">
         <button className="adm-btn pri" onClick={() => setAdding(true)}><IconPlus />Add a college</button>
       </PageTop>
@@ -116,18 +118,13 @@ function CatalogueInner() {
               aria-label="Search listings"
               style={{ border: 0, outline: 0, background: 'none', padding: 0, minHeight: 36, flex: 1, width: '100%' }} />
           </span>
-          <select value={vertical} onChange={e => setVertical(e.target.value)} aria-label="Filter by vertical">
-            <option value="">Both verticals</option>
-            <option value="distance">Distance Courses Wala</option>
-            <option value="colleges">Colleges Wala</option>
-          </select>
           <select value={status} onChange={e => setStatus(e.target.value)} aria-label="Filter by state">
             <option value="">Any state</option>
             <option value="published">Published</option>
             <option value="draft">Draft</option>
             <option value="inactive">Retired</option>
           </select>
-          {(q || vertical || status) && (
+          {(q || status) && (
             <button className="adm-btn sm" onClick={() => { setQ(''); setVertical(''); setStatus(''); }}>Clear</button>
           )}
         </div>
@@ -144,11 +141,11 @@ function CatalogueInner() {
           <div className="adm-panel">
             <div className="adm-empty">
               <IconEmpty />
-              <h3>{q || vertical || status ? 'Nothing matches that filter' : 'No listings yet'}</h3>
-              <p>{q || vertical || status
+              <h3>{q || status ? 'Nothing matches that filter' : 'No listings yet'}</h3>
+              <p>{q || status
                 ? 'Try a broader search, or clear the filters to see everything.'
                 : 'Add a college and the guided steps will take you through courses, fees and recognition before it goes live.'}</p>
-              {q || vertical || status
+              {q || status
                 ? <button className="adm-btn" onClick={() => { setQ(''); setVertical(''); setStatus(''); }}>Clear filters</button>
                 : <button className="adm-btn pri" onClick={() => setAdding(true)}><IconPlus />Add a college</button>}
             </div>

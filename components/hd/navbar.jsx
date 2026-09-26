@@ -2,8 +2,9 @@
 import {useState} from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import {Menu,X,Phone,TrendingUp,ScrollText,FileText,GraduationCap,Briefcase,Handshake,ChevronRight,Search} from 'lucide-react';
+import {Menu,X,Phone,TrendingUp,ScrollText,FileText,GraduationCap,Briefcase,Handshake,ChevronRight,Search,Users,Settings} from 'lucide-react';
 import {CONTACT} from '@/lib/contact.js';
+import {CRM,SITES} from '@/lib/crm.js';
 
 /* HelloDoctor's Navbar (src/components/Navbar.tsx), markup and classes as
    they are there. What changed is only what has to: the six links are our
@@ -20,10 +21,23 @@ const STATS={
   colleges:[{value:'Verified',label:'College Data'},{value:'Free',label:'Initial Counselling'},{value:'1L+',label:'Students Guided'},{value:'Total Cost',label:'Not Just Fees'}],
   jobs:[{value:'Verified',label:'Employers'},{value:'Upfront',label:'Salary Shown'},{value:'Freshers',label:'Welcome'},{value:'₹0',label:'Fee, Ever'}]
 };
-const loginOptions=[
-  {label:'Student',desc:'Applications, saved courses & counselling updates',href:'/login?role=student',icon:GraduationCap,color:'bg-green-50 text-green-600'},
-  {label:'Office Staff',desc:'Admin, counsellor & team console login',href:'/login?role=staff',icon:Briefcase,color:'bg-blue-50 text-blue-600'},
-  {label:'Associate',desc:'Partner portal — the enquiries your code brought in',href:'/login?role=associate',icon:Handshake,color:'bg-teal-50 text-teal-700'}
+/* Each website shows only its own doors. The CRM (lib/crm.js, served at
+   /crm — a separate app, so a plain <a> and a full page load) has two
+   workspaces — Distance Courses Wala and Berojgar Bharat — so Colleges Wala
+   admissions are worked in the DCW workspace; Berojgar Bharat staff never see
+   the DCW doors and the reverse. The website admin opens this site's own
+   console already scoped to the site being viewed. */
+const DCW_CRM=[
+  {label:'Staff',desc:'Counsellors, accounts and office team',href:CRM.staff,icon:Briefcase,color:'bg-blue-50 text-blue-600'},
+  {label:'Associate',desc:'Partner portal — leads, students & wallet',href:CRM.associate,icon:Handshake,color:'bg-teal-50 text-teal-700'},
+  {label:'Student',desc:'Sign in with your enrollment number',href:CRM.student,icon:GraduationCap,color:'bg-green-50 text-green-600'}];
+const loginGroupsFor=v=>[
+  v==='jobs'
+    ?{title:'Berojgar Bharat CRM',note:'Jobs, candidates and placements',ext:true,items:[
+      {label:'Staff Login',desc:'Admin, manager & telecaller',href:CRM.bb,icon:Users,color:'bg-emerald-50 text-emerald-700'}]}
+    :{title:v==='colleges'?'Admissions CRM':'Distance Courses Wala CRM',note:v==='colleges'?'College admissions are handled in the DCW CRM':'Admissions, fees and the student lifecycle',ext:true,items:DCW_CRM},
+  {title:'Website Admin',note:`Manage ${SITES[v].label} content`,ext:false,items:[
+    {label:`${SITES[v].label} Admin`,desc:'Listings, reviews, leads and pages for this website',href:`/login?role=admin&site=${v}&next=${encodeURIComponent(`/admin?site=${v}`)}`,icon:Settings,color:'bg-gray-100 text-gray-700'}]}
 ];
 const HOME_FOR={admin:'/admin',employer:'/admin/jobs',student:'/applications'};
 
@@ -106,24 +120,31 @@ export function HdNavbar({vertical,brands,path,auth,setSearchOpen}){
     </div>}
 
     {loginOpen&&<div className="fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4" onClick={()=>setLoginOpen(false)}>
-      <div role="dialog" aria-modal="true" aria-label="Login" className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto" onClick={e=>e.stopPropagation()}>
+      <div role="dialog" aria-modal="true" aria-label="Login" className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto" onClick={e=>e.stopPropagation()}>
         <div className="flex items-start justify-between mb-5">
           <div>
             <h2 className="text-xl font-black text-ink">Login</h2>
-            <p className="text-sm text-gray-500 mt-0.5">Choose how you want to sign in</p>
+            <p className="text-sm text-gray-500 mt-0.5">Sign in to {brand.logoAlt}</p>
           </div>
           <button type="button" onClick={()=>setLoginOpen(false)} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100" aria-label="Close"><X className="w-5 h-5"/></button>
         </div>
-        <div className="space-y-3">
-          {loginOptions.map(({label,desc,href,icon:Icon,color})=><Link key={label} href={href} onClick={()=>setLoginOpen(false)}
-            className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 hover:border-brand-500 hover:shadow-md transition-all group">
-            <span className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${color}`}><Icon className="w-5 h-5"/></span>
-            <span className="flex-1 min-w-0">
-              <span className="block font-bold text-gray-900">{label}</span>
-              <span className="block text-xs text-gray-500">{desc}</span>
-            </span>
-            <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-brand-600"/>
-          </Link>)}
+        <div className="space-y-5">
+          {loginGroupsFor(vertical).map(g=><div key={g.title}>
+            <div className="flex items-baseline justify-between gap-3 mb-2">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">{g.title}</h3>
+              <span className="text-[11px] text-gray-400 text-right">{g.note}</span>
+            </div>
+            <div className="space-y-2">
+              {g.items.map(({label,desc,href,icon:Icon,color})=>{const inner=<>
+                <span className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${color}`}><Icon className="w-5 h-5"/></span>
+                <span className="flex-1 min-w-0"><span className="block font-bold text-gray-900 text-sm">{label}</span><span className="block text-xs text-gray-500">{desc}</span></span>
+                <ChevronRight className="w-5 h-5 text-gray-300 group-hover:text-brand-600"/></>;
+                const cls=`flex items-center gap-3 p-3 rounded-xl border transition-all group hover:border-brand-500 hover:shadow-md border-gray-200`;
+                return g.ext
+                  ?<a key={label} href={href} className={cls}>{inner}</a>
+                  :<Link key={label} href={href} onClick={()=>setLoginOpen(false)} className={cls}>{inner}</Link>})}
+            </div>
+          </div>)}
         </div>
       </div>
     </div>}
