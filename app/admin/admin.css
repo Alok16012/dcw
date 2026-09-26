@@ -75,19 +75,36 @@
 .adm-body{padding:22px 26px 60px;flex:1}
 
 /* ── buttons ── */
-/* Flat fills and a 1px travel on press, like the site's .btn — the console
-   never had a plinth, so matching it is mostly weight and height. */
-.adm-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:0 16px;border-radius:var(--r-2);border:1px solid var(--line);background:#fff;color:var(--ink);font-size:13.5px;font-weight:700;cursor:pointer;transition:var(--t);white-space:nowrap}
+/* Pills, like the site's .btn. The console carries far more buttons per screen
+   than any public page, so it takes the shape and the press but a smaller lift
+   — a toolbar of eight glowing controls is a light show, not a hierarchy. Only
+   the primary is raised, and only enough to name itself as the one that acts. */
+.adm-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:38px;padding:0 18px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:13.5px;font-weight:700;cursor:pointer;transition:var(--t);white-space:nowrap}
 .adm-btn:active:not(:disabled){transform:translateY(1px)}
 .adm-btn svg{width:15px;height:15px;flex:none}
 .adm-btn:hover{background:var(--line-2);border-color:#C9D3DE}
-.adm-btn.pri{background:var(--a);border-color:var(--a);color:#fff;box-shadow:0 1px 2px #0b4da838}
-.adm-btn.pri:hover{box-shadow:0 5px 14px #0b4da833}
-.adm-btn.pri:hover{background:var(--a-deep);border-color:var(--a-deep)}
+/* The site's CTA keycap, at console scale: a solid 3px plate instead of 5, and
+   only on `.pri`. The cap keeps one colour through the whole ladder — the
+   height is what changes, which is the entire point of the shape. The old rule
+   darkened the fill on hover, and against a plate that is already the dark blue
+   the thickness would have vanished exactly when it was meant to grow. */
+.adm-btn.pri{--cta-base:#06285A;background:var(--a);border-color:var(--a);color:#fff;
+  box-shadow:0 3px 0 var(--cta-base),0 8px 16px -6px #0b4da866,inset 0 1px 0 #ffffff26}
+.adm-btn.pri:hover{transform:translateY(-2px);
+  box-shadow:0 5px 0 var(--cta-base),0 14px 22px -8px #0b4da877,inset 0 1px 0 #ffffff26}
+.adm-btn.pri:active:not(:disabled){transform:translateY(2px);
+  box-shadow:0 1px 0 var(--cta-base),0 2px 6px -3px #0b4da866}
+.adm-btn.pri:disabled{transform:none;box-shadow:0 2px 0 #06285a73}
 .adm-btn.danger{color:var(--bad);border-color:#EBC9C7}
 .adm-btn.danger:hover{background:var(--bad-w)}
-.adm-btn.sm{min-height:32px;padding:0 12px;font-size:12.5px;border-radius:var(--r-1)}
+.adm-btn.sm{min-height:32px;padding:0 14px;font-size:12.5px}
+/* No travel means the hover has to be said in colour instead. */
+@media(prefers-reduced-motion:reduce){
+  .adm-btn.pri:hover{transform:none;background:var(--a-deep);border-color:var(--a-deep)}}
 .adm-btn:disabled{opacity:.5;cursor:not-allowed}
+/* Same rule, applied wherever a button is nothing but its glyph. */
+.adm-btn:has(>svg:only-child){padding:0;width:38px;min-width:38px;border-radius:50%}
+.adm-btn.sm:has(>svg:only-child){width:32px;min-width:32px}
 .adm-btn.ghost{border-color:transparent;background:transparent}
 .adm-btn.ghost:hover{background:var(--line-2)}
 
@@ -186,7 +203,10 @@
 .adm-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:#fff;border-radius:99px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:650;color:var(--ink-2);cursor:pointer;transition:var(--t)}
 .adm-chip span{font-size:11.5px;font-weight:750;background:var(--line-2);color:var(--ink-3);border-radius:99px;padding:1px 7px}
 .adm-chip:hover{border-color:var(--a-line);background:var(--a-wash)}
-.adm-chip.on{background:var(--a);border-color:var(--a);color:#fff}
+.adm-chip.on{background:var(--a);border-color:var(--a);color:#fff;
+  box-shadow:0 2px 0 var(--a-deep)}
+.adm-chip:active{transform:translateY(1px)}
+.adm-chip.on:active{box-shadow:0 1px 0 var(--a-deep)}
 .adm-chip.on span{background:#ffffff2e;color:#fff}
 
 /* ── drawer ── */
@@ -240,7 +260,15 @@
   padding:9px 13px;font:inherit;font-size:13px;font-weight:650;color:var(--ink-3);cursor:pointer;
   white-space:nowrap;display:inline-flex;align-items:center;gap:7px;min-height:40px;transition:color var(--t)}
 .adm-tabs button:hover{color:var(--ink)}
-.adm-tabs button.on{color:var(--a);border-bottom-color:var(--a)}
+.adm-tabs button{transition:color var(--t),background var(--t),box-shadow var(--t)}
+/* The selected section is a tab that has been pulled up out of the rule it
+   sits on — wash cap, top corners rounded, a 3px edge where it meets the line
+   — rather than a label that changed colour. Same object language as the
+   site's switcher, at console volume: no lift, no cast shadow, because a
+   record editor has ten of these on screen and they are a section switch, not
+   a call to action. */
+.adm-tabs button.on{color:var(--a);border-bottom-color:var(--a);border-bottom-width:3px;
+  background:var(--a-wash);border-radius:8px 8px 0 0;box-shadow:inset 0 1px 0 #fff}
 .adm-tabs button span{font-size:11px;font-weight:750;background:var(--line-2);color:var(--ink-3);border-radius:99px;padding:1px 6px}
 .adm-tabs button.on span{background:var(--a-wash);color:var(--a)}
 
@@ -353,7 +381,10 @@
 .adm-optinput{flex:1;min-width:0;min-height:34px;border:1px solid var(--a);border-radius:var(--r-1);
   padding:0 9px;font:inherit;font-size:13px;background:#fff;color:var(--ink)}
 .adm-optmove{display:flex;gap:2px;flex:none}
-.adm-optmove .adm-btn{padding:0 7px;min-width:26px;font-size:13px;line-height:1}
+/* Once .adm-btn became a pill these two stopped working as 26x32 lozenges.
+   An icon-only control in this console is a circle, the same rule the site's
+   .btn.icon follows. */
+.adm-optmove .adm-btn{padding:0;width:32px;min-width:32px;border-radius:50%;font-size:13px;line-height:1}
 .adm-optadd{display:flex;gap:8px;margin-top:12px}
 .adm-optadd input{flex:1;min-width:0;min-height:38px;border:1px solid var(--line);border-radius:var(--r-2);
   padding:0 11px;font:inherit;font-size:13.5px;background:#fff;color:var(--ink)}
@@ -439,3 +470,14 @@
 @media(prefers-reduced-motion:reduce){
   .adm *,.adm *::before{animation-duration:.001ms!important;transition-duration:.001ms!important}
 }
+
+/* The same lit-object treatment the site's icon plates take, at console scale.
+   Two marks, not twenty — a toolbar is not a place for depth, but the identity
+   avatar and the preview mark are objects rather than labels, so they get one. */
+.adm-avatar,.adm-preview-card .mark{
+  border-radius:30%;
+  background-image:
+    radial-gradient(62% 46% at 28% 12%,#ffffff80,transparent 72%),
+    linear-gradient(180deg,#ffffff4d,#ffffff00 54%,#09142d1a);
+  box-shadow:inset 0 1.5px 0 #ffffff59,inset 0 -2px 3px #09142d17,
+             0 4px 10px -3px #09142d33}

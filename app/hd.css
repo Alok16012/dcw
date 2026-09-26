@@ -155,3 +155,4 @@
 /* A board card reached from the hero's 10th / 12th picker. */
 .app .board-card { scroll-margin-top: 140px; }
 .app .board-card.is-target { outline: 3px solid var(--hd-500); outline-offset: 4px; transition: outline-color .4s; }
+.app .reviews-page .review-card .rv-subject { font-size: 17px; font-weight: 700; line-height: 1.35; color: #111827; }

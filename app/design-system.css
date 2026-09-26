@@ -3255,7 +3255,10 @@ body{overflow-x:visible;overflow-y:visible}
   /* Five footer columns at 2fr+4x1fr resolved to 287px and four
      90px columns at 768 — every link inside them wrapping twice.
      Two columns of real width read better than five of none. */
-  .app .footer>.container:first-child{grid-template-columns:1fr 1fr;
+  /* Named by class, not by position: the footer's first child is the closing
+     band on every route that carries one, and a `:first-child` selector reads
+     one class more specific than anything scoped to the band itself. */
+  .app .footer>.footer-grid{grid-template-columns:1fr 1fr;
     gap:var(--s-6) var(--s-5)}
 }
 
@@ -5792,7 +5795,7 @@ body{overflow-x:visible;overflow-y:visible}
 .app .footer{background:var(--n-1);color:var(--ink-2);
   border-top:1px solid var(--line)}
 .app .footer p{color:var(--ink-3);font-size:var(--fs-300);max-width:38ch;line-height:var(--lh-body)}
-.app .footer>.container:first-child>div>b{
+.app .footer>.footer-grid>div>b{
   display:block;font-size:var(--fs-100);font-weight:800;letter-spacing:var(--tr-caps);
   text-transform:uppercase;color:var(--accent-text,var(--accent));
   padding-bottom:var(--s-2);margin-bottom:var(--s-3);
@@ -5873,4 +5876,602 @@ body{overflow-x:visible;overflow-y:visible}
   .app .compare-tray small{line-height:1.35}
   .app .compare-tray button{flex:none;white-space:nowrap;min-height:42px;
     border-radius:var(--r-2)}
+}
+
+/* R12. Buttons become pills ------------------------------------------------
+   OBSERVED across the four boards in the reference set: every control is a
+   full pill. It is raised off the surface by a soft shadow tinted with its
+   own fill colour rather than a neutral grey, and it has a visible pressed
+   state. Secondary controls are the same pill drawn as a hairline outline.
+   Icon-only controls are circles. The dark capsule on the last board divides
+   its links with hairlines inside one pill rather than splitting into four.
+
+   NOT TAKEN, deliberately: the chrome bevel, the clay extrusion, the rainbow
+   gradient fill and the neumorphic white-on-white pair. Three are the kind of
+   decoration the brief rules out, and the neumorphic one sets grey text on a
+   white face at roughly 3:1 — it cannot carry a primary action on a site
+   people apply to courses through. Shape, lift and press are the parts of
+   that set that survive contact with real content, so those are the parts
+   taken, in our own per-vertical colour.
+
+   One rule sets the radius for the whole matrix: outline, light, ghost,
+   danger and quiet all read it from here, so the family cannot drift. */
+.app .btn{border-radius:var(--r-pill)}
+.app .btn.icon{border-radius:50%}
+.app .btn.icon.small{width:40px}
+
+/* The lift. The glow is mixed from --accent-deep so it reads as the button's
+   own shadow in all three verticals rather than as a grey smudge under a
+   blue, red or orange face. */
+.app .btn.primary{
+  box-shadow:0 6px 16px color-mix(in srgb,var(--accent-deep,#07356F) 26%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.16)}
+.app .btn.primary:hover:not(:disabled){
+  background:color-mix(in srgb,var(--accent-ink,var(--accent,#0B4DA8)) 90%,#000);
+  transform:translateY(-2px);
+  box-shadow:0 12px 26px color-mix(in srgb,var(--accent-deep,#07356F) 34%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.16)}
+.app .btn.primary:active:not(:disabled){
+  transform:translateY(1px);
+  box-shadow:0 3px 9px color-mix(in srgb,var(--accent-deep,#07356F) 30%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.10)}
+
+.app .btn.danger{
+  box-shadow:0 6px 16px rgb(110 21 18/.26),inset 0 1px 0 rgb(255 255 255/.16)}
+.app .btn.danger:hover:not(:disabled){
+  transform:translateY(-2px);box-shadow:0 12px 26px rgb(110 21 18/.32),
+             inset 0 1px 0 rgb(255 255 255/.16)}
+
+/* A white pill on a solid tile is the one place the shadow is neutral: it is
+   cast on the tile's colour, not on the page. */
+.app .btn.light{box-shadow:0 4px 12px rgb(9 20 45/.16)}
+.app .btn.light:hover:not(:disabled){transform:translateY(-2px);
+  box-shadow:0 9px 22px rgb(9 20 45/.22)}
+
+/* Hairline secondaries: same pill, no fill, 1.5px so the outline holds its
+   weight against the primary next to it. */
+.app .btn.outline,.app .btn.secondary{border-width:1.5px}
+.app .btn.outline:hover:not(:disabled),.app .btn.secondary:hover:not(:disabled){
+  transform:translateY(-2px)}
+
+/* The three places a radius was pinned to the old 12px square. */
+.app .btn.primary.tactile,.app .talk{border-radius:var(--r-pill)!important}
+.app .hs-actions .btn{border-radius:var(--r-pill)}
+.app .oc-go{border-radius:var(--r-pill)}
+
+@media(prefers-reduced-motion:reduce){
+  .app .btn.primary:hover:not(:disabled),.app .btn.danger:hover:not(:disabled),
+  .app .btn.light:hover:not(:disabled),.app .btn.outline:hover:not(:disabled),
+  .app .btn.secondary:hover:not(:disabled){transform:none}
+}
+
+/* R13. Icons get a body ----------------------------------------------------
+   ASKED FOR: iconscout's 3D icon set. WHAT WAS ACTUALLY DONE, and why it is
+   not a download.
+
+   Those files are licensed stock — free ones need attribution, most need a
+   paid seat, and getting either means signing into an account, which is not
+   mine to do. Nothing from that library is committed here. Separately, they
+   would not have worked: this product draws about sixty distinct glyphs, and
+   most of them are 14-18px — a chevron in a select, an X on a filter chip, an
+   arrow inside a button, a clock in a table row. A 3D render is a raster that
+   cannot take `currentColor`, cannot invert on a dark tile, and turns to mud
+   below roughly 32px. Swapping those wholesale would have cost legibility on
+   every screen to buy novelty on three.
+
+   So the treatment is applied where 3D icons actually earn their weight — the
+   large plates that already carry one glyph each — and it is drawn rather than
+   fetched. What makes that library read as three-dimensional is four things:
+   a rounded-cube silhouette, light from above, a specular catch in the upper
+   left, and a soft shadow underneath tinted with the object's own colour. All
+   four are gradients and shadows, so they cost nothing, theme per vertical,
+   and stay sharp at any size.
+
+   The fill is deliberately untouched — these rules add light to whatever wash,
+   tint or accent each plate already carries, so Distance stays blue, Colleges
+   stays red and Jobs stays orange rather than all three turning into the same
+   violet render. Functional micro-icons keep their flat line forms. */
+.app :is(.ct-icon,.cr-mark,.pc-icon,.al-mark,.ap-icon,.np-mark,.entity-mark,
+  .plate-chip,.oc-icon){
+  border-radius:30%;
+  background-image:
+    radial-gradient(62% 46% at 28% 12%,rgb(255 255 255/.5),transparent 72%),
+    linear-gradient(180deg,rgb(255 255 255/.3),rgb(255 255 255/0) 54%,rgb(9 20 45/.1));
+  box-shadow:inset 0 1.5px 0 rgb(255 255 255/.6),
+             inset 0 -2px 3px rgb(9 20 45/.09),
+             0 4px 10px -3px rgb(9 20 45/.2),
+             0 1px 3px -1px rgb(9 20 45/.14);
+  transition:transform var(--t-micro) var(--ease-out),
+             box-shadow var(--t-micro) var(--ease-out)}
+
+/* The glyph sits on the face rather than in it. */
+.app :is(.ct-icon,.cr-mark,.pc-icon,.al-mark,.ap-icon,.oc-icon) svg{
+  filter:drop-shadow(0 1px 1px rgb(9 20 45/.22))}
+
+/* A circle stays a circle: the article byline mark is a sphere, not a cube. */
+.app .am-mark{
+  background-image:
+    radial-gradient(58% 44% at 30% 16%,rgb(255 255 255/.62),transparent 70%),
+    linear-gradient(180deg,rgb(255 255 255/.26),rgb(255 255 255/0) 56%,rgb(9 20 45/.12));
+  box-shadow:inset 0 1.5px 0 rgb(255 255 255/.6),
+             inset 0 -2px 4px rgb(9 20 45/.1),
+             0 4px 10px -3px rgb(9 20 45/.2)}
+
+/* A white plate on a solid coloured tile casts its shadow on that tile, so the
+   shadow is the tile's own darkness rather than the page's neutral grey. */
+.app .oc-icon{
+  box-shadow:inset 0 1.5px 0 rgb(255 255 255/.4),
+             inset 0 -2px 3px rgb(0 0 0/.12),
+             0 4px 10px -3px rgb(0 0 0/.24)}
+
+/* An accent-filled plate is the one that gets a coloured shadow, the same move
+   the primary button makes: the object lights its own ground. */
+.app .np-mark{
+  box-shadow:inset 0 1.5px 0 rgb(255 255 255/.34),
+             inset 0 -2px 3px rgb(0 0 0/.14),
+             0 5px 12px -3px color-mix(in srgb,var(--accent-deep,#07356F) 40%,transparent)}
+
+/* When the card lifts, the object on it catches a little more light. The
+   category tile is not in this list on purpose: its icon is a badge pinned to
+   the corner of a photograph, it already tilts on hover, and it keeps both its
+   own flat white chip and that tilt. */
+.app .cred-grid button:hover .cr-mark,
+.app .offer-card:hover .oc-icon,
+.app .as-principles li:hover .ap-icon{transform:translateY(-1px) scale(1.04)}
+
+@media(prefers-reduced-motion:reduce){
+  .app .cred-grid button:hover .cr-mark,
+  .app .offer-card:hover .oc-icon,.app .as-principles li:hover .ap-icon{transform:none}
+}
+
+/* R14. The CTA gets a thickness -------------------------------------------
+   OBSERVED in the call-to-action set: the buttons that read as three-
+   dimensional are not bevelled or glossy. Every one of them is a flat pill
+   sitting on a solid, hard-edged plate of the same hue a few shades darker —
+   a key on a keyboard, not a gradient. One board renders the same idea in
+   perspective with a glow behind it and a cursor pushing it down; another
+   lays out the whole state ladder, default / hover / pressed / disabled, and
+   makes the point that the pressed state is the part people actually feel.
+
+   So the depth here is structural, not painted. The plate is `--accent-deep`,
+   which every vertical already defines, so the CTA is blue on Distance, red on
+   Colleges and orange on Jobs without a single hard-coded hex. Hover raises
+   the cap and the plate grows with it. Press drives the cap down INTO the
+   plate until only a millimetre of thickness is left — the travel and the
+   shadow move together, which is the whole reason it reads as an object and
+   not as a rectangle that changed colour. Disabled loses the plate outright,
+   because a key that cannot be pressed should not look pressable.
+
+   This is the large-CTA treatment only, and the list below is the six controls
+   that actually carry a page: the hero action, the search submit, the sticky
+   compare bar, the form submits and the unlock. Ordinary `.btn.primary` inside
+   a section keeps the lighter lift from R12 — if every button on a page is a
+   keycap, none of them is the call to action. The sheen sweep stays retired:
+   the set does not use one, and it was turned off two hundred lines above for
+   good reason. */
+.app .hs-actions .hs-primary,
+.app .hh-search .btn.primary,
+.app .btn.primary.tactile,
+.app .btn.primary.full,
+.app .btn.primary.unlock,
+.app .btn.primary.compare-all{
+  --cta-base:var(--accent-deep,#07356F);
+  box-shadow:0 5px 0 var(--cta-base),
+             0 11px 20px -7px color-mix(in srgb,var(--cta-base) 58%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.16);
+  transition:transform var(--t-micro) var(--ease-out),
+             box-shadow var(--t-micro) var(--ease-out),
+             background var(--t-micro) var(--ease-out)}
+
+/* A white cap on a photograph cannot sit on an accent plate — the picture is
+   already carrying colour. It gets the same thickness in near-black instead. */
+.app .pc-actions .btn.light{--cta-base:#0A1A33;
+  box-shadow:0 5px 0 var(--cta-base),
+             0 12px 22px -8px rgb(4 10 22/.55);
+  transition:transform var(--t-micro) var(--ease-out),
+             box-shadow var(--t-micro) var(--ease-out),
+             background var(--t-micro) var(--ease-out)}
+
+.app .hs-actions .hs-primary:hover:not(:disabled),
+.app .hh-search .btn.primary:hover:not(:disabled),
+.app .btn.primary.tactile:hover:not(:disabled),
+.app .btn.primary.full:hover:not(:disabled),
+.app .btn.primary.unlock:hover:not(:disabled),
+.app .btn.primary.compare-all:hover:not(:disabled),
+.app .pc-actions .btn.light:hover:not(:disabled){
+  transform:translateY(-2px);
+  box-shadow:0 7px 0 var(--cta-base),
+             0 18px 28px -8px color-mix(in srgb,var(--cta-base) 68%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.16)}
+
+/* The press. Four pixels down against a plate that shrinks to one: the cap
+   ends up level with the ground, which is what being pushed looks like. */
+.app .hs-actions .hs-primary:active:not(:disabled),
+.app .hh-search .btn.primary:active:not(:disabled),
+.app .btn.primary.tactile:active:not(:disabled),
+.app .btn.primary.full:active:not(:disabled),
+.app .btn.primary.unlock:active:not(:disabled),
+.app .btn.primary.compare-all:active:not(:disabled),
+.app .pc-actions .btn.light:active:not(:disabled){
+  transform:translateY(4px);
+  box-shadow:0 1px 0 var(--cta-base),
+             0 3px 7px -4px color-mix(in srgb,var(--cta-base) 50%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.1)}
+
+.app .hs-actions .hs-primary:disabled,
+.app .hh-search .btn.primary:disabled,
+.app .btn.primary.tactile:disabled,
+.app .btn.primary.full:disabled,
+.app .btn.primary.unlock:disabled,
+.app .btn.primary.compare-all:disabled,
+.app .pc-actions .btn.light:disabled{
+  transform:none;box-shadow:0 2px 0 color-mix(in srgb,var(--cta-base) 45%,transparent)}
+
+/* The direction cue the set is unanimous about: a trailing arrow that leans
+   the way the click goes. Trailing only — an icon that labels the action sits
+   on the left and has no business moving. */
+.app .hs-actions .hs-primary>svg:last-child,
+.app .hh-search .btn.primary>svg:last-child,
+.app .btn.primary.tactile>svg:last-child,
+.app .btn.primary.full>svg:last-child,
+.app .btn.primary.unlock>svg:last-child,
+.app .btn.primary.compare-all>svg:last-child,
+.app .pc-actions .btn.light>svg:last-child{
+  transition:transform var(--t-micro) var(--ease-out)}
+.app .hs-actions .hs-primary:hover:not(:disabled)>svg:last-child,
+.app .hh-search .btn.primary:hover:not(:disabled)>svg:last-child,
+.app .btn.primary.tactile:hover:not(:disabled)>svg:last-child,
+.app .btn.primary.full:hover:not(:disabled)>svg:last-child,
+.app .btn.primary.unlock:hover:not(:disabled)>svg:last-child,
+.app .btn.primary.compare-all:hover:not(:disabled)>svg:last-child,
+.app .pc-actions .btn.light:hover:not(:disabled)>svg:last-child{
+  transform:translateX(3px)}
+
+/* Reduced motion keeps the press — a control has to answer a finger — and
+   drops the hover travel and the arrow, which are flourish. */
+@media(prefers-reduced-motion:reduce){
+  .app .hs-actions .hs-primary:hover:not(:disabled),
+  .app .hh-search .btn.primary:hover:not(:disabled),
+  .app .btn.primary.tactile:hover:not(:disabled),
+  .app .btn.primary.full:hover:not(:disabled),
+  .app .btn.primary.unlock:hover:not(:disabled),
+  .app .btn.primary.compare-all:hover:not(:disabled),
+  .app .pc-actions .btn.light:hover:not(:disabled){transform:none}
+  .app .hs-actions .hs-primary:hover:not(:disabled)>svg:last-child,
+  .app .hh-search .btn.primary:hover:not(:disabled)>svg:last-child,
+  .app .btn.primary.tactile:hover:not(:disabled)>svg:last-child,
+  .app .btn.primary.full:hover:not(:disabled)>svg:last-child,
+  .app .btn.primary.unlock:hover:not(:disabled)>svg:last-child,
+  .app .btn.primary.compare-all:hover:not(:disabled)>svg:last-child,
+  .app .pc-actions .btn.light:hover:not(:disabled)>svg:last-child{transform:none}
+}
+
+/* Two controls already had a thickness of their own and now have to agree with
+   this one. `.tactile` carried a 7px plate declared `!important` in globals, so
+   it takes `!important` back rather than a deeper selector — the point is that
+   every keycap on the site is the same height. The compare tray's button is the
+   one CTA that is not accent-coloured: it is the spark yellow on a dark bar, so
+   its plate is mixed from the spark instead. */
+.app .btn.tactile{--cta-base:var(--accent-deep,#07356F);
+  box-shadow:0 5px 0 var(--cta-base),
+             0 11px 20px -7px color-mix(in srgb,var(--cta-base) 58%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.16)!important}
+.app .btn.tactile:hover:not(:disabled){transform:translateY(-2px);
+  box-shadow:0 7px 0 var(--cta-base),
+             0 18px 28px -8px color-mix(in srgb,var(--cta-base) 68%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.16)!important}
+.app .btn.tactile:active:not(:disabled){transform:translateY(4px);
+  box-shadow:0 1px 0 var(--cta-base),
+             0 3px 7px -4px color-mix(in srgb,var(--cta-base) 50%,transparent)!important}
+
+.app .compare-tray button{--cta-base:color-mix(in srgb,var(--spark,#F7A928) 62%,#2A1704);
+  box-shadow:0 4px 0 var(--cta-base),0 10px 18px -8px rgb(0 0 0/.55);
+  transition:transform var(--t-micro) var(--ease-out),
+             box-shadow var(--t-micro) var(--ease-out)}
+.app .compare-tray button:hover:not(:disabled){transform:translateY(-2px);
+  box-shadow:0 6px 0 var(--cta-base),0 16px 24px -9px rgb(0 0 0/.6)}
+.app .compare-tray button:active:not(:disabled){transform:translateY(3px);
+  box-shadow:0 1px 0 var(--cta-base),0 3px 6px -4px rgb(0 0 0/.5)}
+.app .compare-tray button:disabled{box-shadow:0 2px 0 color-mix(in srgb,var(--cta-base) 45%,transparent)}
+@media(prefers-reduced-motion:reduce){
+  .app .btn.tactile:hover:not(:disabled),
+  .app .compare-tray button:hover:not(:disabled){transform:none}
+}
+
+/* R15. The footer gets a last question ------------------------------------
+   OBSERVED across the footer set: the footers that do work all put something
+   at the top of the band for the reader who reached the bottom still deciding.
+   Every checklist of what belongs down there lists the same six things —
+   contact details, a mini sitemap, copyright, social, a way back up, and a
+   final call to act. This footer already had five. The sixth is this.
+
+   Structurally it follows two notes from the set. One: a darker slab is what
+   separates a footer from the page above it, and this footer went light three
+   hundred lines ago, so the slab is the thing that has to carry the weight
+   instead. Two: the ask should read as a nudge, not a pitch — so the copy is a
+   question about the reader's situation and the second control is an outline
+   rather than a second filled button.
+
+   The slab is `--accent-deep`, so it is navy on Distance, deep red on Colleges
+   and burnt orange on Jobs, the same plate colour R14 gives the keycaps. The
+   white cap on it takes R14's near-black plate for exactly the reason the photo
+   band's does: the surface underneath is already carrying colour.
+
+   NOT taken from the set: the oversized wordmark that fills half a screen (this
+   footer already ends on a legal line and a map, and a 200px brand name over
+   them would bury both), the footer-sized contact form, and the newsletter
+   box — there is no mailing list behind it, and a form that posts nowhere is
+   worse than no form at all. */
+.app .footer-cta{display:grid;grid-template-columns:minmax(0,1.35fr) auto;
+  align-items:center;gap:var(--s-5);margin-bottom:var(--s-6);
+  padding:var(--s-6);border-radius:var(--r-4);
+  background:var(--accent-deep,#07356F);color:#fff}
+.app .footer-cta .fc-eyebrow{display:inline-flex;align-items:center;gap:var(--s-2);
+  font-size:var(--fs-100);font-weight:800;letter-spacing:var(--tr-caps);
+  text-transform:uppercase;color:rgb(255 255 255/.72)}
+.app .footer-cta .fc-eyebrow svg{width:15px;height:15px}
+.app .footer-cta h2{margin:var(--s-3) 0 var(--s-2);color:#fff;
+  font-family:var(--font-display);font-size:var(--fs-700);line-height:var(--lh-tight);
+  letter-spacing:var(--tr-tight)}
+.app .footer-cta p{margin:0;max-width:52ch;color:rgb(255 255 255/.8);
+  font-size:var(--fs-300);line-height:var(--lh-body)}
+.app .fc-actions{display:flex;flex-wrap:wrap;gap:var(--s-3);flex:none}
+/* `.app .footer button` sets every button in this band to the footer's grey
+   link colour, and it is declared after the button styles. Restating the two
+   here is cheaper than moving either of them. */
+.app .footer-cta .btn{font-size:var(--fs-300);font-weight:800;min-height:48px;
+  padding-inline:var(--s-5);border-radius:var(--r-pill)}
+.app .footer-cta .btn.light{background:var(--n-0);color:var(--accent-deep,#07356F)}
+.app .footer-cta .btn.fc-ghost{background:transparent;color:#fff;
+  border:1.5px solid rgb(255 255 255/.45);
+  transition:background var(--t-micro) var(--ease-out),
+             border-color var(--t-micro) var(--ease-out),
+             transform var(--t-micro) var(--ease-out)}
+.app .footer-cta .btn.fc-ghost:hover{background:rgb(255 255 255/.14);
+  border-color:rgb(255 255 255/.75);transform:translateY(-2px)}
+.app .footer-cta :focus-visible{outline-color:#fff}
+/* The band's white cap gets the same thickness the photo band's does. */
+.app .fc-actions .btn.light{--cta-base:#061224;
+  box-shadow:0 5px 0 var(--cta-base),0 12px 22px -8px rgb(3 8 18/.5);
+  transition:transform var(--t-micro) var(--ease-out),
+             box-shadow var(--t-micro) var(--ease-out)}
+.app .fc-actions .btn.light:hover:not(:disabled){transform:translateY(-2px);
+  box-shadow:0 7px 0 var(--cta-base),0 18px 28px -9px rgb(3 8 18/.55)}
+.app .fc-actions .btn.light:active:not(:disabled){transform:translateY(4px);
+  box-shadow:0 1px 0 var(--cta-base),0 3px 7px -4px rgb(3 8 18/.45)}
+.app .fc-actions .btn.light>svg:last-child{transition:transform var(--t-micro) var(--ease-out)}
+.app .fc-actions .btn.light:hover:not(:disabled)>svg:last-child{transform:translateX(3px)}
+
+/* One column below the point where the copy and two buttons stop fitting on a
+   line together, and the buttons go full width so a thumb gets the whole row. */
+@media(max-width:860px){
+  .app .footer-cta{grid-template-columns:1fr;gap:var(--s-4);padding:var(--s-5)}
+  .app .footer-cta h2{font-size:var(--fs-600)}
+  .app .fc-actions{width:100%}
+  .app .fc-actions .btn{flex:1 1 200px;justify-content:center}
+}
+@media(prefers-reduced-motion:reduce){
+  .app .footer-cta .btn.fc-ghost:hover,
+  .app .fc-actions .btn.light:hover:not(:disabled){transform:none}
+  .app .fc-actions .btn.light:hover:not(:disabled)>svg:last-child{transform:none}
+}
+
+/* The sitemap's own rules, restated against the class that now names it. They
+   were written as `.footer>.container:first-child` — a position, back when the
+   sitemap was the only thing in the band. The two rules in this sheet have been
+   re-pointed at `.footer-grid` in place; these three restate the copies that
+   live in `globals.css`, which is minified onto one line and not worth editing
+   for it. Same values, so nothing about the sitemap moves.
+
+   Specificity is the whole reason this matters. `.footer>.container:first-child`
+   counts one class more than anything written against the band's own class, so
+   left alone it would keep sizing the band and win. */
+.app .footer>.footer-grid{display:grid;grid-template-columns:2fr repeat(4,1fr);gap:44px}
+@media(max-width:940px){
+  .app .footer>.footer-grid{grid-template-columns:1fr 1fr;gap:var(--s-6) var(--s-5)}
+}
+@media(max-width:760px){
+  .app .footer>.footer-grid>div:first-child{grid-column:1/-1}
+}
+/* And the band, stated at the same weight as the rules it has to answer: two
+   tracks above 860, one below, and the brand column's `grid-column:1/-1` reset
+   so the copy block does not span a grid it was never part of. */
+.app .footer>.footer-cta:first-child{grid-template-columns:minmax(0,1.35fr) auto;
+  gap:var(--s-5)}
+@media(max-width:860px){
+  .app .footer>.footer-cta:first-child{grid-template-columns:1fr;gap:var(--s-4)}
+}
+.app .footer>.footer-cta:first-child>div:first-child,
+.app .footer>.footer-cta:first-child>div{grid-column:auto}
+
+/* R16. The icon becomes an object, and the tab becomes a key ---------------
+   Two things were asked for and one of them was written but never arrived.
+
+   The 3D icon layer two hundred lines above was scoped `.app :is(.ct-icon,…)`,
+   which is two classes. Almost every plinth it names is also addressed by a
+   three-class rule somewhere — `.app .ct-photo .ct-icon`, `.app .stat-i` in a
+   section block — and those rules set `box-shadow`, so they won and the icons
+   stayed flat. Measured on /distance: of eleven icon plinths on the page, three
+   carried the treatment. This restates it at three classes (`.app.app` is the
+   same element matched twice, which is the cheapest way to say "one weight
+   more" without inventing a deeper structure) and adds the plinths the first
+   pass did not list — the switcher's own icons above all, which sit in the
+   masthead and are the first icons anyone sees.
+
+   A base edge is added to the formula: a hard 3px shelf under the object, the
+   same solid unblurred edge the CTA keycaps use. That is what reads as an
+   object with a thickness rather than a tile with a highlight, and it ties the
+   icons to the buttons instead of giving the page two different 3D languages.
+
+   Licensed stock stays out of this: the iconscout sets need an account to
+   download, so nothing was taken from them. This is the lucide set the product
+   already ships, lit and extruded. */
+.app.app :is(.ct-icon,.cr-mark,.pc-icon,.al-mark,.ap-icon,.np-mark,.entity-mark,
+  .plate-chip,.oc-icon,.vs-icon,.ac-mark,.pow-icon,.footer-contact i){
+  border-radius:30%;
+  background-image:
+    radial-gradient(62% 46% at 28% 12%,rgb(255 255 255/.5),transparent 72%),
+    linear-gradient(180deg,rgb(255 255 255/.3),rgb(255 255 255/0) 54%,rgb(9 20 45/.1));
+  box-shadow:inset 0 1.5px 0 rgb(255 255 255/.6),
+             inset 0 -2px 3px rgb(9 20 45/.09),
+             0 3px 0 -1px rgb(9 20 45/.16),
+             0 6px 12px -4px rgb(9 20 45/.22);
+  transition:transform var(--t-micro) var(--ease-out),
+             box-shadow var(--t-micro) var(--ease-out)}
+.app.app :is(.ct-icon,.cr-mark,.pc-icon,.al-mark,.ap-icon,.oc-icon,.vs-icon,
+  .ac-mark,.pow-icon,.footer-contact i) svg{
+  filter:drop-shadow(0 1px 1px rgb(9 20 45/.22))}
+
+/* Below 1181 the switcher drops its icon plinths and shows bare glyphs, so
+   there is no object there to light or to seat — the shelf would be a shadow
+   cast by nothing. The hero's stat medallions are left alone for the opposite
+   reason: they already have a struck bezel of their own, written for a dark
+   band, and two treatments on one object is one too many. */
+@media(max-width:1180px){
+  .app.app .vs-icon{background-image:none;box-shadow:none}
+  .app.app .vs-icon svg{filter:none}
+}
+
+/* A circle is a sphere, not a cube: same light, same shelf, no corner radius
+   imposed on it. The footer's social links are circles by design and stay
+   circles. */
+.app.app :is(.fs-links a,.am-mark){
+  background-image:
+    radial-gradient(58% 44% at 30% 16%,rgb(255 255 255/.62),transparent 70%),
+    linear-gradient(180deg,rgb(255 255 255/.26),rgb(255 255 255/0) 56%,rgb(9 20 45/.12));
+  box-shadow:inset 0 1.5px 0 rgb(255 255 255/.6),
+             inset 0 -2px 4px rgb(9 20 45/.1),
+             0 3px 0 -1px rgb(9 20 45/.14),
+             0 6px 12px -4px rgb(9 20 45/.2)}
+
+/* R16b. The tab as a key ------------------------------------------------------
+   The switcher already had a selected state — a tint, a coloured border and a
+   3px indicator bar pinned to the bottom inside edge. It reads, but it reads
+   flat: the selected tab and the two beside it sit on the same plane and only
+   differ in colour. On a control whose whole job is "you are in this one of
+   three", plane is the stronger signal than hue, and it is the one the CTA
+   keycaps already speak.
+
+   So: the selected tab is a key that has been raised, the others are keys
+   still level with the track. Two pixels of lift and a solid unblurred plate
+   under the cap — the same 0 Npx 0 shelf the buttons use, never a blur, which
+   is what keeps it an object rather than a glow. Press pushes it back to one
+   pixel of thickness and the cap lands on the plate.
+
+   The indicator bar goes: with a plate under the cap, an inside bar of the
+   same colour reads as a second, thinner base drawn 13px short at each end.
+   The plate is the indicator now, and `aria-current` was always doing the
+   work for anyone not looking at it. */
+.app>header>.verticals button{
+  --tab-base:color-mix(in srgb,var(--ink-1) 15%,transparent);
+  box-shadow:0 2px 0 var(--tab-base)}
+.app>header>.verticals button:before{display:none}
+.app>header>.verticals button:hover:not(.active){
+  background:var(--tab-wash);border-color:var(--tab-glow);transform:translateY(-2px);
+  box-shadow:0 4px 0 var(--tab-base),
+             0 11px 18px -10px color-mix(in srgb,var(--tab-ink) 45%,transparent)}
+.app>header>.verticals button.active{
+  --tab-base:color-mix(in srgb,var(--tab-ink) 62%,#04122b);
+  transform:translateY(-2px);
+  box-shadow:0 4px 0 var(--tab-base),
+             0 13px 20px -12px color-mix(in srgb,var(--tab-ink) 60%,transparent)}
+.app>header>.verticals button:active,
+.app>header>.verticals button.active:active{
+  transform:translateY(1px);box-shadow:0 1px 0 var(--tab-base)}
+
+/* Below 901 the same three buttons are a segmented control on a wash track,
+   and the active third is filled with --tab-ink. A plate mixed from that same
+   ink would be invisible against it, so the fill's own darkest relative is
+   used instead. The track's 4px padding is exactly the room the lift needs,
+   so nothing overflows. */
+@media(max-width:900px){
+  .app>header>.verticals button{box-shadow:none}
+  .app>header>.verticals button.active{
+    --tab-base:color-mix(in srgb,var(--tab-ink) 55%,#030c1c);
+    box-shadow:0 3px 0 var(--tab-base),
+               0 9px 14px -9px color-mix(in srgb,var(--tab-ink) 65%,transparent)}
+  .app>header>.verticals button.active:before{display:none}
+}
+
+/* The tab's two lines were 13px/800 over 12px/500 — nearly the same size, so
+   the pair read as one clump of text rather than a name and a qualifier. The
+   name goes up and loosens a step in weight, the qualifier goes down and
+   takes the caps tracking the rest of the product's micro-labels use. */
+.app>header>.verticals button span em{font-size:14px;font-weight:760;
+  letter-spacing:-.012em;font-style:normal}
+.app>header>.verticals button small{font-size:11px!important;font-weight:640;
+  letter-spacing:.015em;opacity:.82}
+
+/* The hero's slide tabs sit on a photograph and were re-lit to white glass a
+   few hundred lines above, so the plate is drawn in the accent rather than in
+   ink — on a picture, a grey shelf reads as dirt. The 2px progress rule at
+   the bottom of each tab stays: it is a progress bar, not a selected marker,
+   and it is the only thing on the strip that says how far the slide has run. */
+.app .hs-slides button{--tab-base:color-mix(in srgb,var(--ink-1) 22%,transparent);
+  box-shadow:0 2px 0 var(--tab-base)}
+.app .hs-slides button:hover,.app .hs-slides button.active{
+  transform:translateY(-2px);
+  box-shadow:0 4px 0 var(--tab-base),0 14px 20px -12px rgb(3 8 18/.35)}
+.app .hs-slides button.active{--tab-base:var(--accent-deep,var(--accent))}
+.app .hs-slides button:active{transform:translateY(1px);box-shadow:0 1px 0 var(--tab-base)}
+.app .hs-slides b{font-variant-numeric:tabular-nums}
+@media(prefers-reduced-motion:reduce){
+  .app .hs-slides button:hover,.app .hs-slides button.active,
+  .app>header>.verticals button:hover:not(.active),
+  .app>header>.verticals button.active{transform:none}
+}
+
+/* The phone's bottom bar marks its current item with colour alone, at 11px.
+   The active glyph gets a raised chip — the same object language, at the one
+   size where a 2px plate is still legible. Drawn with content-box padding and
+   a matching negative margin so the chip is bigger than the icon without the
+   row growing by 10px and pushing the labels into the safe-area inset. */
+.app .mobile-nav button.active svg{box-sizing:content-box;padding:5px;margin:-5px;
+  border-radius:10px;background:var(--accent-ink,var(--accent));color:#fff;
+  box-shadow:0 2px 0 color-mix(in srgb,var(--accent-deep,var(--accent)) 75%,#04122b),
+             0 6px 10px -6px rgb(9 20 45/.4)}
+.app .mobile-nav button.active:active svg{transform:translateY(1px);
+  box-shadow:0 1px 0 color-mix(in srgb,var(--accent-deep,var(--accent)) 75%,#04122b)}
+
+/* Step numbers and the tab numerals are read as a sequence, so they get the
+   fixed-width figures the sequence implies — 01 and 11 the same width down a
+   column, rather than shuffling left each time a 1 appears. */
+.app .steps li span,.app .tl-step b,.app .pc-step b{font-variant-numeric:tabular-nums}
+
+/* R16c. The ordinary button, given a floor -----------------------------------
+   The six page-carrying CTAs became keycaps with a 5px plate. Everything else
+   kept a soft blurred glow, which now reads as a different material on the
+   same page. It gets the same construction at two thirds the thickness: 3px
+   under a primary, 2px under an outline. The hierarchy survives because the
+   numbers differ, not because the language does. */
+.app .btn.primary{--btn-base:var(--accent-deep,#07356F);
+  box-shadow:0 3px 0 var(--btn-base),
+             0 8px 16px -7px color-mix(in srgb,var(--btn-base) 42%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.16)}
+.app .btn.primary:hover:not(:disabled){
+  background:color-mix(in srgb,var(--accent-ink,var(--accent,#0B4DA8)) 90%,#000);
+  transform:translateY(-2px);
+  box-shadow:0 5px 0 var(--btn-base),
+             0 14px 22px -8px color-mix(in srgb,var(--btn-base) 50%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.16)}
+.app .btn.primary:active:not(:disabled){
+  transform:translateY(2px);
+  box-shadow:0 1px 0 var(--btn-base),
+             0 3px 7px -5px color-mix(in srgb,var(--btn-base) 45%,transparent),
+             inset 0 1px 0 rgb(255 255 255/.1)}
+.app .btn.outline,.app .btn.secondary{
+  box-shadow:0 2px 0 color-mix(in srgb,var(--ink-1) 12%,transparent)}
+.app .btn.outline:hover:not(:disabled),.app .btn.secondary:hover:not(:disabled){
+  transform:translateY(-2px);
+  box-shadow:0 4px 0 color-mix(in srgb,var(--ink-1) 14%,transparent),
+             0 10px 16px -10px rgb(9 20 45/.3)}
+.app .btn.outline:active:not(:disabled),.app .btn.secondary:active:not(:disabled){
+  transform:translateY(1px);box-shadow:0 1px 0 color-mix(in srgb,var(--ink-1) 12%,transparent)}
+/* Ghost keeps nothing under it. A button with no fill and no border has no
+   body to cast a shelf, and giving it one invents an edge that is not there. */
+.app .btn:disabled{box-shadow:none;transform:none}
+@media(prefers-reduced-motion:reduce){
+  .app .btn.primary:hover:not(:disabled),
+  .app .btn.outline:hover:not(:disabled),
+  .app .btn.secondary:hover:not(:disabled){transform:none}
 }
